@@ -22,9 +22,22 @@ oppose p n | n == 0    = 0
 -- Exemple d'addition [1 0 1 0 1 0 0 1] + [0 1 0 0 1 0 0 1] = [1 1 1 0 0 0 0 0] = 1 + x + x²
 newtype GF256 = GF [Z_sur_2Z] deriving (Show)
 
+opList :: (Z_sur_2Z -> Z_sur_2Z -> Z_sur_2Z) -> Z_sur_2Z -> [Z_sur_2Z] -> [Z_sur_2Z] -> [Z_sur_2Z]
+opList _ _ [] [] = []
+opList f n [] x = opList f n [n] x
+opList f n x [] = opList f n x [n]
+opList f n (x:xs) (y:ys) = (f x y):(opList f n xs ys)
+
 addGF ::  GF256 -> GF256 -> GF256
-addGF (GF []) (GF []) = (GF [])
-addGF (GF (x:xs)) (GF (y:ys)) | length (x:xs) == length(y:ys) = GF ((addMod2 x y):(addGF xs ys))
+addGF (GF a) (GF b) = GF $ opList addMod2 (Z2Z 0) a b
+
+opposeGF :: GF256 -> GF256
+opposeGF (GF a) = GF $ map oppose2 a
+
+instance Group GF256 where
+  unit = GF [Z2Z 0]
+  inverse = opposeGF
+  operation = addGF
 
 -----------------------------------------------------------------
 -- Définition de Z sur 2Z, instanciation dans la classe groupe --
