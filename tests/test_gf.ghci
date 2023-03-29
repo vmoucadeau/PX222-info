@@ -1,0 +1,14 @@
+addPol (Pol [1,2,3]) (Pol [1,2,3]) 
+-- Pol [2,4,6]
+
+addPol (Pol [1,0,1]) (Pol [1,0,0])
+-- Pol [2,0,1]
+
+addPol (Pol [1,0,1]) (Pol [1,0,0,0])
+-- Pol [2,0,1,0]
+
+multPol (Pol [18,20]) (Pol [4,1])
+-- Pol [72,98,20] = 20x² + 98x + 72 (distributivité ok)
+
+multPol (Pol [1,0,1]) (Pol [0,1,0,1])
+-- Pol [0,1,0,2,0,1] = x + 2x³ + x⁵ (distributivité ok)

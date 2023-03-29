@@ -15,6 +15,10 @@ module GF where
     opList f n x [] = opList f n x [n]
     opList f n (x:xs) (y:ys) = (f x y):(opList f n xs ys)
 
+    multScalaire :: (a -> a -> a) -> a -> [a] -> [a]
+    multScalaire _ _ [] = []
+    multScalaire f n (x:xs) = (f n x):(multScalaire f n xs)
+
     -----------------------------------------------------------------
     -- Fonctions génériques de calcul modulo p --
     -----------------------------------------------------------------
@@ -51,14 +55,19 @@ module GF where
     -----------------------------------------------------------------
     -- Définition de l'anneau des polynômes à coefficients         --
     -----------------------------------------------------------------
-    -- Exemple : [1 0 1 0 1 0 0 1] = x⁷ + x⁵ + x³ + 1
+    -- Exemple : [1 0 1 0 1 0 0 1] = 1 + x² + x⁴ + x⁷
     newtype Polynome = Pol [Integer] deriving (Show)
 
     addPol :: Polynome -> Polynome -> Polynome
     addPol (Pol a) (Pol b) = Pol (opList (+) 0 a b)
+    
+    addzero :: Polynome -> Polynome
+    addzero (Pol a) = Pol (0:a)
 
     multPol :: Polynome -> Polynome -> Polynome
-    multPol (Pol a) (Pol b) = Pol (opList (*) 0 a b) -- non (testing purposes)
+    multPol (Pol []) _ = Pol [0]
+    multPol _ (Pol []) = Pol [0]
+    multPol (Pol (x:xs)) (Pol b) = addPol (Pol (multScalaire (*) x b)) (addzero (multPol (Pol xs) (Pol b)))
 
     -----------------------------------------------------------------
     -- Définition de GF 256, instanciation dans la classe groupe --
