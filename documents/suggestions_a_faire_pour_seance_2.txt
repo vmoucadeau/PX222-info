@@ -1,0 +1,19 @@
+Suggestions de tâches pour la séance 2, à répartir entre les 2 membres du binômes :
+
+- revoir les structures algébriques : anneaux, corps, polynômes à coefficients dans un corps
+
+- implémentations en Haskell : 
+
+1) définition de classes de types pour Anneaux, Corps. 
+2) implémentation du corps à 2 éléments F2 = GF(2) = Z/2Z
+3) Implémentation (types, +,-,x) des anneaux des polynômes à coefficients dans un corps.
+4) tests de 3) sur des polynômes à coefficients dans F2
+5) implémentation du calcul modulo un polynôme (+,-,x)
+6) tests de 5) avec le polynôme m d'AES
+7) implémentation de l'inverse modulo m dans F2[X]
+
+- réflexion sur l'implémentation de GF(2^8) à partir des éléments déjà construits
+
+- lecture approfondie de la partie 4 du doc fips AES
+
+
