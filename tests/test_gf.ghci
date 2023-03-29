@@ -11,4 +11,13 @@ multPol (Pol [18,20]) (Pol [4,1])
 -- Pol [72,98,20] = 20x² + 98x + 72 (distributivité ok)
 
 multPol (Pol [1,0,1]) (Pol [0,1,0,1])
--- Pol [0,1,0,2,0,1] = x + 2x³ + x⁵ (distributivité ok)
+-- Pol [0,1,0,2,0,1] = x + 2x³ + x⁵ 
+
+multPol (Pol [1,0,1]) (Pol [0,1,0,1,0,1])
+-- Pol [0,1,0,2,0,2,0,1] = x + 2x³ + 2x⁵ + x⁷ 
+
+multPol_modP 2 (Pol [1,0,1]) (Pol [0,1,0,1,0,1])
+-- Pol [0,1,0,0,0,0,0,1] = x + x⁷
+
+multPol_modP 2 (Pol [1,0,1]) (Pol [0,1,0,1])
+-- Pol [0,1,0,0,0,1] = x + x⁵

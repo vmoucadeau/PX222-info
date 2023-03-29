@@ -4,6 +4,7 @@ module GF where
     import Group
     import Field
     import Ring
+    import Data.List (intercalate)
     
     -----------------------------------------------------------------
     -- Fonctions génériques de calcul --
@@ -69,6 +70,28 @@ module GF where
     multPol _ (Pol []) = Pol [0]
     multPol (Pol (x:xs)) (Pol b) = addPol (Pol (multScalaire (*) x b)) (addzero (multPol (Pol xs) (Pol b)))
 
+    addPol_modP :: Integer -> Polynome -> Polynome -> Polynome
+    addPol_modP p (Pol a) (Pol b) = Pol (opList (addModP p) 0 a b)
+    
+    multPol_modP :: Integer -> Polynome -> Polynome -> Polynome
+    multPol_modP p (Pol []) _ = Pol [0]
+    multPol_modP p _ (Pol []) = Pol [0]
+    multPol_modP p (Pol (x:xs)) (Pol b) = addPol_modP p (Pol (multScalaire (multModP p) x b)) (addzero (multPol_modP p (Pol xs) (Pol b)))
+
+    show_pol :: Polynome -> String
+    show_pol (Pol (x1:x2:xs)) = "P(x) = " ++ show x1 ++ " + " ++ show x2 ++ "x + " ++ (intercalate " + " (zipWith (\c n -> show c ++ "x^" ++ show n) xs [2..length xs - 1]))
+
+    -- pol_mod_pol :: Polynome -> Polynome -> Polynome
+    -- pol_mod_pol (Pol a) (Pol b) = Pol(snd $ polyDiv a b)
+    instance Ring Polynome where
+        zero = Pol [0]
+        one = Pol [1]
+        add = addPol
+        mult = multPol
+
+    -- instance Show Polynome where
+    --     show = show_pol
+    
     -----------------------------------------------------------------
     -- Définition de GF 256, instanciation dans la classe groupe --
     -----------------------------------------------------------------
