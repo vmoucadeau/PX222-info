@@ -1,3 +1,4 @@
+
 module Group where
 
 -- Définition de la classe Group
@@ -18,4 +19,3 @@ instance Group Float where
   unit = 1.0
   inverse x = 1/x
   operation a b = a * b
-  
