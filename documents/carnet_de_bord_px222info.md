@@ -9,3 +9,11 @@ Pour la prochaine séance, nous avons prévu de :
 - Commencer à lire la suite du standard FIPS (spécifications de l'algorithme) (Vincent et Alexandre)
 
 Pour la séance du 31/03/2023, nous avons prévu de finir l'implémentation de la multiplication modulo un polynôme, ainsi que l'inverse d'un polynôme
+
+# Séance 2 - 31/03/2023
+
+Lors de cette séance, nous avons essayé de rassembler le plus clairement possible les structures algébriques que nous allons utiliser par la suite dans le projet. Nous avons également amélioré le "newtype" Polynome avec un type générique a pour pouvoir l'instancier dans l'anneau Z, GF256...
+Nous allons bientôt terminer la division euclidienne de polynômes ainsi que l'algorithme d'euclide étendu qui nous permettra de trouver l'inverse d'un polynôme dans GF256.
+Pour la prochaine séance, nous avons prévu de :
+- Finir le corps GF256
+- Commencer à implémenter l'algorithme d'AES

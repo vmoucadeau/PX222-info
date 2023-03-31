@@ -56,7 +56,7 @@ instance Group Zs7Z where
     add :: Zs7Z -> Zs7Z -> Zs7Z
     add = z7zadd
     opp :: Zs7Z -> Zs7Z
-    opp =z7zopp
+    opp = z7zopp
 
 instance Ring Zs7Z where
     one :: Zs7Z
