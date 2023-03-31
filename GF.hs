@@ -84,10 +84,12 @@ modpol (Pol a) (Pol b) = Pol (reverse $ modpol' (reverse a) (reverse b))
                            | otherwise = (modpol' (tail(toList(subpol (Pol (x:xs)) (multpol (Pol [x/head y]) (Pol y))))) y)
           modpol' [] _ = []
 
--- euclidepol :: Num a => Polynome a -> Polynome a -> (Polynome a, Polynome a, Polynome a)
--- euclidepol (Pol a) (Pol b) | b == [1] = ((Pol a), Pol [1], Pol [0])
---                            | otherwise = (d', v', subpol(u' (multpol v' (divpol((Pol a) (Pol b)))) ) )
---                 where (d', v', u') = euclidepol ( (Pol b) (modpol((Pol a) (Pol b))) ) 
+euclidepol :: Eq a => Fractional a => Polynome a -> Polynome a -> (Polynome a, Polynome a, Polynome a)
+euclidepol (Pol a) (Pol b) | b == [1] = ((Pol a), Pol [1], Pol [0])
+                           | otherwise = (d', v', (subpol (u') (multpol v' (divpol(Pol a) (Pol b))) ) )
+                where (d', v', u') = euclidepol (Pol b) (modpol (Pol a) (Pol b))
+
+
 
 instance Group (Polynome Integer) where
     zer = Pol [0]

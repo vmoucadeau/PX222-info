@@ -22,3 +22,6 @@ Pour la prochaine séance, nous avons prévu de :
 - Ajout du modulo de 2 polynômes
 - Ajout de la division de 2 polynômes
 - Euclide étendu commencé
+
+# Ven 31/03/2023 à 19h02
+- Euclide étendu terminé (tests à faire)
