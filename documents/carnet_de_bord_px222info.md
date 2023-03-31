@@ -17,3 +17,8 @@ Nous allons bientôt terminer la division euclidienne de polynômes ainsi que l'
 Pour la prochaine séance, nous avons prévu de :
 - Finir le corps GF256
 - Commencer à implémenter l'algorithme d'AES
+
+# Ven 31/03/2023 à 17h52 
+- Ajout du modulo de 2 polynômes
+- Ajout de la division de 2 polynômes
+- Euclide étendu commencé
