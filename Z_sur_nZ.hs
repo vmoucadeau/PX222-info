@@ -1,7 +1,7 @@
 
 module Z_sur_nZ where
 
-import Group
+import Struct
 ---------------------------------------------
 -- Fonctions génériques de calcul modulo p --
 ---------------------------------------------
@@ -31,9 +31,9 @@ oppose2 :: Z_sur_2Z -> Z_sur_2Z
 oppose2 (Z2Z n) = Z2Z $ opposeModP 2 n
 
 instance Group Z_sur_2Z where
-  unit = Z2Z 0
-  inverse = oppose2
-  operation = addMod2
+  zero = Z2Z 0
+  opp = oppose2
+  add = addMod2
 
 -----------------------------------------------------------------
 -- Définition de Z sur 5Z, instanciation dans la classe groupe --
@@ -48,9 +48,9 @@ oppose5 :: Z_sur_5Z -> Z_sur_5Z
 oppose5 (Z5Z n) = Z5Z $ opposeModP 5 n
 
 instance Group Z_sur_5Z where
-  unit = Z5Z 0
-  inverse = oppose5
-  operation = addMod5
+  zero = Z5Z 0
+  opp = oppose5
+  add = addMod5
 
 -----------------------------------------------------------------
 -- Définition de Z sur 6Z, instanciation dans la classe groupe --
@@ -65,6 +65,6 @@ oppose6 :: Z_sur_6Z -> Z_sur_6Z
 oppose6 (Z6Z n) = Z6Z $ opposeModP 6 n
 
 instance Group Z_sur_6Z where
-  unit = Z6Z 0
-  inverse = oppose6
-  operation = addMod6
+  zero = Z6Z 0
+  opp = oppose6
+  add = addMod6

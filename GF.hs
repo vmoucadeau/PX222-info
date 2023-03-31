@@ -5,9 +5,7 @@
 module GF where
 
 import Z_sur_nZ
-import Group
-import Field
-import Ring
+import Struct
 import Data.List (intercalate) -- What is that ?
 
 -----------------------------------------------------------------
@@ -42,11 +40,13 @@ oppGF2 (GF2 a) = GF2 $ opposeModP 2 a
 multGF2 :: GF2 -> GF2 -> GF2
 multGF2 (GF2 a) (GF2 b) = GF2 (multModP 2 a b)
 
-instance Ring GF2 where
+instance Group GF2 where
     zero = GF2 0
-    one = GF2 1
     opp = oppGF2
     add = addGF2
+
+instance Ring GF2 where
+    one = GF2 1
     mult = multGF2
 
 -- instance Field GF2 where
@@ -78,21 +78,23 @@ multPol (Pol (x:xs)) (Pol b) = addPol (Pol (multScalaire (*) x b)) (addzero (mul
 
 
 
--- show_pol :: Num a => Polynome a -> String
--- show_pol (Pol (x1:x2:xs)) = "P(x) = " ++ show x1 ++ " + " ++ show x2 ++ "x + " ++ intercalate " + " (zipWith (\c n -> show c ++ "x^" ++ show n) xs [2..length xs - 1])
+show_pol :: Polynome Float -> String
+show_pol (Pol (x1:x2:xs)) = "P(x) = " ++ show x1 ++ " + " ++ show x2 ++ "x + " ++ intercalate " + " (zipWith (\c n -> show c ++ "x^" ++ show n) xs [2..length xs - 1])
 
 
--- modPol :: Fractional a => Polynome a -> Polynome a -> Polynome a
--- modPol (Pol a) (Pol b) = Pol (reverse $ modPol' (reverse a) (reverse b))
---     where modPol' (x:xs) y | length (x:xs) < length y = []
---                            | otherwise = (x/head y) : (modPol( (tail (subPol (x:xs) multPol [x/head y] y))))
+modPol :: Fractional a => Polynome a -> Polynome a -> Polynome a
+modPol (Pol a) (Pol b) = Pol (reverse $ modPol' (reverse a) (reverse b))
+    where modPol' (x:xs) y | length (x:xs) < length y = []
+                           | otherwise = (x/head y) : modPol ( (tail (subPol (x:xs) multPol [x/head y] y)))
 
 
-instance Ring (Polynome Integer) where
+instance Group (Polynome Integer) where
     zero = Pol [0]
-    one = Pol [1]
     opp = oppPol
     add = addPol
+
+instance Ring (Polynome Integer) where
+    one = Pol [1]
     mult = multPol
 
 -- instance Show Polynome where
@@ -112,6 +114,6 @@ opposeGF :: GF256 -> GF256
 opposeGF (GF a) = GF $ map oppose2 a
 
 instance Group GF256 where
-    unit = GF [Z2Z 0]
-    inverse = opposeGF
-    operation = addGF
+    zero = GF [Z2Z 0]
+    opp = opposeGF
+    add = addGF
