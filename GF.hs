@@ -1,4 +1,7 @@
 
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use camelCase" #-}
+
 module GF where
 
 import Z_sur_nZ
@@ -20,6 +23,10 @@ opList f n (x:xs) (y:ys) = (f x y):(opList f n xs ys)
 multScalaire :: (a -> a -> a) -> a -> [a] -> [a]
 multScalaire _ _ [] = []
 multScalaire f n (x:xs) = (f n x):(multScalaire f n xs)
+
+moduloList :: Integer -> [Integer] -> [Integer]
+moduloList _ [] = []
+moduloList n (x:xs) = [(x `mod` n)] ++ moduloList n xs
 
 ------------------------------------------------------------------
 -- Définition de GF2, instanciation dans les classes Ring/Field --
@@ -50,37 +57,38 @@ instance Ring GF2 where
 -- Définition de l'anneau des polynômes à coefficients         --
 -----------------------------------------------------------------
 -- Exemple : [1 0 1 0 1 0 0 1] = 1 + x² + x⁴ + x⁷
-newtype Polynome = Pol [Integer] deriving (Show)
+newtype Polynome a = Pol [a] deriving (Show)
 
-addPol :: Polynome -> Polynome -> Polynome
+addPol :: Num a => Polynome a -> Polynome a -> Polynome a
 addPol (Pol a) (Pol b) = Pol (opList (+) 0 a b)
 
-addzero :: Polynome -> Polynome
+subPol :: Num a => Polynome a -> Polynome a -> Polynome a
+subPol (Pol a) (Pol b) = Pol (opList (-) 0 a b)
+
+addzero :: Num a => Polynome a -> Polynome a
 addzero (Pol a) = Pol (0:a)
 
-oppPol :: Polynome -> Polynome
+oppPol :: Num a => Polynome a -> Polynome a
 oppPol (Pol a) = Pol $ map (\x -> -x) a
 
-multPol :: Polynome -> Polynome -> Polynome
+multPol :: Num a => Polynome a -> Polynome a -> Polynome a
 multPol (Pol []) _ = Pol [0]
 multPol _ (Pol []) = Pol [0]
 multPol (Pol (x:xs)) (Pol b) = addPol (Pol (multScalaire (*) x b)) (addzero (multPol (Pol xs) (Pol b)))
 
-addPol_modP :: Integer -> Polynome -> Polynome -> Polynome
-addPol_modP p (Pol a) (Pol b) = Pol (opList (addModP p) 0 a b)
 
-multPol_modP :: Integer -> Polynome -> Polynome -> Polynome
-multPol_modP p (Pol []) _ = Pol [0]
-multPol_modP p _ (Pol []) = Pol [0]
-multPol_modP p (Pol (x:xs)) (Pol b) = addPol_modP p (Pol (multScalaire (multModP p) x b)) (addzero (multPol_modP p (Pol xs) (Pol b)))
 
-show_pol :: Polynome -> String
-show_pol (Pol (x1:x2:xs)) = "P(x) = " ++ show x1 ++ " + " ++ show x2 ++ "x + " ++ (intercalate " + " (zipWith (\c n -> show c ++ "x^" ++ show n) xs [2..length xs - 1]))
+-- show_pol :: Num a => Polynome a -> String
+-- show_pol (Pol (x1:x2:xs)) = "P(x) = " ++ show x1 ++ " + " ++ show x2 ++ "x + " ++ intercalate " + " (zipWith (\c n -> show c ++ "x^" ++ show n) xs [2..length xs - 1])
 
--- pol_mod_pol :: Polynome -> Polynome -> Polynome
--- pol_mod_pol (Pol a) (Pol b) = Pol(snd $ polyDiv a b)
 
-instance Ring Polynome where
+-- modPol :: Fractional a => Polynome a -> Polynome a -> Polynome a
+-- modPol (Pol a) (Pol b) = Pol (reverse $ modPol' (reverse a) (reverse b))
+--     where modPol' (x:xs) y | length (x:xs) < length y = []
+--                            | otherwise = (x/head y) : (modPol( (tail (subPol (x:xs) multPol [x/head y] y))))
+
+
+instance Ring (Polynome Integer) where
     zero = Pol [0]
     one = Pol [1]
     opp = oppPol

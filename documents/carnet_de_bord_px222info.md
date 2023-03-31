@@ -7,3 +7,5 @@ Pour la prochaine séance, nous avons prévu de :
 - Terminer l'implémentation de l'addition des polynômes sur GF(256) en Haskell (Vincent)
 - Commencer/Terminer l'implémentation de la multiplication (et la multiplication par x) en Haskell (Alexandre)
 - Commencer à lire la suite du standard FIPS (spécifications de l'algorithme) (Vincent et Alexandre)
+
+Pour la séance du 31/03/2023, nous avons prévu de finir l'implémentation de la multiplication modulo un polynôme, ainsi que l'inverse d'un polynôme
