@@ -24,4 +24,4 @@ Pour la prochaine séance, nous avons prévu de :
 - Euclide étendu commencé
 
 # Ven 31/03/2023 à 19h02
-- Euclide étendu terminé (tests à faire)
+- Euclide étendu terminé (tests à faire) (quelques trucs à corriger, boucle infinie)
