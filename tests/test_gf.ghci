@@ -15,3 +15,10 @@ multPol (Pol [1,0,1]) (Pol [0,1,0,1])
 
 multPol (Pol [1,0,1]) (Pol [0,1,0,1,0,1])
 -- Pol [0,1,0,2,0,2,0,1] = x + 2x³ + 2x⁵ + x⁷ 
+
+-- Tests euclide
+euclidepol (Pol [1,1,1,0,1]) (Pol [1,1,1]) -- ok
+-- (Pol [1.0],Pol [-1.0,-1.0],Pol [2.0,0.0,0.0,1.0]) 
+
+euclidepol (Pol [1,1,1,0,1,1]) (Pol [1,1,1]) -- ok ?
+-- (Pol [-1.0],Pol [1.0,0.0],Pol [-2.0,1.0,0.0,-1.0])
