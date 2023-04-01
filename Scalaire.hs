@@ -19,6 +19,8 @@ opList f n (x:xs) (y:ys) = f x y:opList f n xs ys
 
 newtype Zs2Z = Z2Z Integer deriving (Show,Eq)
 
+
+
 z2zzer :: Zs2Z
 z2zzer = Z2Z 0
 
@@ -37,6 +39,8 @@ z2zmul (Z2Z x) (Z2Z y) = Z2Z (mod (x*y) 2)
 
 z2zinv :: Zs2Z -> Zs2Z
 z2zinv (Z2Z 1) = Z2Z 1
+
+
 
 instance Group Zs2Z where
     zer = z2zzer

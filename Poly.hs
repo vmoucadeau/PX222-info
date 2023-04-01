@@ -44,10 +44,10 @@ instance Field a => Field (GF2 a) where
 -- Définition de l'anneau des polynômes à coefficients         --
 -----------------------------------------------------------------
 -- Exemple : [1 0 1 0 1 0 0 1] = 1 + x² + x⁴ + x⁷
-newtype Polynome a = Pol [a] deriving (Show)
+newtype Polynome a = Pol [a]-- deriving (Show)
 
 p :: Polynome Zs7Z
-p = Pol [Z7Z 1, Z7Z 2, Z7Z 0, Z7Z 3, Z7Z 0, Z7Z 0, Z7Z 0]
+p = Pol [Z7Z 1, Z7Z 2, Z7Z 0, Z7Z 3, Z7Z 0, Z7Z 1, Z7Z 0]
 
 addpol :: Group a => Polynome a -> Polynome a -> Polynome a
 addpol (Pol a) (Pol b) = Pol (opList add zer a b)
@@ -71,16 +71,22 @@ multpol (Pol []) _ = Pol [zer]
 multpol _ (Pol []) = Pol [zer]
 multpol (Pol (x:xs)) (Pol b) = cleanpol (addpol (Pol (map (mul x) b)) (addzero (multpol (Pol xs) (Pol b))))
 
-degpol :: Eq a => Num a => Polynome a -> Int
+degpol :: (Ring a, Eq a) => Polynome a -> Int
 degpol (Pol []) = -1
-degpol (Pol (x:xs)) | x /= 0 = 1 + degpol (Pol xs)
-                    | otherwise = 0 + degpol (Pol xs)
+degpol (Pol x) | last x == zer = degpol $ cleanpol (Pol x) | otherwise = (length x)-1
+
+-- degpol (Pol []) = -1
+-- degpol (Pol (x:xs)) | x /= 0 = 1 + degpol (Pol xs)
+--                     | otherwise = 0 + degpol (Pol xs)
+-- That one was absolutely not working !
 
 show_pol :: Show a => Polynome a -> String
-show_pol (Pol (x1:x2:xs)) = "P(x) = " ++ show x1 ++ " + " ++ show x2 ++ "x + " ++ intercalate " + " (zipWith (\c n -> show c ++ "x^" ++ show n) xs [2..length xs - 1])
+show_pol (Pol (x1:x2:xs)) = "P(x) = (" ++ show x1 ++ ") + (" ++ show x2 ++ ")x + (" ++ intercalate " + (" (zipWith (\c n -> show c ++ ")x^" ++ show n) xs [2..length xs + 1])
 
 toList :: Polynome a -> [a]
 toList (Pol list) = list
+
+-- Need some explaination for those last three...
 
 divpol :: (Ring a, Eq a, RealFrac a) => Polynome a -> Polynome a -> Polynome a 
 divpol (Pol a) (Pol b) = cleanpol $ Pol (reverse $ divpol' (reverse a) (reverse b))
@@ -101,16 +107,23 @@ euclidepol (Pol a) (Pol b) | b == [] = ((Pol a), Pol [1], Pol [0])
                            | otherwise = (d', v', (subpol (u') (multpol v' (divpol(Pol a) (Pol b))) ) )
                 where (d', u', v') = euclidepol (Pol b) (modpol (Pol a) (Pol b))
 
+instance Show a => Show (Polynome a) where
+    show = show_pol
 
+instance Group Integer where
+    zer = 0
+    opp = (\x -> -x)
+    add = (+)
 
--- instance Group (Polynome Integer) where
---     zer = Pol [0]
---     opp = oppPol
---     add = addpol
+instance Ring Integer where
+    one = 1
+    mul = (*)
 
--- instance Ring (Polynome Integer) where
---     one = Pol [1]
---     mul = multpol
+instance Group a => Group (Polynome a) where
+    zer = Pol [zer]
+    opp = oppPol
+    add = addpol
 
--- instance Show Polynome where
---     show = show_pol
+instance (Ring a, Eq a) => Ring (Polynome a) where
+    one = Pol [one]
+    mul = multpol

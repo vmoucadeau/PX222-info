@@ -23,6 +23,8 @@ class Ring a => Field a where
 
 newtype Zs7Z = Z7Z Integer deriving (Show,Eq)
 
+
+
 z7zzer :: Zs7Z
 z7zzer = Z7Z 0
 
@@ -46,6 +48,8 @@ z7zinv (Z7Z 3) = Z7Z 5
 z7zinv (Z7Z 4) = Z7Z 2
 z7zinv (Z7Z 5) = Z7Z 3
 z7zinv (Z7Z 6) = Z7Z 6
+
+
 
 instance Group Zs7Z where
     zer = z7zzer
