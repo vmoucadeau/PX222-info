@@ -31,3 +31,9 @@ Pour la prochaine séance, nous avons prévu de :
 - Quelques corrections sur divpol, modpol et euclidepol
 - divpol, modpol et euclidepol prennent en charge les polynômes de degré 0
 - Tests approfondis à faire
+
+# Sam 01/04/2023 à 18h
+- Quelques corrections sur poly.hs
+- Amélioration et version finale de Struct.hs et Scalaire.hs (added Show, Eq)
+- Création GF.hs, implémentation de toutes les opérations d'anneau
+- Je m'occuperai de le transformer en corps la semaine prochaine
