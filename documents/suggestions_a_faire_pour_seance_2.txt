@@ -1,3 +1,4 @@
+
 Suggestions de tâches pour la séance 2, à répartir entre les 2 membres du binômes :
 
 - revoir les structures algébriques : anneaux, corps, polynômes à coefficients dans un corps
@@ -15,5 +16,3 @@ Suggestions de tâches pour la séance 2, à répartir entre les 2 membres du bi
 - réflexion sur l'implémentation de GF(2^8) à partir des éléments déjà construits
 
 - lecture approfondie de la partie 4 du doc fips AES
-
-

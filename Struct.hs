@@ -17,9 +17,9 @@ class Ring a => Field a where
     divs :: a -> a -> a
     divs x y = mul x (inv y)
 
-----------------------------
--- Exemple: le corps Z/7Z --
-----------------------------
+----------------------------------------------------
+-- ----------- Exemple: le corps Z/7Z ----------- --
+----------------------------------------------------
 
 newtype Zs7Z = Z7Z Integer deriving (Show,Eq)
 
@@ -30,7 +30,8 @@ z7zadd :: Zs7Z -> Zs7Z -> Zs7Z
 z7zadd (Z7Z x) (Z7Z y) = Z7Z (mod (x+y) 7)
 
 z7zopp :: Zs7Z -> Zs7Z
-z7zopp (Z7Z x) = Z7Z (-x)
+z7zopp (Z7Z 0) = Z7Z 0
+z7zopp (Z7Z x) = Z7Z (7-x)
 
 z7zone :: Zs7Z
 z7zone = Z7Z 1
@@ -46,26 +47,16 @@ z7zinv (Z7Z 4) = Z7Z 2
 z7zinv (Z7Z 5) = Z7Z 3
 z7zinv (Z7Z 6) = Z7Z 6
 
--- instance Show Zs7Z where
---     show :: Zs7Z -> String
---     show (Z7Z x) = show x
-
 instance Group Zs7Z where
-    zer :: Zs7Z
     zer = z7zzer
-    add :: Zs7Z -> Zs7Z -> Zs7Z
     add = z7zadd
-    opp :: Zs7Z -> Zs7Z
     opp = z7zopp
 
 instance Ring Zs7Z where
-    one :: Zs7Z
     one = z7zone
-    mul :: Zs7Z -> Zs7Z -> Zs7Z
     mul = z7zmul
 
 instance Field Zs7Z where
-    inv :: Zs7Z -> Zs7Z
     inv = z7zinv
 
 -- EOF
