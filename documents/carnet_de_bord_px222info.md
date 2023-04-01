@@ -25,3 +25,8 @@ Pour la prochaine séance, nous avons prévu de :
 
 # Ven 31/03/2023 à 19h02
 - Euclide étendu terminé (tests à faire) (quelques trucs à corriger, boucle infinie)
+
+# Sam 01/04/2023 à 11h50
+- Quelques corrections sur divpol, modpol et euclidepol
+- divpol, modpol et euclidepol prennent en charge les polynômes de degré 0
+- Tests approfondis à faire

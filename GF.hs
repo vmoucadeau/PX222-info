@@ -8,6 +8,7 @@ module GF where
 import Struct
 import Scalaire
 import Data.List (intercalate)
+import Data.Fixed (mod', div')
 
 ------------------------------------------------------------------
 -- Définition de GF2, instanciation dans les classes Ring/Field --
@@ -77,19 +78,21 @@ show_pol (Pol (x1:x2:xs)) = "P(x) = " ++ show x1 ++ " + " ++ show x2 ++ "x + " +
 toList :: Num a => Polynome a -> [a]
 toList (Pol list) = list
 
-divpol :: (Eq a, Fractional a) => Polynome a -> Polynome a -> Polynome a -- ne marche pas avec des entiers
+divpol :: (Eq a, RealFrac a) => Polynome a -> Polynome a -> Polynome a 
 divpol (Pol a) (Pol b) = cleanpol $ Pol (reverse $ divpol' (reverse a) (reverse b))
-    where divpol' (x:xs) y | length (x:xs) < length y = []
+    where divpol' (x:xs) y | length (x:xs) == 1 && length y == 1 = [fromIntegral (truncate x `div` truncate (head y))] 
+                           | length (x:xs) < length y = []
                            | otherwise = x/head y : (divpol' (tail(toList(subpol (Pol (x:xs)) (multpol (Pol [x/head y]) (Pol y))))) y)
           divpol' [] _ = []
 
-modpol :: (Eq a, Fractional a) => Polynome a -> Polynome a -> Polynome a -- ne marche pas avec des entiers
+modpol :: (Eq a, RealFrac a) => Polynome a -> Polynome a -> Polynome a
 modpol (Pol a) (Pol b) = cleanpol $ Pol (reverse $ modpol' (reverse a) (reverse b))
-    where modpol' (x:xs) y | length (x:xs) < length y = (x:xs)
+    where modpol' (x:xs) y | length (x:xs) == 1 && length y == 1 = [fromIntegral (truncate x `mod` truncate (head y))]
+                           | length (x:xs) < length y = (x:xs)
                            | otherwise = (modpol' (tail(toList(subpol (Pol (x:xs)) (multpol (Pol [x/head y]) (Pol y))))) y)
           modpol' [] _ = []
 
-euclidepol :: (Eq a, Fractional a) => Polynome a -> Polynome a -> (Polynome a, Polynome a, Polynome a)
+euclidepol :: (Eq a, RealFrac a) => Polynome a -> Polynome a -> (Polynome a, Polynome a, Polynome a)
 euclidepol (Pol a) (Pol b) | b == [] = ((Pol a), Pol [1], Pol [0])
                            | otherwise = (d', v', (subpol (u') (multpol v' (divpol(Pol a) (Pol b))) ) )
                 where (d', u', v') = euclidepol (Pol b) (modpol (Pol a) (Pol b))
