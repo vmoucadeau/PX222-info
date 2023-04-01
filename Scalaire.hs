@@ -3,23 +3,27 @@ module Scalaire where
 
 import Struct
 
-----------------------------------------------------
--- ------- Fonctions génériques de calcul ------- --
-----------------------------------------------------
+----------------------------------------------------------
+-- ---------- Fonctions génériques de calcul ---------- --
+----------------------------------------------------------
 
-opList :: (a -> a -> a) -> a -> [a] -> [a] -> [a]
+opList :: (a -> a -> b) -> a -> [a] -> [a] -> [b]
 opList _ _ [] [] = []
 opList f n [] x = opList f n [n] x
 opList f n x [] = opList f n x [n]
 opList f n (x:xs) (y:ys) = f x y:opList f n xs ys
 
-----------------------------------------------------
--- --- Définition du corps des scalaires Z/2Z --- --
-----------------------------------------------------
+----------------------------------------------------------
+-- ------ Définition du corps des scalaires Z/2Z ------ --
+----------------------------------------------------------
 
-newtype Zs2Z = Z2Z Integer deriving (Show,Eq)
+newtype Zs2Z = Z2Z Integer
 
+z2zshow :: Zs2Z -> String
+z2zshow (Z2Z x) = show (mod x 2)
 
+z2zeq :: Zs2Z -> Zs2Z -> Bool
+z2zeq (Z2Z x) (Z2Z y) = (mod x 2) == (mod y 2)
 
 z2zzer :: Zs2Z
 z2zzer = Z2Z 0
@@ -40,7 +44,11 @@ z2zmul (Z2Z x) (Z2Z y) = Z2Z (mod (x*y) 2)
 z2zinv :: Zs2Z -> Zs2Z
 z2zinv (Z2Z 1) = Z2Z 1
 
+instance Show Zs2Z where
+    show = z2zshow
 
+instance Eq Zs2Z where
+    (==) = z2zeq
 
 instance Group Zs2Z where
     zer = z2zzer
