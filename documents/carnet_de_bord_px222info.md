@@ -35,5 +35,4 @@ Pour la prochaine séance, nous avons prévu de :
 # Sam 01/04/2023 à 18h
 - Quelques corrections sur poly.hs
 - Amélioration et version finale de Struct.hs et Scalaire.hs (added Show, Eq)
-- Création GF.hs, implémentation de toutes les opérations d'anneau
-- Je m'occuperai de le transformer en corps la semaine prochaine
+- Création GF.hs, implémentation de toutes les opérations de corps
