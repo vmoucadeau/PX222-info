@@ -6,9 +6,9 @@ import Scalaire
 
 newtype GF256 = F8 [Zs2Z]
 
-----------------------------------------------------------
--- ---------- Polynômes d'exemple dans GF256 ---------- --
-----------------------------------------------------------
+------------------------------------------------------------
+-- ----------- Polynômes d'exemple dans GF256 ----------- --
+------------------------------------------------------------
 
 ex0 :: GF256
 ex0 = F8 []
@@ -31,13 +31,19 @@ ex5 = F8 [zer,one,one,one,one,one,one,one]
 mx :: GF256
 mx = F8 [one,one,zer,one,one,zer,zer,zer,one]
 
-----------------------------------------------------------
--- --------- Fonctions secondaires pour GF256 --------- --
-----------------------------------------------------------
+------------------------------------------------------------
+-- ---------- Fonctions auxiliaires pour GF256 ---------- --
+------------------------------------------------------------
 
 apply :: Int -> (a -> a) -> a -> a
 apply 0 _ x = x
 apply n f x = apply (n-1) f (f x)
+
+opList :: (a -> a -> b) -> a -> [a] -> [a] -> [b]
+opList _ _ [] [] = []
+opList f n [] x = opList f n [n] x
+opList f n x [] = opList f n x [n]
+opList f n (x:xs) (y:ys) = f x y:opList f n xs ys
 
 wipef8 :: GF256 -> GF256
 wipef8 (F8 []) = F8 []
@@ -53,23 +59,31 @@ degf8 x = let (F8 y) = wipef8 x in length y - 1
 
 divEf8 :: GF256 -> GF256 -> (GF256,GF256)
 divEf8 x y | degf8 x < degf8 y = (zer,wipef8 x)
-divEf8 x y = let f = apply (degf8 x - degf8 y) (\(F8 x)->F8(zer:x)) in let (q,r) = (divEf8 (subs x (f y)) y) in (add (f one) q,r)
+divEf8 x y = let f = apply (degf8 x - degf8 y) (\(F8 x)->F8(zer:x)) in
+    let (q,r) = (divEf8 (subs x (f y)) y) in (add (f one) q,r)
 
-truemul :: GF256 -> GF256 -> GF256
-truemul (F8 []) _ = zer
-truemul (F8 (x:xs)) (F8 y) = add (F8 (map (mul x) y)) ((\(F8 x)->F8(zer:x)) $ truemul (F8 xs) (F8 y))
+polymul :: GF256 -> GF256 -> GF256
+polymul (F8 []) _ = zer
+polymul (F8 (x:xs)) (F8 y) = add (F8 (map (mul x) y)) ((\(F8 x)->F8(zer:x)) $ polymul (F8 xs) (F8 y))
 
 euclidf8 :: (GF256,GF256,GF256) -> (GF256,GF256,GF256) -> (GF256,GF256,GF256)
 euclidf8 x (_,_,y) | y == zer = x
-euclidf8 (x0,x1,or) (y0,y1,nr) = let (z,_) = divEf8 or nr in euclidf8 (y0,y1,nr) (subs x0 (mul z y0),subs x1 (mul z y1),wipef8 $ subs or (truemul z nr))
+euclidf8 (x0,x1,or) (y0,y1,nr) = let (z,_) = divEf8 or nr in
+    euclidf8 (y0,y1,nr) (subs x0 (mul z y0),subs x1 (mul z y1),wipef8 $ subs or (polymul z nr))
 
-----------------------------------------------------------
--- ---------- Définition du corps fini GF256 ---------- --
-----------------------------------------------------------
+f8view :: GF256 -> String
+f8view (F8 []) = " But it's empty... "
+f8view (F8 x) = foldl (++) [] (map show (reverse x))
+
+------------------------------------------------------------
+-- ----------- Définition du corps fini GF256 ----------- --
+------------------------------------------------------------
 
 f8show :: GF256 -> String
-f8show (F8 []) = " But it's empty... "
-f8show (F8 x) = foldl (++) [] (map show (reverse x))
+f8show (F8 x) | degf8 (F8 x) > 7 = (++) (show $ last x) (f8show (F8 (init x)))
+f8show (F8 x) | length x < 8 = f8show (F8 (x ++ [zer,zer,zer,zer,zer]))
+f8show (F8 x) | length x > 8 = f8show (F8 (init x))
+f8show (F8 x) = (++) " > " (foldl (++) [] (map show (reverse x)))
 
 f8eq :: GF256 -> GF256 -> Bool
 f8eq (F8 x) (F8 y) = foldl (&&) True (opList (==) zer x y)

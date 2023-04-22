@@ -3,19 +3,9 @@ module Scalaire where
 
 import Struct
 
-----------------------------------------------------------
--- ---------- Fonctions génériques de calcul ---------- --
-----------------------------------------------------------
-
-opList :: (a -> a -> b) -> a -> [a] -> [a] -> [b]
-opList _ _ [] [] = []
-opList f n [] x = opList f n [n] x
-opList f n x [] = opList f n x [n]
-opList f n (x:xs) (y:ys) = f x y:opList f n xs ys
-
-----------------------------------------------------------
--- ------ Définition du corps des scalaires Z/2Z ------ --
-----------------------------------------------------------
+------------------------------------------------------------
+-- ------- Définition du corps des scalaires Z/2Z ------- --
+------------------------------------------------------------
 
 newtype Zs2Z = Z2Z Integer
 
