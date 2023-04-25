@@ -1,8 +1,8 @@
 
-module Word(GF4X) where
+module Math.Word(GF4X) where
 
-import Struct
-import Byte
+import Math.Struct
+import Math.Byte
 
 ------------------------------------------------------------
 -- ---------- Définition de l'anneau fini GF4X ---------- --
@@ -60,7 +60,7 @@ ex0 :: GF4X
 ex0 = W4 []
 
 ex1 :: GF4X
-ex1 = W4 [zer,one,zer,one]
+ex1 = W4 [zer,one,one,zer]
 
 ax :: GF4X
 ax = W4 [one,zer,zer,zer,one]

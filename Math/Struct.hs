@@ -1,5 +1,5 @@
 
-module Struct where
+module Math.Struct where
 
 ------------------------------------------------------------
 -- ------- Définition des structures algébriques -------- --
