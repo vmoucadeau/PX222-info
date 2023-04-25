@@ -1,5 +1,5 @@
 
-module Scalaire where
+module Scalaire(Zs2Z) where
 
 import Struct
 
@@ -7,7 +7,7 @@ import Struct
 -- ------- Définition du corps des scalaires Z/2Z ------- --
 ------------------------------------------------------------
 
-newtype Zs2Z = Z2Z Integer
+newtype Zs2Z = Z2Z Int
 
 z2zshow :: Zs2Z -> String
 z2zshow (Z2Z x) = show (mod x 2)

@@ -25,7 +25,9 @@ class Ring a => Field a where
 -- --------------- Exemple: le corps Z/7Z --------------- --
 ------------------------------------------------------------
 
-newtype Zs7Z = Z7Z Integer
+{-
+
+newtype Zs7Z = Z7Z Int
 
 z7zshow :: Zs7Z -> String
 z7zshow (Z7Z x) = show (mod x 7)
@@ -74,5 +76,7 @@ instance Ring Zs7Z where
 
 instance Field Zs7Z where
     inv = z7zinv
+
+-}
 
 -- EOF
