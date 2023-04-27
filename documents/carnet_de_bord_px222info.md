@@ -36,3 +36,6 @@ Pour la prochaine séance, nous avons prévu de :
 - Quelques corrections sur poly.hs
 - Amélioration et version finale de Struct.hs et Scalaire.hs (added Show, Eq)
 - Création GF.hs, implémentation de toutes les opérations de corps
+
+# Jeu 27 avril à 11h06.
+- Partie préliminaires Mathématiques terminés
