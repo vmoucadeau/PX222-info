@@ -85,6 +85,13 @@ get_row n (SQ ((W4([x0,x1,x2,x3])):xs)) | n == 0 = (x0 : (get_row n (SQ (xs))))
                                         | n == 2 = (x2 : (get_row n (SQ (xs))))
                                         | otherwise = (x3 : (get_row n (SQ (xs))))
 
+set_row :: Int -> [GF256] -> State -> State
+set_row n [] _ = SQ ([])
+set_row 0 list (SQ ((W4 x):xs)) = (SQ ((W4 list):xs))
+set_row n list (SQ state) = SQ ((take n state) ++ (to_list $ set_row 0 list (SQ $ drop n (state))))
+    where to_list (SQ sqlist) = sqlist
+
+
 empty :: a -> a
 empty x = x
 
