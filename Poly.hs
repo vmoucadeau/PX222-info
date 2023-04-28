@@ -5,9 +5,16 @@
 
 module Poly where
 
-import Struct
-import Scalaire
+import Math.Struct
+-- import Math.Scalar
 import Data.List (intercalate)
+
+
+opList :: (a -> a -> b) -> a -> [a] -> [a] -> [b]
+opList _ _ [] [] = []
+opList f n [] x = opList f n [n] x
+opList f n x [] = opList f n x [n]
+opList f n (x:xs) (y:ys) = f x y:opList f n xs ys
 
 ------------------------------------------------------------------
 -- Définition de GF2, truc parfaitement inutile vu qu'on a Z/2Z --
@@ -43,10 +50,8 @@ instance Field a => Field (GF2 a) where
 -- Définition de l'anneau des polynômes à coefficients         --
 -----------------------------------------------------------------
 -- Exemple : [1 0 1 0 1 0 0 1] = 1 + x² + x⁴ + x⁷
-newtype Polynome a = Pol [a] -- deriving (Show)
+newtype Polynome a = Pol [a] deriving (Show)
 
-p :: Polynome Zs7Z
-p = Pol [Z7Z 1, Z7Z 2, Z7Z 0, Z7Z 3, Z7Z 0, Z7Z 0, Z7Z 0]
 
 addpol :: Group a => Polynome a -> Polynome a -> Polynome a
 addpol (Pol a) (Pol b) = Pol (opList add zer a b)
@@ -75,16 +80,14 @@ degpol (Pol []) = -1
 degpol (Pol x) | last x == zer = degpol $ cleanpol (Pol x) | otherwise = (length x)-1
 
 show_pol :: Show a => Polynome a -> String
-show_pol (Pol (x1:x2:xs)) = "P(x) = (" ++ show x1 ++ ") + (" ++ show x2 ++ ")x + (" ++ intercalate " + (" (zipWith (\c n -> show c ++ ")x^" ++ show n) xs [2..length xs + 1])
+show_pol (Pol x) = "P(x) = (" ++ intercalate " + (" (zipWith (\c n -> show c ++ ")x^" ++ show n) x [0..length x + 1])
 
 toList :: Polynome a -> [a]
 toList (Pol list) = list
 
--- Need some explaination for those last three...
-
-divpol :: (Ring a, Eq a, RealFrac a) => Polynome a -> Polynome a -> Polynome a 
+divpol :: (Ring a, Eq a, RealFrac a) => Polynome a -> Polynome a -> Polynome a
 divpol (Pol a) (Pol b) = cleanpol $ Pol (reverse $ divpol' (reverse a) (reverse b))
-    where divpol' (x:xs) y | length (x:xs) == 1 && length y == 1 = [fromIntegral (truncate x `div` truncate (head y))] 
+    where divpol' (x:xs) y | length (x:xs) == 1 && length y == 1 = [fromIntegral (truncate x `div` truncate (head y))]
                            | length (x:xs) < length y = []
                            | otherwise = x/head y : (divpol' (tail(toList(subpol (Pol (x:xs)) (multpol (Pol [x/head y]) (Pol y))))) y)
           divpol' [] _ = []
@@ -101,8 +104,8 @@ euclidepol (Pol a) (Pol b) | b == [] = ((Pol a), Pol [1], Pol [0])
                            | otherwise = (d', v', (subpol (u') (multpol v' (divpol(Pol a) (Pol b))) ) )
                 where (d', u', v') = euclidepol (Pol b) (modpol (Pol a) (Pol b))
 
-instance Show a => Show (Polynome a) where
-    show = show_pol
+-- instance Show a => Show (Polynome a) where
+--     show = show_pol
 
 instance Group Integer where
     zer = 0
@@ -113,11 +116,11 @@ instance Ring Integer where
     one = 1
     mul = (*)
 
-instance Group a => Group (Polynome a) where
-    zer = Pol [zer]
-    opp = oppPol
-    add = addpol
+-- instance Group a => Group (Polynome a) where
+--     zer = Pol [zer]
+--     opp = oppPol
+--     add = addpol
 
-instance (Ring a, Eq a) => Ring (Polynome a) where
-    one = Pol [one]
-    mul = multpol
+-- instance (Ring a, Eq a) => Ring (Polynome a) where
+--     one = Pol [one]
+--     mul = multpol

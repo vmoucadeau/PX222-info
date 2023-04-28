@@ -1,0 +1,5 @@
+shift_cycle 1 [F8 [zer,zer,zer,zer], F8 [zer,zer,zer,one], F8 [zer,zer,one,zer], F8 [zer,zer,one,one]]
+
+get_row 0 (SQ [W4 [F8 [zer,zer,zer,zer], F8 [zer,zer,zer,one], F8 [zer,zer,one,zer], F8 [zer,zer,one,one]], W4 [F8 [zer,one,zer,zer], F8 [zer,one,zer,one], F8 [zer,one,one,zer], F8 [zer,one,one,one]], W4 [F8 [one,zer,zer,zer], F8 [one,zer,zer,one], F8 [one,zer,one,zer], F8 [one,zer,one,one]], W4 [F8 [one,zer,zer,zer], F8 [one,zer,zer,one], F8 [one,zer,one,zer], F8 [one,zer,one,one]] ])
+
+get_row 2 (SQ [W4 [F8 [zer,zer,zer,zer], F8 [zer,zer,zer,one], F8 [zer,zer,one,zer], F8 [zer,zer,one,one]], W4 [F8 [zer,one,zer,zer], F8 [zer,one,zer,one], F8 [zer,one,one,zer], F8 [zer,one,one,one]], W4 [F8 [one,zer,zer,zer], F8 [one,zer,zer,one], F8 [one,zer,one,zer], F8 [one,zer,one,one]], W4 [F8 [one,zer,zer,zer], F8 [one,zer,zer,one], F8 [one,zer,one,zer], F8 [one,zer,one,one]] ])
