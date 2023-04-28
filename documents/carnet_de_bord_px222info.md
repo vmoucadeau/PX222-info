@@ -39,3 +39,10 @@ Pour la prochaine séance, nous avons prévu de :
 
 # Jeu 27 avril à 11h06.
 - Partie préliminaires Mathématiques terminés
+
+# Séance 3 - 28/04/2023
+Lors de cette séance, nous avons pu commencer l'implémentation de l'algorithme d'AES (partie 5 : spécifications de l'algorithme). Nous avons commencé à coder les transformations individuelles (SubBytes et ShiftRows). Celles-ci sont presques terminées.
+Pour la prochaine séance, nous avons prévu de :
+- Terminer les transformations
+- Commencer la partie 5.2 (Key Expension)
+- Commencer si possible la partie 5.3 (Inverse Cipher)
