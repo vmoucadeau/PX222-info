@@ -1,5 +1,5 @@
 
-module Math.Byte(GF256) where
+module Math.Byte where
 
 import Math.Struct
 import Math.Scalar

@@ -56,12 +56,6 @@ st1 = SQ [W4 [F8 [one,zer]], W4 [F8 [one,zer]], W4 [F8 [one,zer]], W4 [F8 [one,z
 -- ---------- Fonctions auxiliaires pour GF4X ----------- --
 ------------------------------------------------------------
 
-opList :: (a -> a -> b) -> a -> [a] -> [a] -> [b]
-opList _ _ [] [] = []
-opList f n [] x = opList f n [n] x
-opList f n x [] = opList f n x [n]
-opList f n (x:xs) (y:ys) = f x y:opList f n xs ys
-
 sub1 :: GF256 -> GF256
 sub1 (F8 [x0,x1,x2,x3,x4,x5,x6,x7]) = let
     z0 = add (add (add x4 x5) (add x6 x7)) (add x0 one)

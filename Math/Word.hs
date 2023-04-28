@@ -1,5 +1,5 @@
 
-module Math.Word(GF4X) where
+module Math.Word where
 
 import Math.Struct
 import Math.Byte
@@ -68,12 +68,6 @@ ax = W4 [one,zer,zer,zer,one]
 ------------------------------------------------------------
 -- ---------- Fonctions auxiliaires pour GF4X ----------- --
 ------------------------------------------------------------
-
-opList :: (a -> a -> b) -> a -> [a] -> [a] -> [b]
-opList _ _ [] [] = []
-opList f n [] x = opList f n [n] x
-opList f n x [] = opList f n x [n]
-opList f n (x:xs) (y:ys) = f x y:opList f n xs ys
 
 wipew4 :: GF4X -> GF4X
 wipew4 (W4 []) = W4 []

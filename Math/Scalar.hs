@@ -1,5 +1,5 @@
 
-module Math.Scalar(Zs2Z) where
+module Math.Scalar where
 
 import Math.Struct
 
