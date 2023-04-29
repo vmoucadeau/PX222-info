@@ -81,10 +81,11 @@ get_row n (SQ ((W4([x0,x1,x2,x3])):xs)) | n == 0 = (x0 : (get_row n (SQ (xs))))
 
 set_row :: Int -> [GF256] -> State -> State
 set_row n [] _ = SQ ([])
-set_row 0 list (SQ ((W4 x):xs)) = (SQ ((W4 list):xs))
-set_row n list (SQ state) = SQ ((take n state) ++ (to_list $ set_row 0 list (SQ $ drop n (state))))
+set_row n (polx:polxs) (SQ ((W4([x0,x1,x2,x3])):xs)) | n == 0 = SQ((W4 [polx,x1,x2,x3]) : (to_list $ set_row n polxs (SQ xs)))
+                                                     | n == 1 = SQ((W4 [x0,polx,x2,x3]) : (to_list $ set_row n polxs (SQ xs)))
+                                                     | n == 2 = SQ((W4 [x0,x1,polx,x3]) : (to_list $ set_row n polxs (SQ xs)))
+                                                     | otherwise = SQ((W4 [x0,x1,x2,polx]) : (to_list $ set_row n polxs (SQ xs)))
     where to_list (SQ sqlist) = sqlist
-
 
 empty :: a -> a
 empty x = x
