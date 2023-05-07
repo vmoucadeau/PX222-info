@@ -46,3 +46,8 @@ Pour la prochaine séance, nous avons prévu de :
 - Terminer les transformations
 - Commencer la partie 5.2 (Key Expension)
 - Commencer si possible la partie 5.3 (Inverse Cipher)
+
+
+# Lundi 08/05/2023 à 00h34
+- Ajout de shiftrows et mixcolumns dans la branche master
+- Tests à faire pour mixcolumns (shiftrows semble ok)

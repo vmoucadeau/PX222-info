@@ -37,10 +37,14 @@ subbytes (SQ []) = SQ []
 subbytes (SQ ((W4 [x0,x1,x2,x3]):xs)) = let (SQ z) = subbytes (SQ xs) in SQ ((W4 [sub1 x0,sub1 x1,sub1 x2,sub1 x3]):z)
 
 shiftrows :: State -> State
-shiftrows x = x
+shiftrows = shiftrows_aux 3
+    where shiftrows_aux n state | n == 0 = state
+                                | otherwise = shiftrows_aux (n-1) $ set_row n (shift_cycle n (get_row n state) ) state
 
 mixcolumns :: State -> State
-mixcolumns x = x
+mixcolumns (SQ []) = SQ []
+mixcolumns (SQ([w1,w2,w3,w4])) = SQ([w4mul w1 ax,w4mul w2 ax,w4mul w3 ax,w4mul w4 ax])
+mixcolumns _ = error "mixcolumns: state not of size 4"
 
 addroundkey :: a -> b -> State -> State
 addroundkey k1 k2 x = x
