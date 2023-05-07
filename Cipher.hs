@@ -8,7 +8,8 @@ import Math.Word
 
 import Math.Byte
 import Math.Scalar
-import Math.Struct
+import Math.Struct ( Group(zer, add), Ring(one) )
+import Data.List
 
 ------------------------------------------------------------
 -- ------- Définition du State en tableau de mots ------- --
@@ -18,6 +19,11 @@ newtype State = SQ [GF4X]
 
 sqshow :: State -> String
 sqshow (SQ x) = x >>= show
+
+sqshow_rows :: State -> IO ()
+sqshow_rows (SQ []) = return ()
+sqshow_rows state = do
+    putStrLn $ show (get_row 0 state) ++ "\n" ++ show (get_row 1 state) ++ "\n" ++ show (get_row 2 state) ++ "\n" ++ show (get_row 3 state)
 
 sqeq :: State -> State -> Bool
 sqeq (SQ x) (SQ y) = foldl (&&) True (opList (==) zer x y)
@@ -37,7 +43,9 @@ subbytes (SQ []) = SQ []
 subbytes (SQ ((W4 [x0,x1,x2,x3]):xs)) = let (SQ z) = subbytes (SQ xs) in SQ ((W4 [sub1 x0,sub1 x1,sub1 x2,sub1 x3]):z)
 
 shiftrows :: State -> State
-shiftrows x = x
+shiftrows = shiftrows_aux 3
+    where shiftrows_aux n state | n == 0 = state
+                                | otherwise = shiftrows_aux (n-1) $ set_row n (shift_cycle n (get_row n state) ) state
 
 mixcolumns :: State -> State
 mixcolumns x = x
@@ -70,7 +78,7 @@ sub1 (F8 [x0,x1,x2,x3,x4,x5,x6,x7]) = let
 
 shift_cycle :: Int -> [GF256] -> [GF256]
 shift_cycle 0 list = list
-shift_cycle n (x:xs) = shift_cycle (n-1) (xs ++ [x])  
+shift_cycle n (x:xs) = shift_cycle (n-1) (xs ++ [x])
 
 get_row :: Int -> State -> [GF256]
 get_row n (SQ ([])) = []
@@ -81,10 +89,10 @@ get_row n (SQ ((W4([x0,x1,x2,x3])):xs)) | n == 0 = (x0 : (get_row n (SQ (xs))))
 
 set_row :: Int -> [GF256] -> State -> State
 set_row n [] _ = SQ ([])
-set_row n (polx:polxs) (SQ ((W4([x0,x1,x2,x3])):xs)) | n == 0 = SQ((W4 [polx,x1,x2,x3]) : (to_list $ set_row n polxs (SQ xs)))
-                                                     | n == 1 = SQ((W4 [x0,polx,x2,x3]) : (to_list $ set_row n polxs (SQ xs)))
-                                                     | n == 2 = SQ((W4 [x0,x1,polx,x3]) : (to_list $ set_row n polxs (SQ xs)))
-                                                     | otherwise = SQ((W4 [x0,x1,x2,polx]) : (to_list $ set_row n polxs (SQ xs)))
+set_row n (polx:polxs) (SQ ((W4([x0,x1,x2,x3])):xs)) | n == 0 = SQ ((W4 [polx,x1,x2,x3]) : (to_list $ set_row n polxs (SQ xs)))
+                                                     | n == 1 = SQ ((W4 [x0,polx,x2,x3]) : (to_list $ set_row n polxs (SQ xs)))
+                                                     | n == 2 = SQ ((W4 [x0,x1,polx,x3]) : (to_list $ set_row n polxs (SQ xs)))
+                                                     | otherwise = SQ ((W4 [x0,x1,x2,polx]) : (to_list $ set_row n polxs (SQ xs)))
     where to_list (SQ sqlist) = sqlist
 
 empty :: a -> a
