@@ -9,6 +9,10 @@ z2zshow :: Zs2Z -> String
 z2zshow (Z2Z False) = "0"
 z2zshow (Z2Z True) = "1"
 
+z2zparse :: Zs2Z -> String -> Zs2Z
+z2zparse _ "0" = (Z2Z False)
+z2zparse _ "1" = (Z2Z True)
+
 z2zeq :: Zs2Z -> Zs2Z -> Bool
 z2zeq (Z2Z x) (Z2Z y) = x == y
 
@@ -35,6 +39,9 @@ z2zinv (Z2Z True) = Z2Z True
 
 instance Show Zs2Z where
     show = z2zshow
+
+instance Parse Zs2Z where
+    parse = z2zparse
 
 instance Eq Zs2Z where
     (==) = z2zeq

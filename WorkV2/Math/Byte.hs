@@ -14,6 +14,9 @@ f8show (F8 (Px (x0:x1:x2:x3:x4:x5:x6:x7:[])))
     = "[" ++ (hexaprint ((x7:x6:x5:x4:[]) >>= show)) ++ (hexaprint ((x3:x2:x1:x0:[]) >>= show)) ++ "]"
 f8show (F8 x) = f8show (F8 $ fillpol 8 x)
 
+f8parse :: GF256 -> String -> GF256
+f8parse _ [x1,x0] = F8 $ Px $ map (\x -> parse (Z2Z True) [x]) $ reverse (hexaparse [x1] ++ hexaparse [x0])
+
 f8eq :: GF256 -> GF256 -> Bool
 f8eq (F8 x) (F8 y) = x == y
 
@@ -36,11 +39,15 @@ f8die :: GF256 -> GF256 -> (GF256,GF256)
 f8die (F8 x) (F8 y) = let (q,r) = die x y in (F8 q, F8 r)
 
 f8inv :: GF256 -> GF256
+f8inv (F8 x) | (degpol x == -1) = zer
 f8inv (F8 x) | (&&) (degpol x - 1 < 7) (degpol x + 1 > 0) = let F8 r = mx in
     let (_,z,_) = euclidpol (one,zer,r) (zer,one,x) in F8 $ wipepol z
 
 instance Show GF256 where
     show = f8show
+
+instance Parse GF256 where
+    parse = f8parse
 
 instance Eq GF256 where
     (==) = f8eq

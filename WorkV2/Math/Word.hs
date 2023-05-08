@@ -10,6 +10,9 @@ newtype GF4X = W4 (Poly GF256)
 w4show :: GF4X -> String
 w4show (W4 x) = show x
 
+w4parse :: GF4X -> String -> GF4X
+w4parse _ x = W4 $ fillpol 4 $ parse (Px [F8 zer]) x
+
 w4eq :: GF4X -> GF4X -> Bool
 w4eq (W4 x) (W4 y) = x == y
 
@@ -26,13 +29,16 @@ w4one :: GF4X
 w4one = W4 $ fillpol 4 one
 
 w4mul :: GF4X -> GF4X -> GF4X
-w4mul (W4 x) (W4 y) = let (_,W4 z) = die (W4 (mul x y)) ax in W4 $ fillpol 4 z
+w4mul (W4 x) (W4 y) = let (_,W4 z) = die (W4 (mul x y)) mx in W4 $ fillpol 4 z
 
 w4die :: GF4X -> GF4X -> (GF4X,GF4X)
 w4die (W4 x) (W4 y) = let (q,r) = die x y in (W4 q, W4 r)
 
 instance Show GF4X where
     show = w4show
+
+instance Parse GF4X where
+    parse = w4parse
 
 instance Eq GF4X where
     (==) = w4eq
@@ -57,8 +63,8 @@ ex0 = W4 $ Px []
 ex1 :: GF4X
 ex1 = W4 $ Px [zer,one,one,zer]
 
-ax :: GF4X
-ax = W4 $ Px [one,zer,zer,zer,one]
+mx :: GF4X
+mx = W4 $ Px [one,zer,zer,zer,one]
 
 ------------------------------------------------------------
 ------------------------------------------------------------

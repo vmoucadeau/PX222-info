@@ -8,6 +8,9 @@ newtype Poly a = Px [a]
 polshow :: Show a => Poly a -> String
 polshow (Px x) = (reverse x) >>= show
 
+polparse :: Parse a => Poly a -> String -> Poly a
+polparse (Px (t:_)) x = Px $ map (parse t) $ reverse $ words x
+
 poleq :: Group a => Poly a -> Poly a -> Bool
 poleq x y = let (Px lx,Px ly) = (wipepol x,wipepol y) in lx == ly
 
@@ -25,16 +28,19 @@ polone = Px $ return one
 
 polmul :: Ring a => Poly a -> Poly a -> Poly a
 polmul (Px []) _ = zer
-polmul (Px (x:xs)) (Px y) = add (Px (map (mul x) y)) ((\(Px x)->Px(zer:x)) $ polmul (Px xs) (Px y))
+polmul (Px (x:xs)) (Px y) = wipepol $ add (Px (map (mul x) y)) ((\(Px z)->Px(zer:z)) $ polmul (Px xs) (Px y))
 
 poldie :: Field a => Poly a -> Poly a -> (Poly a,Poly a)
-poldie x y | degpol x < degpol y = (zer,wipepol x)
+poldie x y | (||) (degpol x < degpol y) (degpol y == (-1)) = (zer,wipepol x)
 poldie x y = let (tx,ty) = let (Px lx,Px ly) = (wipepol x,wipepol y) in (last lx,last ly) in
-    let f = (.) (mul (Px [divs tx ty])) (apply (degpol x - degpol y) (\(Px x)->Px(zer:x))) in
+    let f = (.) (mul (Px [divs tx ty])) (apply (degpol x - degpol y) (\(Px z)->Px(zer:z))) in
     let (q,r) = poldie (subs x (f y)) y in (add (f one) q,r)
 
 instance Show a => Show (Poly a) where
     show = polshow
+
+instance Parse a => Parse (Poly a) where
+    parse = polparse
 
 instance Group a => Eq (Poly a) where
     (==) = poleq
@@ -97,6 +103,24 @@ hexaprint "1010" = "A"
 hexaprint "1011" = "B"
 hexaprint "1001" = "9"
 hexaprint "1000" = "8"
+
+hexaparse :: String -> String
+hexaparse "0" = "0000"
+hexaparse "1" = "0001"
+hexaparse "3" = "0011"
+hexaparse "2" = "0010"
+hexaparse "6" = "0110"
+hexaparse "7" = "0111"
+hexaparse "5" = "0101"
+hexaparse "4" = "0100"
+hexaparse "C" = "1100"
+hexaparse "D" = "1101"
+hexaparse "F" = "1111"
+hexaparse "E" = "1110"
+hexaparse "A" = "1010"
+hexaparse "B" = "1011"
+hexaparse "9" = "1001"
+hexaparse "8" = "1000"
 
 ------------------------------------------------------------
 ------------------------------------------------------------

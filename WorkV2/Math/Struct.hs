@@ -18,4 +18,7 @@ class Ring a => Field a where
     divs :: a -> a -> a
     divs x y = mul x (inv y)
 
+class Show a => Parse a where
+    parse :: a -> String -> a
+
 -- EOF
