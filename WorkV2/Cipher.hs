@@ -10,7 +10,7 @@ import Math.Word
 newtype State = SQ (Poly GF4X)
 
 nK :: Int
-nK = 6
+nK = 8
 
 sqshow :: State -> String
 sqshow x = let [x0,x1,x2,x3] = ranks x
@@ -141,6 +141,9 @@ revbuild x = let
     build2 [x0,x1,x2,x3] = [W4 $ Px $ reverse [x0,x1,x2,x3]]
     build2 (x0:x1:x2:x3:xs) = [W4 $ Px $ reverse [x0,x1,x2,x3]] ++ build2 xs
     in SQ $ Px $ build2 x
+
+bpz2z :: String -> Zs2Z
+bpz2z = parse (Z2Z True)
 
 bpf8 :: String -> GF256
 bpf8 = parse (F8 zer)

@@ -1,7 +1,10 @@
 
 module Math.Struct where
 
-class (Show a,Eq a) => Group a where
+class Show a => Parse a where
+    parse :: a -> String -> a
+
+class (Parse a,Eq a) => Group a where
     zer :: a
     add :: a -> a -> a
     opp :: a -> a
@@ -17,8 +20,5 @@ class Ring a => Field a where
     inv :: a -> a
     divs :: a -> a -> a
     divs x y = mul x (inv y)
-
-class Show a => Parse a where
-    parse :: a -> String -> a
 
 -- EOF
