@@ -1,104 +1,177 @@
 
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "Use camelCase" #-}
-
 module Cipher where
 
+import Math.Struct
+import Math.Poly
+import Math.Bits
+import Math.Byte
 import Math.Word
 
-import Math.Byte
-import Math.Scalar
-import Math.Struct
+newtype State = SQ (Poly GF4X)
 
-------------------------------------------------------------
--- ------- Définition du State en tableau de mots ------- --
-------------------------------------------------------------
-
-newtype State = SQ [GF4X]
+nB :: Int
+nB = 8
 
 sqshow :: State -> String
-sqshow (SQ x) = x >>= show
+sqshow x = let [x0,x1,x2,x3] = ranks x
+    in show (Px x0) ++ "\n" ++ show (Px x1) ++ "\n" ++ show (Px x2) ++ "\n" ++ show (Px x3)
+
+sqparse :: State -> String -> State
+sqparse _ x = let (Px z) = parse (Px [F8 zer]) x in revbuild z
 
 sqeq :: State -> State -> Bool
-sqeq (SQ x) (SQ y) = foldl (&&) True (opList (==) zer x y)
+sqeq (SQ x) (SQ y) = x == y
+
+sqzer :: State
+sqzer = SQ $ fillpol nB zer
+
+sqadd :: State -> State -> State
+sqadd (SQ x) (SQ y) = SQ $ fillpol nB (add x y)
+
+sqopp :: State -> State
+sqopp (SQ x) = SQ $ fillpol nB (opp x)
 
 instance Show State where
     show = sqshow
 
+instance Parse State where
+    parse = sqparse
+
 instance Eq State where
     (==) = sqeq
 
+instance Group State where
+    zer = sqzer
+    add = sqadd
+    opp = sqopp
+
 ------------------------------------------------------------
--- -------- Définition des opérations dans State -------- --
+-- -------- Individuals transformations of State -------- --
 ------------------------------------------------------------
 
 subbytes :: State -> State
-subbytes (SQ []) = SQ []
-subbytes (SQ ((W4 [x0,x1,x2,x3]):xs)) = let (SQ z) = subbytes (SQ xs) in SQ ((W4 [sub1 x0,sub1 x1,sub1 x2,sub1 x3]):z)
+subbytes x = build $ map subbyte $ pixel x
 
 shiftrows :: State -> State
-shiftrows = shiftrows_aux 3
-    where shiftrows_aux n state | n == 0 = state
-                                | otherwise = shiftrows_aux (n-1) $ set_row n (shift_cycle n (get_row n state) ) state
+shiftrows x = let [x0,x1,x2,x3] = ranks x in let
+    [Px y0,Px y1,Px y2,Px y3] = [shiftrow 0 (Px x0),shiftrow 1 (Px x1),shiftrow 2 (Px x2),shiftrow 3 (Px x3)]
+    in unranks [y0,y1,y2,y3]
 
 mixcolumns :: State -> State
-mixcolumns (SQ []) = SQ []
-mixcolumns (SQ([w1,w2,w3,w4])) = SQ([w4mul w1 ax,w4mul w2 ax,w4mul w3 ax,w4mul w4 ax])
-mixcolumns _ = error "mixcolumns: state not of size 4"
+mixcolumns x = SQ $ Px $ map (\x -> mul ax (W4 $ Px x)) $ files x
 
-addroundkey :: a -> b -> State -> State
-addroundkey k1 k2 x = x
+addroundkey :: a -> State -> State
+addroundkey k x = x
 
 ------------------------------------------------------------
--- ----------- Polynômes d'exemple dans State ----------- --
+-- ------------- Useful state manipulations ------------- --
 ------------------------------------------------------------
 
-st1 :: State
-st1 = SQ [W4 [F8 [one,zer]], W4 [F8 [one,zer]], W4 [F8 [one,zer]], W4 [F8 [one,zer]]]
+pixel :: State -> [GF256]
+pixel (SQ (Px [W4 (Px x)])) = x
+pixel (SQ (Px ((W4 (Px x)):xs))) = x ++ (pixel (SQ (Px xs)))
+
+build :: [GF256] -> State
+build x = let
+    build1 [x0,x1,x2,x3] = [W4 $ Px [x0,x1,x2,x3]]
+    build1 (x0:x1:x2:x3:xs) = [W4 $ Px [x0,x1,x2,x3]] ++ build1 xs
+    in SQ $ Px $ build1 x
+
+files :: State -> [[GF256]]
+files x = let
+    file [x0,x1,x2,x3] = return [x0,x1,x2,x3]
+    file (x0:x1:x2:x3:xs) = [x0,x1,x2,x3]:file xs
+    in file $ pixel x
+
+ranks :: State -> [[GF256]]
+ranks x = let
+    rank [l0,l1,l2,l3] [x0,x1,x2,x3] = [l0 ++ [x0],l1 ++ [x1],l2 ++ [x2],l3 ++ [x3]]
+    rank [l0,l1,l2,l3] (x0:x1:x2:x3:xs) = rank [l0 ++ [x0],l1 ++ [x1],l2 ++ [x2],l3 ++ [x3]] xs
+    in rank [[],[],[],[]] $ pixel x
+
+unranks :: [[GF256]] -> State
+unranks x = let
+    unrank [[x0],[x1],[x2],[x3]] = [x0,x1,x2,x3]
+    unrank [(x0:x0s),(x1:x1s),(x2:x2s),(x3:x3s)] = [x0,x1,x2,x3] ++ unrank [x0s,x1s,x2s,x3s]
+    in build $ unrank x
 
 ------------------------------------------------------------
--- ---------- Fonctions auxiliaires pour GF4X ----------- --
+-- -------- Support functions to transformations -------- --
 ------------------------------------------------------------
 
-opList :: (a -> a -> b) -> a -> [a] -> [a] -> [b]
-opList _ _ [] [] = []
-opList f n [] x = opList f n [n] x
-opList f n x [] = opList f n x [n]
-opList f n (x:xs) (y:ys) = f x y:opList f n xs ys
+px1F :: Poly Zs2Z
+px1F = Px [one,one,one,one,one,zer,zer,zer]
 
-sub1 :: GF256 -> GF256
-sub1 (F8 [x0,x1,x2,x3,x4,x5,x6,x7]) = let
-    z0 = add (add (add x4 x5) (add x6 x7)) (add x0 one)
-    z1 = add (add (add x5 x6) (add x7 x0)) (add x1 one)
-    z2 = add (add (add x6 x7) (add x0 x1)) (add x2 zer)
-    z3 = add (add (add x7 x0) (add x1 x2)) (add x3 zer)
-    z4 = add (add (add x0 x1) (add x2 x3)) (add x4 zer)
-    z5 = add (add (add x1 x2) (add x3 x4)) (add x5 one)
-    z6 = add (add (add x2 x3) (add x4 x5)) (add x6 one)
-    z7 = add (add (add x3 x4) (add x5 x6)) (add x7 zer)
-    in F8 [z0,z1,z2,z3,z4,z5,z6,z7]
+px101 :: Poly Zs2Z
+px101 = Px [one,zer,zer,zer,zer,zer,zer,zer,one]
 
-shift_cycle :: Int -> [GF256] -> [GF256]
-shift_cycle 0 list = list
-shift_cycle n (x:xs) = shift_cycle (n-1) (xs ++ [x])  
+px63 :: Poly Zs2Z
+px63 = Px [one,one,zer,zer,zer,one,one,zer]
 
-get_row :: Int -> State -> [GF256]
-get_row n (SQ ([])) = []
-get_row n (SQ ((W4([x0,x1,x2,x3])):xs)) | n == 0 = (x0 : (get_row n (SQ (xs))))
-                                        | n == 1 = (x1 : (get_row n (SQ (xs))))
-                                        | n == 2 = (x2 : (get_row n (SQ (xs))))
-                                        | otherwise = (x3 : (get_row n (SQ (xs))))
+subbyte :: GF256 -> GF256
+subbyte x = let (F8 ix) = inv x in let (_,z) = die (mul px1F ix) px101 in F8 (add z px63)
 
-set_row :: Int -> [GF256] -> State -> State
-set_row n [] _ = SQ ([])
-set_row n (polx:polxs) (SQ ((W4([x0,x1,x2,x3])):xs)) | n == 0 = SQ((W4 [polx,x1,x2,x3]) : (to_list $ set_row n polxs (SQ xs)))
-                                                     | n == 1 = SQ((W4 [x0,polx,x2,x3]) : (to_list $ set_row n polxs (SQ xs)))
-                                                     | n == 2 = SQ((W4 [x0,x1,polx,x3]) : (to_list $ set_row n polxs (SQ xs)))
-                                                     | otherwise = SQ((W4 [x0,x1,x2,polx]) : (to_list $ set_row n polxs (SQ xs)))
-    where to_list (SQ sqlist) = sqlist
+------------------------------------------------------------
 
+px02 :: Poly GF256
+px02 = Px [zer,one]
 
-empty :: a -> a
-empty x = x
+powerxn :: Int -> Poly GF256
+powerxn n = apply n (mul px02) one
+
+shiftrow :: Int -> Poly GF256 -> Poly GF256
+shiftrow n x = let (_,z) = die (mul x (powerxn n)) (add one (powerxn nB)) in fillpol nB z
+
+------------------------------------------------------------
+
+ax :: GF4X
+ax = W4 $ Px [F8 $ fillpol 8 (Px [one,one]),one,one,F8 $ fillpol 8 (Px [zer,one])]
+
+------------------------------------------------------------
+
+addroundkey2 :: a -> State -> State
+addroundkey2 k x = x
+
+------------------------------------------------------------
+-- ---------- Nothing more than better parsing ---------- --
+------------------------------------------------------------
+
+revbuild :: [GF256] -> State
+revbuild x = let
+    build2 [x0,x1,x2,x3] = [W4 $ Px $ reverse [x0,x1,x2,x3]]
+    build2 (x0:x1:x2:x3:xs) = [W4 $ Px $ reverse [x0,x1,x2,x3]] ++ build2 xs
+    in SQ $ Px $ build2 x
+
+bpz2z :: String -> Zs2Z
+bpz2z = parse (Z2Z True)
+
+bpf8 :: String -> GF256
+bpf8 = parse (F8 zer)
+
+bpw4 :: String -> GF4X
+bpw4 = parse (W4 zer)
+
+bpsq :: String -> State
+bpsq = parse (SQ zer)
+
+bppol :: Parse a => a -> String -> Poly a
+bppol x = parse (Px [x])
+
+------------------------------------------------------------
+-- --------- Some multiple random State Example --------- --
+------------------------------------------------------------
+
+rsq1 :: State
+rsq1 = bpsq "70 26 AF DB 66 80 F2 A2 F9 6C 54 53 C0 69 87 95"
+
+rsq2 :: State
+rsq2 = bpsq "F7 E2 70 B4 9E C8 D5 E8 8D 1E AF F0 B7 09 92 C0 F7 76 2B 3A 42 39 FF 52"
+
+rsq3 :: State
+rsq3 = bpsq "77 D5 C1 DC 4D F6 0F 3B FE 21 2F 52 13 81 E8 D3 09 69 77 9E EF B3 69 B9 86 C0 76 35 95 31 D7 12"
+
+------------------------------------------------------------
+------------------------------------------------------------
+------------------------------------------------------------
 
 -- EOF
