@@ -10,7 +10,10 @@ import Math.Word
 newtype State = SQ (Poly GF4X)
 
 nB :: Int
-nB = 8
+nB = 4
+
+nK :: Int
+nK = 4
 
 sqshow :: State -> String
 sqshow x = let [x0,x1,x2,x3] = ranks x
@@ -60,8 +63,13 @@ shiftrows x = let [x0,x1,x2,x3] = ranks x in let
 mixcolumns :: State -> State
 mixcolumns x = SQ $ Px $ map (\x -> mul ax (W4 $ Px x)) $ files x
 
-addroundkey :: a -> State -> State
-addroundkey k x = x
+addroundkey :: [GF4X] -> State -> State
+addroundkey [] x = x
+addroundkey keysch@((W4 (Px [x0,x1,x2,x3])):xs) state = let list = reverse $ pixel state in let
+    [y0,y1,y2,y3] = [add x0 (list !! (pos + 0)),add x1 (list !! (pos + 1)),add x2 (list !! (pos + 2)),add x3 (list !! (pos + 3))]
+    in addroundkey xs (build ([y0,y1,y2,y3] ++ (drop (4*length keysch) list)))
+    where pos = 4 - length keysch
+
 
 ------------------------------------------------------------
 -- ------------- Useful state manipulations ------------- --
@@ -129,8 +137,9 @@ ax = W4 $ Px [F8 $ fillpol 8 (Px [one,one]),one,one,F8 $ fillpol 8 (Px [zer,one]
 
 ------------------------------------------------------------
 
-addroundkey2 :: a -> State -> State
-addroundkey2 k x = x
+addroundkey2 :: [GF256] -> [GF256] -> [GF256]
+addroundkey2 [] [] = []
+addroundkey2 (x:xs) (y:ys) = (add x y):addroundkey2 xs ys
 
 ------------------------------------------------------------
 -- ---------- Nothing more than better parsing ---------- --

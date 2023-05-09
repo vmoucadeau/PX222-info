@@ -1,12 +1,15 @@
-shift_cycle 1 [F8 [zer,zer,zer,zer], F8 [zer,zer,zer,one], F8 [zer,zer,one,zer], F8 [zer,zer,one,one]]
+-- Testing shiftrows
+rsq1
+-- [70][66][F9][C0]
+-- [26][80][6C][69]
+-- [AF][F2][54][87]
+-- [DB][A2][53][95]
 
-get_row 0 (SQ [W4 [F8 [zer,zer,zer,zer], F8 [zer,zer,zer,one], F8 [zer,zer,one,zer], F8 [zer,zer,one,one]], W4 [F8 [zer,one,zer,zer], F8 [zer,one,zer,one], F8 [zer,one,one,zer], F8 [zer,one,one,one]], W4 [F8 [one,zer,zer,zer], F8 [one,zer,zer,one], F8 [one,zer,one,zer], F8 [one,zer,one,one]], W4 [F8 [one,one,zer,zer], F8 [one,one,zer,one], F8 [one,one,one,zer], F8 [one,one,one,one]] ])
--- [0000,0010,0001,0011] OK
--- 
+putStrLn " "
+shiftrows rsq1
+-- [70][66][F9][C0]
+-- [80][6C][69][26]
+-- [54][87][AF][F2]
+-- [95][DB][A2][53]
 
-get_row 2 (SQ [W4 [F8 [zer,zer,zer,zer], F8 [zer,zer,zer,one], F8 [zer,zer,one,zer], F8 [zer,zer,one,one]], W4 [F8 [zer,one,zer,zer], F8 [zer,one,zer,one], F8 [zer,one,one,zer], F8 [zer,one,one,one]], W4 [F8 [one,zer,zer,zer], F8 [one,zer,zer,one], F8 [one,zer,one,zer], F8 [one,zer,one,one]], W4 [F8 [one,one,zer,zer], F8 [one,one,zer,one], F8 [one,one,one,zer], F8 [one,one,one,one]] ])
--- [0100,0110,0101,0111] OK
-
-set_row 0 [F8 [zer,zer],F8 [zer,one], F8 [one,zer], F8 [one,one]] (SQ [W4 [F8 [zer,zer,zer,zer], F8 [zer,zer,zer,one], F8 [zer,zer,one,zer], F8 [zer,zer,one,one]], W4 [F8 [zer,one,zer,zer], F8 [zer,one,zer,one], F8 [zer,one,one,zer], F8 [zer,one,one,one]], W4 [F8 [one,zer,zer,zer], F8 [one,zer,zer,one], F8 [one,zer,one,zer], F8 [one,zer,one,one]], W4 [F8 [one,one,zer,zer], F8 [one,one,zer,one], F8 [one,one,one,zer], F8 [one,one,one,one]] ])
-
-set_row 1 [F8 [zer,zer],F8 [zer,one], F8 [one,zer], F8 [one,one]] (SQ [W4 [F8 [zer,zer,zer,zer], F8 [zer,zer,zer,one], F8 [zer,zer,one,zer], F8 [zer,zer,one,one]], W4 [F8 [zer,one,zer,zer], F8 [zer,one,zer,one], F8 [zer,one,one,zer], F8 [zer,one,one,one]], W4 [F8 [one,zer,zer,zer], F8 [one,zer,zer,one], F8 [one,zer,one,zer], F8 [one,zer,one,one]], W4 [F8 [one,one,zer,zer], F8 [one,one,zer,one], F8 [one,one,one,zer], F8 [one,one,one,one]] ])
+putStrLn " "
