@@ -51,3 +51,12 @@ Pour la prochaine séance, nous avons prévu de :
 # Lundi 08/05/2023 à 00h34
 - Ajout de shiftrows et mixcolumns dans la branche master
 - Tests à faire pour mixcolumns (shiftrows semble ok)
+
+# Mardi 09/05/2023
+- Ajout des polynômes de types génériques
+- Modification des structures pour utiliser les polynômes (State définis comme des polynômes de GF4X (mots de 32 bits) et GF4X comme des polynômes de GF256) et GF256 comme des polynômes de Z/2Z
+- Fonctions de parsing pour faciliter les tests
+- Tests des fonctions de parsing
+- Ajout des fonctions de transformations des states subbytes, shiftrows (versions simplifiées grâce aux polynômes), mixcolumns
+- Début de addroundkey
+- Lecture de la section 5.2 (Key Expension)
