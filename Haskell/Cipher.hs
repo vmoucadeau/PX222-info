@@ -128,16 +128,38 @@ powerxn n = apply n (mul px02) one
 shiftrow :: Int -> Poly GF256 -> Poly GF256
 shiftrow n x = let (_,z) = die (mul x (powerxn n)) (add one (powerxn nB)) in fillpol nB z
 
-------------------------------------------------------------
+------------------------------------------------------------    
 
 ax :: GF4X
 ax = W4 $ Px [F8 $ fillpol 8 (Px [one,one]),one,one,F8 $ fillpol 8 (Px [zer,one])]
 
 ------------------------------------------------------------
 
-addroundkey2 :: [GF256] -> [GF256] -> [GF256]
-addroundkey2 [] [] = []
-addroundkey2 (x:xs) (y:ys) = (add x y):addroundkey2 xs ys
+keyexpansion :: [GF256] -> [GF4X]
+keyexpansion x = genkey nK $ initkey x
+
+------------------------------------------------------------
+
+initkey :: [GF256] -> [GF4X]
+initkey x = let SQ (Px key) = revbuild x in key
+
+subword :: GF4X -> GF4X
+subword (W4 (Px x)) = W4 $ Px $ map subbyte x
+
+rotword :: GF4X -> GF4X
+rotword = mul (W4 $ powerxn 3)
+
+rcon :: Int -> GF4X
+rcon i = W4 $ fillpol 4 $ Px [apply (i-1) (mul (F8 px02)) one]
+
+genkey :: Int -> [GF4X] -> [GF4X]
+genkey n x | n == (nB * (nR + 1)) = x
+genkey n x = genkey (n+1) (x ++ [genword n x])
+
+genword :: Int -> [GF4X] -> GF4X
+genword n x | mod n nK == 0 = add (x !! (n-nK)) $ add (rcon (div n nK)) $ subword $ rotword $ last x
+genword n x | (&&) (nK == 8) (mod n nK == 4) = subword $ last x
+genword n x = add (x !! (n-nK)) $ last x
 
 ------------------------------------------------------------
 -- ---------- Nothing more than better parsing ---------- --
@@ -164,6 +186,11 @@ bpsq = parse (SQ zer)
 bppol :: Parse a => a -> String -> Poly a
 bppol x = parse (Px [x])
 
+bpkey :: String -> [GF256]
+bpkey x = let (Px z) = parse (Px [F8 zer]) x in reverse z
+
+
+
 ------------------------------------------------------------
 -- --------- Some multiple random State Example --------- --
 ------------------------------------------------------------
@@ -182,22 +209,6 @@ rsq3 = bpsq "D5 DC F6 3B 21 52 81 D3 69 9E B3 B9 C0 35 31 12"
 
 -- rsq3 :: State
 -- rsq3 = bpsq "77 D5 C1 DC 4D F6 0F 3B FE 21 2F 52 13 81 E8 D3 09 69 77 9E EF B3 69 B9 86 C0 76 35 95 31 D7 12"
-
-------------------------------------------------------------
--- ------------------ The following... ------------------ --
-------------------------------------------------------------
-
-subword :: GF4X -> GF4X
-subword (W4 (Px x)) = W4 $ Px $ map subbyte x
-
-rotword :: GF4X -> GF4X
-rotword = mul (W4 $ powerxn 3)
-
-rcon :: Int -> GF4X
-rcon i = W4 $ fillpol 4 $ Px [apply (i-1) (mul (F8 px02)) one]
-
-keyexpansion :: [GF256] -> [GF4X]
-keyexpansion x = let SQ (Px key) = revbuild x in key
 
 ------------------------------------------------------------
 ------------------------------------------------------------

@@ -60,3 +60,10 @@ Pour la prochaine séance, nous avons prévu de :
 - Ajout des fonctions de transformations des states subbytes, shiftrows (versions simplifiées grâce aux polynômes), mixcolumns
 - Début de addroundkey
 - Lecture de la section 5.2 (Key Expension)
+
+# Séance 4 - 10/05/2023
+Lors de cette séance, nous avons terminé l'implémentation des transformations sur les states (subbytes, shiftrows, mixcolumns et addroundkey). Nous avons également presque terminé la partie Key Expansion (petit bug à corriger). Enfin, nous avons commencé l'implémentation en C afin de réfléchir aux types de données que nous allons utiliser.
+Pour la prochaine séance, nous avons prévu de :
+- Terminer la partie Cipher
+- Commencer/Terminer la partie Inverse Cipher
+- Continuer l'implémentation en C
