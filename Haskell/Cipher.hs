@@ -15,6 +15,9 @@ nB = 4
 nK :: Int
 nK = 4
 
+nR :: Int
+nR = 6 + nK
+
 sqshow :: State -> String
 sqshow x = let [x0,x1,x2,x3] = ranks x
     in show (Px x0) ++ "\n" ++ show (Px x1) ++ "\n" ++ show (Px x2) ++ "\n" ++ show (Px x3)
@@ -63,13 +66,8 @@ shiftrows x = let [x0,x1,x2,x3] = ranks x in let
 mixcolumns :: State -> State
 mixcolumns x = SQ $ Px $ map (\x -> mul ax (W4 $ Px x)) $ files x
 
-addroundkey :: [GF4X] -> State -> State
-addroundkey [] x = x
-addroundkey keysch@((W4 (Px [x0,x1,x2,x3])):xs) state = let list = reverse $ pixel state in let
-    [y0,y1,y2,y3] = [add x0 (list !! (pos + 0)),add x1 (list !! (pos + 1)),add x2 (list !! (pos + 2)),add x3 (list !! (pos + 3))]
-    in addroundkey xs (build ([y0,y1,y2,y3] ++ (drop (4*length keysch) list)))
-    where pos = 4 - length keysch
-
+addroundkey :: State -> State -> State
+addroundkey = add
 
 ------------------------------------------------------------
 -- ------------- Useful state manipulations ------------- --
@@ -121,10 +119,10 @@ subbyte x = let (F8 ix) = inv x in let (_,z) = die (mul px1F ix) px101 in F8 (ad
 
 ------------------------------------------------------------
 
-px02 :: Poly GF256
+px02 :: Ring a => Poly a
 px02 = Px [zer,one]
 
-powerxn :: Int -> Poly GF256
+powerxn :: Field a => Int -> Poly a
 powerxn n = apply n (mul px02) one
 
 shiftrow :: Int -> Poly GF256 -> Poly GF256
@@ -174,10 +172,32 @@ rsq1 :: State
 rsq1 = bpsq "70 26 AF DB 66 80 F2 A2 F9 6C 54 53 C0 69 87 95"
 
 rsq2 :: State
-rsq2 = bpsq "F7 E2 70 B4 9E C8 D5 E8 8D 1E AF F0 B7 09 92 C0 F7 76 2B 3A 42 39 FF 52"
+rsq2 = bpsq "F7 E2 70 B4 9E 1E AF F0 B7 76 2B 3A 42 39 FF 52"
 
 rsq3 :: State
-rsq3 = bpsq "77 D5 C1 DC 4D F6 0F 3B FE 21 2F 52 13 81 E8 D3 09 69 77 9E EF B3 69 B9 86 C0 76 35 95 31 D7 12"
+rsq3 = bpsq "D5 DC F6 3B 21 52 81 D3 69 9E B3 B9 C0 35 31 12"
+
+-- rsq2 :: State
+-- rsq2 = bpsq "F7 E2 70 B4 9E C8 D5 E8 8D 1E AF F0 B7 09 92 C0 F7 76 2B 3A 42 39 FF 52"
+
+-- rsq3 :: State
+-- rsq3 = bpsq "77 D5 C1 DC 4D F6 0F 3B FE 21 2F 52 13 81 E8 D3 09 69 77 9E EF B3 69 B9 86 C0 76 35 95 31 D7 12"
+
+------------------------------------------------------------
+-- ------------------ The following... ------------------ --
+------------------------------------------------------------
+
+subword :: GF4X -> GF4X
+subword (W4 (Px x)) = W4 $ Px $ map subbyte x
+
+rotword :: GF4X -> GF4X
+rotword = mul (W4 $ powerxn 3)
+
+rcon :: Int -> GF4X
+rcon i = W4 $ fillpol 4 $ Px [apply (i-1) (mul (F8 px02)) one]
+
+keyexpansion :: [GF256] -> [GF4X]
+keyexpansion x = let SQ (Px key) = revbuild x in key
 
 ------------------------------------------------------------
 ------------------------------------------------------------
