@@ -13,7 +13,7 @@ nB :: Int
 nB = 4
 
 nK :: Int
-nK = 4
+nK = 8
 
 nR :: Int
 nR = 6 + nK
@@ -66,8 +66,8 @@ shiftrows x = let [x0,x1,x2,x3] = ranks x in let
 mixcolumns :: State -> State
 mixcolumns x = SQ $ Px $ map (\x -> mul ax (W4 $ Px x)) $ files x
 
-addroundkey :: State -> State -> State
-addroundkey = add
+addroundkey :: [GF4X] -> State -> State
+addroundkey k x = add x $ SQ $ Px k
 
 ------------------------------------------------------------
 -- ------------- Useful state manipulations ------------- --
@@ -128,7 +128,7 @@ powerxn n = apply n (mul px02) one
 shiftrow :: Int -> Poly GF256 -> Poly GF256
 shiftrow n x = let (_,z) = die (mul x (powerxn n)) (add one (powerxn nB)) in fillpol nB z
 
-------------------------------------------------------------    
+------------------------------------------------------------
 
 ax :: GF4X
 ax = W4 $ Px [F8 $ fillpol 8 (Px [one,one]),one,one,F8 $ fillpol 8 (Px [zer,one])]
@@ -147,10 +147,10 @@ subword :: GF4X -> GF4X
 subword (W4 (Px x)) = W4 $ Px $ map subbyte x
 
 rotword :: GF4X -> GF4X
-rotword = mul (W4 $ powerxn 3)
+rotword = mul (W4 $ powerxn 1)
 
 rcon :: Int -> GF4X
-rcon i = W4 $ fillpol 4 $ Px [apply (i-1) (mul (F8 px02)) one]
+rcon i = W4 $ fillpol 4 $ Px [zer,zer,zer,apply (i-1) (mul (F8 px02)) one]
 
 genkey :: Int -> [GF4X] -> [GF4X]
 genkey n x | n == (nB * (nR + 1)) = x
@@ -158,7 +158,7 @@ genkey n x = genkey (n+1) (x ++ [genword n x])
 
 genword :: Int -> [GF4X] -> GF4X
 genword n x | mod n nK == 0 = add (x !! (n-nK)) $ add (rcon (div n nK)) $ subword $ rotword $ last x
-genword n x | (&&) (nK == 8) (mod n nK == 4) = subword $ last x
+genword n x | (&&) (nK == 8) (mod n nK == 4) = add (x !! (n-nK)) $ subword $ last x
 genword n x = add (x !! (n-nK)) $ last x
 
 ------------------------------------------------------------
@@ -189,8 +189,6 @@ bppol x = parse (Px [x])
 bpkey :: String -> [GF256]
 bpkey x = let (Px z) = parse (Px [F8 zer]) x in reverse z
 
-
-
 ------------------------------------------------------------
 -- --------- Some multiple random State Example --------- --
 ------------------------------------------------------------
@@ -204,11 +202,14 @@ rsq2 = bpsq "F7 E2 70 B4 9E 1E AF F0 B7 76 2B 3A 42 39 FF 52"
 rsq3 :: State
 rsq3 = bpsq "D5 DC F6 3B 21 52 81 D3 69 9E B3 B9 C0 35 31 12"
 
--- rsq2 :: State
--- rsq2 = bpsq "F7 E2 70 B4 9E C8 D5 E8 8D 1E AF F0 B7 09 92 C0 F7 76 2B 3A 42 39 FF 52"
+rkey1 :: [GF256]
+rkey1 = bpkey "2B 7E 15 16 28 AE D2 A6 AB F7 15 88 09 CF 4F 3C"
 
--- rsq3 :: State
--- rsq3 = bpsq "77 D5 C1 DC 4D F6 0F 3B FE 21 2F 52 13 81 E8 D3 09 69 77 9E EF B3 69 B9 86 C0 76 35 95 31 D7 12"
+rkey2 :: [GF256]
+rkey2 = bpkey "8E 73 B0 F7 DA 0E 64 52 C8 10 F3 2B 80 90 79 E5 62 F8 EA D2 52 2C 6B 7B"
+
+rkey3 :: [GF256]
+rkey3 = bpkey "60 3D EB 10 15 CA 71 BE 2B 73 AE F0 85 7D 77 81 1F 35 2C 07 3B 61 08 D7 2D 98 10 A3 09 14 DF F4"
 
 ------------------------------------------------------------
 ------------------------------------------------------------
