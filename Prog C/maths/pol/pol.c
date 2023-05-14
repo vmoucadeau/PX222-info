@@ -1,5 +1,6 @@
 #include "../bits/bits.h"
 #include <stdio.h>
+#include <stdlib.h>
 char hexa[] = "0123456789abcdef";
 
 void show_bin_pol(char pol) {
@@ -20,28 +21,27 @@ char parse_pol(char input[2]) {
     return search_hexval(input[0])*16 + search_hexval(input[1]);
 }
 
-int *pol_clean(int *pol) {
-    size_t length = sizeof(pol)/sizeof(pol[0]);
+int pol_clean(int *pol, int length, int *cleaned) {
+    int deg = 0;
     for(int i = 0; i < length; i++) {
-        if(pol[i] == 0) {
-            continue;
+        if(pol[i] == 0) continue;
+        for(int j = 0; j < length-i; j++) {
+            cleaned[j] = pol[i+j];
         }
-
+        deg = length-i;
+        break;
     }
+    return deg;
 }
 
-int pol_deg(int *pol1) {
+// int *pol_add(int *pol1, int *pol2, int *res) {
 
-}
-
-int *pol_add(int *pol1, int *pol2, int *res) {
-
-}
+// }
 
 char gf256_add(char pol1, char pol2) {
     return pol1 ^ pol2;
 }
 
-char pol_mul(char pol1, char pol2) {
+// char pol_mul(char pol1, char pol2) {
     
-}
+// }
