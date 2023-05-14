@@ -20,7 +20,25 @@ char parse_pol(char input[2]) {
     return search_hexval(input[0])*16 + search_hexval(input[1]);
 }
 
-char pol_add(char pol1, char pol2) {
+int *pol_clean(int *pol) {
+    size_t length = sizeof(pol)/sizeof(pol[0]);
+    for(int i = 0; i < length; i++) {
+        if(pol[i] == 0) {
+            continue;
+        }
+
+    }
+}
+
+int pol_deg(int *pol1) {
+
+}
+
+int *pol_add(int *pol1, int *pol2, int *res) {
+
+}
+
+char gf256_add(char pol1, char pol2) {
     return pol1 ^ pol2;
 }
 
