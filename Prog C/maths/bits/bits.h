@@ -1,1 +1,3 @@
-int search_hexval(char val);
+#include <stdbool.h>
+typedef bool z2z;
+

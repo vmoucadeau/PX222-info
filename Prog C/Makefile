@@ -12,5 +12,6 @@ pol.o : maths/pol/pol.c maths/pol/pol.h
 bits.o : maths/bits/bits.c maths/bits/bits.h
 	$(CC) $(FLAGS) -c $< 
 
+
 clean :
 	rm *.o aes.out
