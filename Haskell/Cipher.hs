@@ -13,17 +13,17 @@ nB :: Int
 nB = 4
 
 nK :: Int
-nK = 8
+nK = 4
 
 nR :: Int
 nR = 6 + nK
 
 sqshow :: State -> String
 sqshow x = let [x0,x1,x2,x3] = ranks x
-    in show (Px x0) ++ "\n" ++ show (Px x1) ++ "\n" ++ show (Px x2) ++ "\n" ++ show (Px x3)
+    in show (W4 (Px x0)) ++ "\n" ++ show (W4 (Px x1)) ++ "\n" ++ show (W4 (Px x2)) ++ "\n" ++ show (W4 (Px x3))
 
 sqparse :: State -> String -> State
-sqparse _ x = let (Px z) = parse (Px [F8 zer]) x in revbuild z
+sqparse _ x = let (Px z) = parse (Px [F8 zer]) x in build z
 
 sqeq :: State -> State -> Bool
 sqeq (SQ x) (SQ y) = x == y
@@ -52,6 +52,30 @@ instance Group State where
     opp = sqopp
 
 ------------------------------------------------------------
+-- -------- Cipher and Inverse Cipher prototypes -------- --
+------------------------------------------------------------
+
+encode :: [GF256] -> State -> State
+encode k x = let key = keyexpansion k in rounds 1 key $ addroundkey 0 key x
+
+rounds :: Int -> [GF4X] -> State -> State
+rounds n k x | n == nR = addroundkey n k $ shiftrows $ subbytes x
+rounds n k x = rounds (n+1) k $ morph n k x
+
+morph :: Int -> [GF4X] -> State -> State
+morph n k x = addroundkey n k $ mixcolumns $ shiftrows $ subbytes x
+
+decode :: [GF256] -> State -> State
+decode k x = let key = keyexpansion k in invrounds (nR-1) key $ addroundkey nR key x
+
+invrounds :: Int -> [GF4X] -> State -> State
+invrounds n k x | n == 0 = addroundkey n k $ invsubbytes $ invshiftrows x
+invrounds n k x = invrounds (n-1) k $ invmorph n k x
+
+invmorph :: Int -> [GF4X] -> State -> State
+invmorph n k x = invmixcolumns $ addroundkey n k $ invsubbytes $ invshiftrows x
+
+------------------------------------------------------------
 -- -------- Individuals transformations of State -------- --
 ------------------------------------------------------------
 
@@ -60,14 +84,25 @@ subbytes x = build $ map subbyte $ pixel x
 
 shiftrows :: State -> State
 shiftrows x = let [x0,x1,x2,x3] = ranks x in let
-    [Px y0,Px y1,Px y2,Px y3] = [shiftrow 0 (Px x0),shiftrow 1 (Px x1),shiftrow 2 (Px x2),shiftrow 3 (Px x3)]
+    [Px y0,Px y1,Px y2,Px y3] = [shiftrow 0 (Px x0),shiftrow 3 (Px x1),shiftrow 2 (Px x2),shiftrow 1 (Px x3)]
     in unranks [y0,y1,y2,y3]
 
 mixcolumns :: State -> State
 mixcolumns x = SQ $ Px $ map (\x -> mul ax (W4 $ Px x)) $ files x
 
-addroundkey :: [GF4X] -> State -> State
-addroundkey k x = add x $ SQ $ Px k
+addroundkey :: Int -> [GF4X] -> State -> State
+addroundkey n k x = add x $ SQ $ Px $ take 4 $ drop (4*n) k
+
+invsubbytes :: State -> State
+invsubbytes x = build $ map invsubbyte $ pixel x
+
+invshiftrows :: State -> State
+invshiftrows x = let [x0,x1,x2,x3] = ranks x in let
+    [Px y0,Px y1,Px y2,Px y3] = [shiftrow 0 (Px x0),shiftrow 1 (Px x1),shiftrow 2 (Px x2),shiftrow 3 (Px x3)]
+    in unranks [y0,y1,y2,y3]
+
+invmixcolumns :: State -> State
+invmixcolumns x = SQ $ Px $ map (\x -> mul axi (W4 $ Px x)) $ files x
 
 ------------------------------------------------------------
 -- ------------- Useful state manipulations ------------- --
@@ -117,6 +152,12 @@ px63 = Px [one,one,zer,zer,zer,one,one,zer]
 subbyte :: GF256 -> GF256
 subbyte x = let (F8 ix) = inv x in let (_,z) = die (mul px1F ix) px101 in F8 (add z px63)
 
+pxA4 :: Poly Zs2Z
+pxA4 = Px [zer,one,zer,one,zer,zer,one,zer]
+
+invsubbyte :: GF256 -> GF256
+invsubbyte x = let (F8 ix) = subs x (F8 px63) in let (_,z) = die (mul pxA4 ix) px101 in inv $ F8 z
+
 ------------------------------------------------------------
 
 px02 :: Ring a => Poly a
@@ -131,26 +172,27 @@ shiftrow n x = let (_,z) = die (mul x (powerxn n)) (add one (powerxn nB)) in fil
 ------------------------------------------------------------
 
 ax :: GF4X
-ax = W4 $ Px [F8 $ fillpol 8 (Px [one,one]),one,one,F8 $ fillpol 8 (Px [zer,one])]
+ax = bpw4 "02 01 01 03"
+
+axi :: GF4X
+axi = bpw4 "0E 09 0D 0B"
 
 ------------------------------------------------------------
 
 keyexpansion :: [GF256] -> [GF4X]
 keyexpansion x = genkey nK $ initkey x
 
-------------------------------------------------------------
-
 initkey :: [GF256] -> [GF4X]
-initkey x = let SQ (Px key) = revbuild x in key
+initkey x = let SQ (Px key) = build x in key
 
 subword :: GF4X -> GF4X
 subword (W4 (Px x)) = W4 $ Px $ map subbyte x
 
 rotword :: GF4X -> GF4X
-rotword = mul (W4 $ powerxn 1)
+rotword = mul (W4 $ powerxn 3)
 
 rcon :: Int -> GF4X
-rcon i = W4 $ fillpol 4 $ Px [zer,zer,zer,apply (i-1) (mul (F8 px02)) one]
+rcon i = W4 $ fillpol 4 $ Px [apply (i-1) (mul (F8 px02)) one]
 
 genkey :: Int -> [GF4X] -> [GF4X]
 genkey n x | n == (nB * (nR + 1)) = x
@@ -164,12 +206,6 @@ genword n x = add (x !! (n-nK)) $ last x
 ------------------------------------------------------------
 -- ---------- Nothing more than better parsing ---------- --
 ------------------------------------------------------------
-
-revbuild :: [GF256] -> State
-revbuild x = let
-    build2 [x0,x1,x2,x3] = [W4 $ Px $ reverse [x0,x1,x2,x3]]
-    build2 (x0:x1:x2:x3:xs) = [W4 $ Px $ reverse [x0,x1,x2,x3]] ++ build2 xs
-    in SQ $ Px $ build2 x
 
 bpz2z :: String -> Zs2Z
 bpz2z = parse (Z2Z True)
@@ -187,7 +223,7 @@ bppol :: Parse a => a -> String -> Poly a
 bppol x = parse (Px [x])
 
 bpkey :: String -> [GF256]
-bpkey x = let (Px z) = parse (Px [F8 zer]) x in reverse z
+bpkey x = let (Px z) = parse (Px [F8 zer]) x in z
 
 ------------------------------------------------------------
 -- --------- Some multiple random State Example --------- --
@@ -201,6 +237,9 @@ rsq2 = bpsq "F7 E2 70 B4 9E 1E AF F0 B7 76 2B 3A 42 39 FF 52"
 
 rsq3 :: State
 rsq3 = bpsq "D5 DC F6 3B 21 52 81 D3 69 9E B3 B9 C0 35 31 12"
+
+rsq5 :: State
+rsq5 = bpsq "32 43 F6 A8 88 5A 30 8D 31 31 98 A2 E0 37 07 34"
 
 rkey1 :: [GF256]
 rkey1 = bpkey "2B 7E 15 16 28 AE D2 A6 AB F7 15 88 09 CF 4F 3C"
