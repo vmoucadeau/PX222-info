@@ -6,7 +6,7 @@ char test_pol = 65;
 #include <stdio.h>
 
 int main() {
-    char test_pol = parse_pol("1d");
+    gf256 test_pol = gf256_parse("1d");
     // printf("%i\n", test_pol);
-    show_hex_pol(test_pol);
+    gf256_showhex(test_pol);
 }
