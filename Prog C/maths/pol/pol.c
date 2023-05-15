@@ -36,6 +36,7 @@ void pol_copy(pol a, pol dest) {
     for(int i = 0; i < DEG_MAX_POL; i++) {
         dest[i] = a[i];
     }
+    return deg;
 }
 
 void pol_add(pol a, pol b, pol res) {
@@ -64,6 +65,6 @@ gf256 gf256_add(gf256 pol1, gf256 pol2) {
     return pol1 ^ pol2;
 }
 
-char pol_mul(char pol1, char pol2) {
+// char pol_mul(char pol1, char pol2) {
     
-}
+// }

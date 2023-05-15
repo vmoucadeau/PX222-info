@@ -4,9 +4,11 @@ char test_pol = 65;
 #include "maths/pol/pol.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 int main() {
     gf256 test_pol = gf256_parse("1d");
     // printf("%i\n", test_pol);
     gf256_showhex(test_pol);
 }
+

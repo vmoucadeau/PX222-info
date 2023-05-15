@@ -6,10 +6,10 @@ import Math.Struct
 newtype Poly a = Px [a]
 
 polshow :: Show a => Poly a -> String
-polshow (Px x) = (reverse x) >>= show
+polshow (Px x) = x >>= show
 
 polparse :: Parse a => Poly a -> String -> Poly a
-polparse (Px (t:_)) x = Px $ map (parse t) $ reverse $ words x
+polparse (Px (t:_)) x = Px $ map (parse t) $ words x
 
 poleq :: Group a => Poly a -> Poly a -> Bool
 poleq x y = let (Px lx,Px ly) = (wipepol x,wipepol y) in lx == ly
