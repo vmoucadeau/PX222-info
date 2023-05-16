@@ -73,6 +73,7 @@ Travail réalisé avant la séance :
 - Partie Haskell terminée (programme capable de chiffrer/déchiffrer un bloc avec une clé de 128, 192 ou 256 bits)
 - Partie C commencée (opérations de base sur les polynômes, définition des types...)
 Lors de cette séance, nous avons apporté quelques modifications au programme Haskell pour le rendre plus facile à utiliser (affichage du résultat sous forme de String, Parsers plus flexibles...). Nous avons également ajouté la multiplication entre deux gf256 en utilisant la méthode de la multiplication par x (section 4.2.1). Nous n'implémenterons pas la division euclidienne des polynômes ainsi que l'algorithme d'euclide en C.
+
 Pour la prochaine séance, nous avons prévu de : 
 - Avancer/Terminer le programme en C
 - Rédiger un document détaillant le fonctionnement des deux programmes
