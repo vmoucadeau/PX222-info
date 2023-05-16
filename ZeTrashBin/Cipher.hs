@@ -4,11 +4,11 @@
 
 module Cipher where
 
-import Math.Word
+import OldMath.Word
 
-import Math.Byte
-import Math.Scalar
-import Math.Struct
+import OldMath.Byte
+import OldMath.Scalar
+import OldMath.Struct
 
 ------------------------------------------------------------
 -- ------- Définition du State en tableau de mots ------- --

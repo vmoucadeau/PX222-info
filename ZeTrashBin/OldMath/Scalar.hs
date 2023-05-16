@@ -1,7 +1,7 @@
 
-module Math.Scalar(Zs2Z) where
+module OldMath.Scalar(Zs2Z) where
 
-import Math.Struct
+import OldMath.Struct
 
 ------------------------------------------------------------
 -- ------- Définition du corps des scalaires Z/2Z ------- --

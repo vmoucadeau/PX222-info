@@ -1,8 +1,8 @@
 
-module Math.Word(GF4X) where
+module OldMath.Word(GF4X(W4),w4mul,ax) where
 
-import Math.Struct
-import Math.Byte
+import OldMath.Struct
+import OldMath.Byte
 
 ------------------------------------------------------------
 -- ---------- Définition de l'anneau fini GF4X ---------- --

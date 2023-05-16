@@ -55,8 +55,14 @@ instance Group State where
 -- -------- Cipher and Inverse Cipher prototypes -------- --
 ------------------------------------------------------------
 
-encode :: [GF256] -> State -> State
-encode k x = let key = keyexpansion k in rounds 1 key $ addroundkey 0 key x
+encode :: String -> String -> String
+encode k x = stateprint $ encodeciph (bpkey $ spacewords k) $ build $ map chartoGF x
+
+decode :: String -> String -> String
+decode k x = stateprint $ decodeciph (bpkey $ spacewords k) $ bpsq $ spacewords x
+
+encodeciph :: [GF256] -> State -> State
+encodeciph k x = let key = keyexpansion k in rounds 1 key $ addroundkey 0 key x
 
 rounds :: Int -> [GF4X] -> State -> State
 rounds n k x | n == nR = addroundkey n k $ shiftrows $ subbytes x
@@ -65,8 +71,8 @@ rounds n k x = rounds (n+1) k $ morph n k x
 morph :: Int -> [GF4X] -> State -> State
 morph n k x = addroundkey n k $ mixcolumns $ shiftrows $ subbytes x
 
-decode :: [GF256] -> State -> State
-decode k x = let key = keyexpansion k in invrounds (nR-1) key $ addroundkey nR key x
+decodeciph :: [GF256] -> State -> State
+decodeciph k x = let key = keyexpansion k in invrounds (nR-1) key $ addroundkey nR key x
 
 invrounds :: Int -> [GF4X] -> State -> State
 invrounds n k x | n == 0 = addroundkey n k $ invsubbytes $ invshiftrows x
@@ -225,6 +231,29 @@ bppol x = parse (Px [x])
 bpkey :: String -> [GF256]
 bpkey x = let (Px z) = parse (Px [F8 zer]) x in z
 
+spacewords :: String -> String
+spacewords [] = []
+spacewords (x:y:l) = x:y:' ':(spacewords l)
+
+stateprint :: State -> String
+stateprint (SQ (Px x)) = let
+    f [] = []
+    f (W4 (Px x):xs) = x ++ f xs
+    g (F8 (Px [x0,x1,x2,x3,x4,x5,x6,x7])) = hexaprint ([x7,x6,x5,x4] >>= show) ++ hexaprint ([x3,x2,x1,x0] >>= show)
+    in f x >>= g
+
+chartoGF :: Char -> GF256
+chartoGF c = let x = fromEnum c in let
+    f 0 = "0"
+    f x = (if even x then '0' else '1'):(f $ div x 2)
+    in F8 $ Px $ map (\x -> parse (Z2Z True) [x]) $ take 8 (f x ++ "00000000")
+
+invchartoGF :: Char -> GF256
+invchartoGF c = let x = fromEnum c in let
+    f 0 = "0"
+    f x = (if even x then '0' else '1'):(f $ div x 2)
+    in F8 $ Px $ map (\x -> parse (Z2Z True) [x]) $ take 8 (f x ++ "00000000")
+
 ------------------------------------------------------------
 -- --------- Some multiple random State Example --------- --
 ------------------------------------------------------------
@@ -249,6 +278,27 @@ rkey2 = bpkey "8E 73 B0 F7 DA 0E 64 52 C8 10 F3 2B 80 90 79 E5 62 F8 EA D2 52 2C
 
 rkey3 :: [GF256]
 rkey3 = bpkey "60 3D EB 10 15 CA 71 BE 2B 73 AE F0 85 7D 77 81 1F 35 2C 07 3B 61 08 D7 2D 98 10 A3 09 14 DF F4"
+
+txtsq1 :: String
+txtsq1 = "7026AFDB6680F2A2F96C5453C0698795"
+
+txtsq2 :: String
+txtsq2 = "F7E270B49E1EAFF0B7762B3A4239FF52"
+
+txtsq3 :: String
+txtsq3 = "D5DCF63B215281D3699EB3B9C0353112"
+
+txtsq5 :: String
+txtsq5 = "3243F6A8885A308D313198A2E0370734"
+
+txtkey1 :: String
+txtkey1 = "2B7E151628AED2A6ABF7158809CF4F3C"
+
+txtkey2 :: String
+txtkey2 = "8E73B0F7DA0E6452C810F32B809079E562F8EAD2522C6B7B"
+
+txtkey3 :: String
+txtkey3 = "603DEB1015CA71BE2B73AEF0857D77811F352C073B6108D72D9810A30914DFF4"
 
 ------------------------------------------------------------
 ------------------------------------------------------------

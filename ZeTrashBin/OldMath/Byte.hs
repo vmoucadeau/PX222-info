@@ -1,8 +1,8 @@
 
-module Math.Byte(GF256) where
+module OldMath.Byte(GF256(F8)) where
 
-import Math.Struct
-import Math.Scalar
+import OldMath.Struct
+import OldMath.Scalar
 
 ------------------------------------------------------------
 -- ----------- Définition du corps fini GF256 ----------- --

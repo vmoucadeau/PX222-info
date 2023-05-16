@@ -30,13 +30,11 @@ void pol_fill(pol a, int deg, pol res) {
     }
 }
 
-
-
 void pol_show(pol a) {
     int deg_a = pol_deg(a);
     printf("[");
-    for(int i = deg_a; i >= 0; i--) {
-        i == 0 ? printf("%i", a[i]) : printf("%i ", a[i]); 
+    for(int i = 0; i <= deg_a; i++) {
+        i == deg_a ? printf("%i", a[i]) : printf("%i ", a[i]); 
     }
     printf("]\n");
 }
@@ -87,35 +85,6 @@ void pol_mulbyx(pol a, pol res) {
     }
 }
 
-void pol_div(pol a, pol b, pol quot, pol rest) {
-    // Marche pour les polynômes à coefficients dans Z/2Z
-    int deg_a = pol_deg(a); int deg_b = pol_deg(b);
-    assert(deg_b < deg_a);
-    pol_init(rest);
-    pol_init(quot);
-    pol temp; pol_init(temp);
-    pol_copy(b, temp);
-    int quotient = 0;
-    while(pol_deg(temp) < deg_a) {
-        pol_mulbyx(temp, temp);
-        quotient++;
-    }
-    pol res; pol_init(res);
-    pol_sub(a, temp, res);
-    quot[quotient] = 1;
-    pol_copy(res, rest);
-    if(pol_deg(rest) >= deg_b) {
-        pol_div(rest, b, quot, rest);
-    }
-}
-
-void pol_euclide(pol a, pol b, pol u, pol v) {
-    // Marche pour les polynômes à coefficients dans Z/2Z
-    pol_init(u); u[0] = 1;
-    pol_init(v); v[0] = 0;
-    
-}
-
 
 // GF256
 
@@ -127,10 +96,23 @@ void gf256_showbin(gf256 pol) {
         k = pol & andmask;
         k == 0 ? printf ("0") : printf ("1");
     }
+    printf("\n");
+}
+
+int gf256_deg(gf256 pol) {
+    int i, andmask;
+    for (i = 7; i >= 0;i--)
+    {
+        andmask = 1 << i;
+        if(pol & andmask) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 void gf256_showhex(gf256 pol) {
-    printf("%c%c\n", hex[pol / 16], hex[pol % 16]);
+    printf("%c%c\n", hex[pol/16], hex[pol%16]);
 }
 
 gf256 gf256_parse(char input[2]) {
@@ -141,26 +123,27 @@ gf256 gf256_add(gf256 pol1, gf256 pol2) {
     return pol1 ^ pol2;
 }
 
-gf256 gf256_mul(gf256 pol1, gf256 pol2) {
-    // Copier pol1 et pol2 dans un pol générique
-    pol a; pol_init(a);
-    pol b; pol_init(b);
-    for(int i = 0; i < 8; i++) {
-        a[i] = (pol1 >> i) & 1;
-        b[i] = (pol2 >> i) & 1;
+gf256 gf256_mulbyx(gf256 pol1) {
+    if(pol1 & 128) {
+        return 27 ^ (pol1 << 1);
     }
-    // Initialiser le résultat
-    pol res; pol_init(res);
-    // Multiplier
-    pol_mul(a, b, res);
-    // Réduire par x^8 + x^4 + x^3 + x + 1
-    pol div; pol_init(div);
-    div[8] = 1; div[4] = 1; div[3] = 1; div[1] = 1; div[0] = 1;
-    // pol_div(res, div, res);
-    // Convertir le résultat en gf256
-    // gf256 res_gf256 = 0;
-    // for(int i = 0; i < 8; i++) {
-    //     res_gf256 += res[i] << i;
-    // }
+    else {
+        return pol1 << 1;
+    }
+}
+
+gf256 gf256_mulbyxpower(gf256 pol, int power) {
+    gf256 res = power == 0 ? pol : gf256_mulbyxpower(gf256_mulbyx(pol), power - 1);
+    return res;
+}
+
+gf256 gf256_mul(gf256 pol1, gf256 pol2) {
+    int deg_b = gf256_deg(pol2);
+    gf256 res = 0;
+    for(int j = deg_b; j >= 0; j--) {
+        if(pol2 & 1 << j) {
+            res ^= gf256_mulbyxpower(pol1, j);
+        }
+    }
     return res;
 }
