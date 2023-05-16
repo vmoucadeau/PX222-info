@@ -13,7 +13,7 @@ nB :: Int
 nB = 4
 
 nK :: Int
-nK = 4
+nK = 8
 
 nR :: Int
 nR = 6 + nK
@@ -56,10 +56,20 @@ instance Group State where
 ------------------------------------------------------------
 
 encode :: String -> String -> String
-encode k x = stateprint $ encodeciph (bpkey $ spacewords k) $ build $ map chartoGF x
+encode k x | length x > 16 = (encodebloc k $ take 16 x) ++ (encode k $ drop 16 x)
+encode k x | length x == 16 = encodebloc k x
+encode k x = encode k (x ++ " ")
 
 decode :: String -> String -> String
-decode k x = stateprint $ decodeciph (bpkey $ spacewords k) $ bpsq $ spacewords x
+decode k x | length x > 16 = (decodebloc k $ take 16 x) ++ (decode k $ drop 16 x)
+decode k x | length x == 16 = decodebloc k x
+decode k x = decode k (x ++ " ")
+
+encodebloc :: String -> String -> String
+encodebloc k x = map invchartoGF $ pixel $ encodeciph (bpkey $ spacewords k) $ build $ map chartoGF x
+
+decodebloc :: String -> String -> String
+decodebloc k x = map invchartoGF $ pixel $ decodeciph (bpkey $ spacewords k) $ build $ map chartoGF x
 
 encodeciph :: [GF256] -> State -> State
 encodeciph k x = let key = keyexpansion k in rounds 1 key $ addroundkey 0 key x
@@ -248,11 +258,11 @@ chartoGF c = let x = fromEnum c in let
     f x = (if even x then '0' else '1'):(f $ div x 2)
     in F8 $ Px $ map (\x -> parse (Z2Z True) [x]) $ take 8 (f x ++ "00000000")
 
-invchartoGF :: Char -> GF256
-invchartoGF c = let x = fromEnum c in let
-    f 0 = "0"
-    f x = (if even x then '0' else '1'):(f $ div x 2)
-    in F8 $ Px $ map (\x -> parse (Z2Z True) [x]) $ take 8 (f x ++ "00000000")
+invchartoGF :: GF256 -> Char
+invchartoGF z = let b = let [x,y] = take 2 $ drop 1 $ show z in hexaparse [x] ++ hexaparse [y] in let
+    f [] = 0
+    f (c:cs) = (if c == '0' then 0 else 1) + 2 * (f cs)
+    in toEnum $ f $ reverse b
 
 ------------------------------------------------------------
 -- --------- Some multiple random State Example --------- --
