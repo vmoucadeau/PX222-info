@@ -82,22 +82,38 @@ void pol_mul(pol a, pol b, pol res) {
 }
 
 void pol_mulbyx(pol a, pol res) {
-    pol_init(res);
     for(int i = 0; i < DEG_MAX_POL; i++) { // Attention de ne pas dépasser le degré max
         res[i+1] = a[i];
     }
 }
 
-void pol_div(pol a, pol b, pol res) {
+void pol_div(pol a, pol b, pol quot, pol rest) {
+    // Marche pour les polynômes à coefficients dans Z/2Z
     int deg_a = pol_deg(a); int deg_b = pol_deg(b);
-    pol_init(res);
-    pol_copy(a, res);
-    for(int i = deg_a; i >= deg_b; i--) {
-        res[i] = res[i] / b[deg_b];
-        for(int j = deg_b; j >= 0; j--) {
-            res[i-j] -= res[i] * b[j];
-        }
+    assert(deg_b < deg_a);
+    pol_init(rest);
+    pol_init(quot);
+    pol temp; pol_init(temp);
+    pol_copy(b, temp);
+    int quotient = 0;
+    while(pol_deg(temp) < deg_a) {
+        pol_mulbyx(temp, temp);
+        quotient++;
     }
+    pol res; pol_init(res);
+    pol_sub(a, temp, res);
+    quot[quotient] = 1;
+    pol_copy(res, rest);
+    if(pol_deg(rest) >= deg_b) {
+        pol_div(rest, b, quot, rest);
+    }
+}
+
+void pol_euclide(pol a, pol b, pol u, pol v) {
+    // Marche pour les polynômes à coefficients dans Z/2Z
+    pol_init(u); u[0] = 1;
+    pol_init(v); v[0] = 0;
+    
 }
 
 
@@ -140,7 +156,7 @@ gf256 gf256_mul(gf256 pol1, gf256 pol2) {
     // Réduire par x^8 + x^4 + x^3 + x + 1
     pol div; pol_init(div);
     div[8] = 1; div[4] = 1; div[3] = 1; div[1] = 1; div[0] = 1;
-    pol_div(res, div, res);
+    // pol_div(res, div, res);
     // Convertir le résultat en gf256
     // gf256 res_gf256 = 0;
     // for(int i = 0; i < 8; i++) {
