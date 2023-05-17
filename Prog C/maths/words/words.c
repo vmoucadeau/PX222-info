@@ -18,10 +18,30 @@ void w4_showhex(w4 list) {
     for(int i = 0; i < 4; i++) {
         gf256_showhex(list[i]);
         if(i < 3) {
-            printf(", ");
+            printf(" ");
         }
     }
     printf("]");
+}
+
+void w4_showstr(w4 list) {
+    for(int i = 0; i < 4; i++) {
+        gf256_showhex(list[i]);
+        
+    }
+}
+
+void w4_parse(char word[8], w4 res) {
+    for(int i = 0; i < 8; i += 2) {
+        char input[2] = {word[i], word[i+1]};
+        res[i/2] = gf256_parse(input);
+    }
+}
+
+void w4_copy(w4 a, w4 res) {
+    for(int i = 0; i < 4; i++) {
+        res[i] = a[i];
+    }
 }
 
 void w4_add(w4 a, w4 b, w4 res) {

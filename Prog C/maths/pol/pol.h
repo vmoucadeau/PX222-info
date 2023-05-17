@@ -5,6 +5,8 @@
 typedef int pol [DEG_MAX_POL + 1];
 typedef unsigned char gf256;
 
+int search_hexval(char val);
+
 void pol_init(pol a);
 void pol_show(pol a);
 int pol_deg(pol a);

@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "stdio.h": "c"
-    }
+        "stdio.h": "c",
+        "state.h": "c",
+        "keyexp.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "enabled"
 }
