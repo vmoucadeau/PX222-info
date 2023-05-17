@@ -64,3 +64,8 @@ void inv_mixcolumns(state input, state output) {
         w4_mul(ax_inv, tmp, output[i]);
     }
 }
+
+// void cipher(char input[4*nB], char output[4*nB], w4 key_expended[nB*(nR+1)]) {
+//     state to_cipher = STATE_INIT;
+//     state_parse(input, to_cipher);
+// }

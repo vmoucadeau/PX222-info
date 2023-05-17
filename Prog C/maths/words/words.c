@@ -31,6 +31,16 @@ void w4_showstr(w4 list) {
     }
 }
 
+void w4_showlst(w4 *list, int length) {
+    for(int i = 0; i < length; i++) {
+        printf("%d : [", i);
+        for(int j = 0; j < 4; j++) {
+            gf256_showhex(list[i][j]);
+            j < 3 ? printf(" ") : printf("]\n");
+        }
+    }
+}
+
 void w4_parse(char word[8], w4 res) {
     for(int i = 0; i < 8; i += 2) {
         char input[2] = {word[i], word[i+1]};

@@ -25,20 +25,20 @@ void rcon(int i, w4 output) {
     output[3] = 0;
 }
 
-void keyexpension(gf256 key[4*nK], w4 words[KEY_LENGTH]) {
+void keyexpension(char key[4*nK], w4 words[KEY_LENGTH]) {
     w4 tmp = W4_INIT;
     // Copie de la clé dans la future clé étendue
-    for(int i = 0; i < 4; i++) {
-        words[i][0] = key[4*i];
-        words[i][1] = key[4*i+1];
-        words[i][2] = key[4*i+2];
-        words[i][3] = key[4*i+3];
+    for(int i = 0; i < 8; i += 2) {
+        w4_parse(&key[4*i], words[i/2]);
     }
 
+    // Expension de la clé
     for(int i = nK; i < KEY_LENGTH; i++) {
         w4_copy(words[i-1], tmp);
         if(i % nK == 0) {
-            rotword(tmp, tmp);
+            w4 rotated = W4_INIT;
+            rotword(tmp, rotated);
+            w4_copy(rotated, tmp);
             subword(tmp, tmp);
             w4 rconed = W4_INIT;
             rcon(i/nK, rconed);

@@ -18,8 +18,10 @@ void test_gf256_add() {
 }
 
 int main() {
-    
-    
+    char testkey1[] = "2b7e151628aed2a6abf7158809cf4f3c";
+    w4 words[KEY_LENGTH] = {W4_INIT};
+    keyexpension(testkey1, words);
+    w4_showlst(words, KEY_LENGTH);
 }
 
 /* TESTS POUR W4 */
