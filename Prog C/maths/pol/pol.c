@@ -96,7 +96,6 @@ void gf256_showbin(gf256 pol) {
         k = pol & andmask;
         k == 0 ? printf ("0") : printf ("1");
     }
-    printf("\n");
 }
 
 int gf256_deg(gf256 pol) {
@@ -112,7 +111,7 @@ int gf256_deg(gf256 pol) {
 }
 
 void gf256_showhex(gf256 pol) {
-    printf("%c%c\n", hex[pol/16], hex[pol%16]);
+    printf("%c%c", hex[pol/16], hex[pol%16]);
 }
 
 gf256 gf256_parse(char input[2]) {

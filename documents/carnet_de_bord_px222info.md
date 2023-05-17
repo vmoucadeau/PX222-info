@@ -77,3 +77,7 @@ Lors de cette séance, nous avons apporté quelques modifications au programme H
 Pour la prochaine séance, nous avons prévu de : 
 - Avancer/Terminer le programme en C
 - Rédiger un document détaillant le fonctionnement des deux programmes
+
+# Mercredi 17 mai - 17h27
+- Améliorations sur le programme Haskell (possibilité de chiffrer/déchiffrer un texte entier)
+- Ajout de fonctions sur les mots de 32 bits (addition, multiplication)

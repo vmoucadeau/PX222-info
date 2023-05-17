@@ -2,6 +2,7 @@ char test_pol = 65;
 
 #include "maths/bits/bits.h"
 #include "maths/pol/pol.h"
+#include "maths/words/words.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,50 +14,14 @@ void test_gf256_add() {
     gf256_showhex(gf256_add(test_pol, test_pol2)); // 1d xor 1e = 03
 }
 
-void test_pol_add() {
-    pol a;
-    pol_init(a);
-    a[0] = 1;
-    a[1] = 1;
-    a[2] = 0;
-    pol b; pol_init(b);
-    b[0] = 1;
-    b[1] = 1;
-    b[2] = 0;
-    b[3] = 0;
-    pol res; 
-    pol_add(a, b, res);
-    pol_show(res);
-}
-
-void test_pol_mul() {
-    pol a;
-    pol_init(a);
-    a[0] = 1;
-    a[1] = 1;
-    a[2] = 0;
-    pol b; pol_init(b);
-    b[0] = 1;
-    b[1] = 1;
-    b[2] = 0;
-    b[3] = 0;
-    printf("a = "); pol_show(a);
-    printf("b = "); pol_show(b);
-    printf("deg(a) = %i\n", pol_deg(a));
-    printf("deg(b) = %i\n", pol_deg(b));
-    pol res; 
-    pol_mul(a, b, res);
-    printf("a*b = "); pol_show(res);
-}
-
 int main() {
-    // test_gf256_add();
-    // test_pol_add();
-    // test_pol_mul();
-    gf256 pol1 = gf256_parse("57");
-    // printf("%d\n", deg_test);
-    gf256 pol2 = gf256_parse("13");
-    // gf256_showbin(test2);
-    gf256 res = gf256_mul(pol1,pol2);
-    gf256_showhex(res);
+    w4 mot1 = {gf256_parse("02"), gf256_parse("01"), gf256_parse("01"), gf256_parse("03")};
+    w4 mot2 = {gf256_parse("0e"), gf256_parse("09"), gf256_parse("0d"), gf256_parse("0b")};
+    w4 add = W4_INIT;
+    w4_add(mot1, mot2, add);
+    w4_showhex(add);
+
+    w4 mul = W4_INIT;
+    w4_mul(mot1, mot2, mul);
+    w4_showhex(mul);
 }
