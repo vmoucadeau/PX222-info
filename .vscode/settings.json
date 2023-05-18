@@ -2,7 +2,8 @@
     "files.associations": {
         "stdio.h": "c",
         "state.h": "c",
-        "keyexp.h": "c"
+        "keyexp.h": "c",
+        "functional": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

@@ -3,8 +3,9 @@
 #include <stdio.h>
 
 // Tools
-char hex[] = "0123456789abcdef";
+
 int search_hexval(char val) {
+    char hex[] = "0123456789abcdef";
     for(int i = 0; i < 16; i++) {
         if (val == hex[i]) {
             return i;
@@ -111,7 +112,14 @@ int gf256_deg(gf256 pol) {
 }
 
 void gf256_showhex(gf256 pol) {
+    char hex[] = "0123456789abcdef";
     printf("%c%c", hex[pol/16], hex[pol%16]);
+}
+
+void gf256_getstr(gf256 pol, char res[2]) {
+    char hex[] = "0123456789abcdef";
+    res[0] = hex[pol/16];
+    res[1] = hex[pol%16];
 }
 
 gf256 gf256_parse(char input[2]) {

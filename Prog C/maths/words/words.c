@@ -41,6 +41,12 @@ void w4_showlst(w4 *list, int length) {
     }
 }
 
+void w4_getstr(w4 list, char res[8]) {
+    for(int i = 0; i < 4; i++) {
+        gf256_getstr(list[i], &res[i*2]);
+    }
+}
+
 void w4_parse(char word[8], w4 res) {
     for(int i = 0; i < 8; i += 2) {
         char input[2] = {word[i], word[i+1]};

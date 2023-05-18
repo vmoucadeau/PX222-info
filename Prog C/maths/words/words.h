@@ -12,5 +12,6 @@ void w4_showbin(w4 list);
 void w4_showhex(w4 list);
 void w4_showstr(w4 list);
 void w4_showlst(w4 *list, int length);
+void w4_getstr(w4 list, char res[8]);
 void w4_add(w4 a, w4 b, w4 res);
 void w4_mul(w4 a, w4 b, w4 res);

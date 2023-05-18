@@ -13,9 +13,11 @@ void subword(w4 input, w4 output) {
 }
 
 void rotword(w4 input, w4 output) {
+    w4 rotating = W4_INIT;
     for(int i = 0; i < 4; i++) {
-        output[i] = input[(i+1)%4];
+        rotating[i] = input[(i+1)%4];
     }
+    w4_copy(rotating, output);
 }
 
 void rcon(int i, w4 output) {
@@ -27,8 +29,8 @@ void rcon(int i, w4 output) {
 
 void keyexpension(char key[4*nK], w4 words[KEY_LENGTH]) {
     w4 tmp = W4_INIT;
-    // Copie de la clé dans la future clé étendue
-    for(int i = 0; i < 8; i += 2) {
+    // Copie (et parsing) de la clé dans la future clé étendue
+    for(int i = 0; i < 2*nK; i += 2) {
         w4_parse(&key[4*i], words[i/2]);
     }
 
@@ -36,13 +38,11 @@ void keyexpension(char key[4*nK], w4 words[KEY_LENGTH]) {
     for(int i = nK; i < KEY_LENGTH; i++) {
         w4_copy(words[i-1], tmp);
         if(i % nK == 0) {
-            w4 rotated = W4_INIT;
-            rotword(tmp, rotated);
-            w4_copy(rotated, tmp);
+            rotword(tmp, tmp);
             subword(tmp, tmp);
-            w4 rconed = W4_INIT;
-            rcon(i/nK, rconed);
-            w4_add(tmp, rconed, tmp);
+            w4 my_rcon = W4_INIT;
+            rcon(i/nK, my_rcon);
+            w4_add(tmp, my_rcon, tmp);
         }
         else if(nK > 6 && i % nK == 4) {
             subword(tmp,tmp);

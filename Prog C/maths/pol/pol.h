@@ -17,6 +17,7 @@ void pol_mul(pol a, pol b, pol res);
 
 void gf256_showbin(gf256 pol);
 void gf256_showhex(gf256 pol);
+void gf256_getstr(gf256 pol, char res[2]);
 gf256 gf256_parse(char input[2]);
 int gf256_deg(gf256 pol);
 gf256 gf256_add(gf256 pol1, gf256 pol2);

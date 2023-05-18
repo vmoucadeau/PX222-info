@@ -13,7 +13,7 @@ nB :: Int
 nB = 4
 
 nK :: Int
-nK = 8
+nK = 4
 
 nR :: Int
 nR = 6 + nK

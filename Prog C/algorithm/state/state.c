@@ -3,7 +3,7 @@
 
 
 
-void state_parse(char input[33], state res) {
+void state_parse(char input[8*nB], state res) {
     for(int i = 0; i < 4; i++) {
         w4 line = W4_INIT;
         w4_parse(&input[i*8], line);
@@ -39,6 +39,12 @@ void state_showstr(state list) {
         
     }
     printf("\n");
+}
+
+void state_getstr(state list, char res[8*nB]) {
+    for(int i = 0; i < 4; i++) {
+        w4_getstr(list[i], &res[i*8]);
+    }
 }
 
 void state_copy(state a, state res) {

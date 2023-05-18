@@ -1,5 +1,3 @@
-char test_pol = 65;
-
 #include "maths/bits/bits.h"
 #include "maths/pol/pol.h"
 #include "maths/words/words.h"
@@ -9,19 +7,61 @@ char test_pol = 65;
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-void test_gf256_add() {
-    gf256 test_pol = gf256_parse("1d");
-    gf256_showhex(gf256_add(test_pol, test_pol)); // 1d xor 1d = 00
-    gf256 test_pol2 = gf256_parse("1e");
-    gf256_showhex(gf256_add(test_pol, test_pol2)); // 1d xor 1e = 03
+void encodebloc(char bloc[8*nB], w4 key_expended[nB*(nR+1)], state output) {
+    state to_cipher = STATE_INIT;
+    state_parse(bloc, to_cipher);
+    state_showhex(to_cipher);
+    cipher(to_cipher, output, key_expended);
 }
 
+void decodebloc(char bloc[8*nB], w4 key_expended[nB*(nR+1)], state output) {
+    state to_uncipher = STATE_INIT;
+    state_parse(bloc, to_uncipher);
+    inv_cipher(to_uncipher, output, key_expended);
+}
+
+void encodetext(char *text, int length, char *key, char *output) {
+    char hex[] = "0123456789abcdef";
+    w4 key_expended[nB*(nR+1)] = {W4_INIT};
+    keyexpension(key, key_expended);
+    
+    char *texthex = malloc(length*2);
+    for(int i = 0; i < length*2; i+=2) {
+        texthex[i] = hex[text[i/2] >> 4];
+        texthex[i+1] = hex[text[i/2] & 0x0F];
+    }
+
+    char *textcipherhex = malloc(32+(length/16)*32);
+    for(int i = 0; i < 1+length/16; i++) {
+        state ciphered = STATE_INIT;
+        if(length*2 - i*16 < 16) {
+            char notfullbloc[32] = {0};
+            strcpy(notfullbloc, &texthex[i*32]);
+            encodebloc(notfullbloc, key_expended, ciphered);
+            state_showhex(ciphered);
+        }
+        else {
+            encodebloc(&texthex[i*32], key_expended, ciphered);   
+        }    
+        state_getstr(ciphered, &textcipherhex[i*32]);
+    }
+
+    strcpy(output, textcipherhex);
+    free(textcipherhex);
+    free(texthex);
+}
+
+
 int main() {
+    // char to_cipher[] = "3243f6a8885a308d313198a2e0370734";
     char testkey1[] = "2b7e151628aed2a6abf7158809cf4f3c";
-    w4 words[KEY_LENGTH] = {W4_INIT};
-    keyexpension(testkey1, words);
-    w4_showlst(words, KEY_LENGTH);
+    char toencode[16] = "azerthgbvfgthj56";
+    char encoded[32*2] = {0};
+    encodetext(toencode, 16, testkey1, encoded);
+    // printf("%s\n", toencode);
+    printf("%s", encoded);
 }
 
 /* TESTS POUR W4 */
@@ -103,4 +143,31 @@ int main() {
     w4_showhex(test);
     rcon(10, test);
     w4_showhex(test);
+*/
+
+/* TESTS POUR KEYEXP */
+/*
+    char testkey1[] = "2b7e151628aed2a6abf7158809cf4f3c"; // nK = 4
+    char testkey2[] = "8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b"; // nK = 6
+    char testkey3[] = "603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4"; // nK = 8
+    w4 words[KEY_LENGTH] = {W4_INIT};
+    keyexpension(testkey1, words);
+    w4_showlst(words, KEY_LENGTH);
+*/
+
+/* TEST POUR CIPHER ET INV_CIPHER */
+/*
+    char to_cipher[] = "3243f6a8885a308d313198a2e0370734";
+    char testkey1[] = "2b7e151628aed2a6abf7158809cf4f3c";
+    w4 expended[nB*(nR+1)] = {W4_INIT};
+    keyexpension(testkey1, expended);
+    state ciphered = STATE_INIT;
+    encodebloc(to_cipher, expended, ciphered);
+    state_showhex(ciphered);
+    printf("\n");
+    char ciphered_str[8*nB] = {0};
+    state_getstr(ciphered, ciphered_str);
+    state unciphered = STATE_INIT;
+    decodebloc(ciphered_str, expended, unciphered);
+    state_showhex(unciphered);
 */
