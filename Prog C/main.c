@@ -12,7 +12,6 @@
 void encodebloc(char bloc[8*nB], w4 key_expended[nB*(nR+1)], state output) {
     state to_cipher = STATE_INIT;
     state_parse(bloc, to_cipher);
-    state_showhex(to_cipher);
     cipher(to_cipher, output, key_expended);
 }
 
@@ -36,11 +35,12 @@ void encodetext(char *text, int length, char *key, char *output) {
     char *textcipherhex = malloc(32+(length/16)*32);
     for(int i = 0; i < 1+length/16; i++) {
         state ciphered = STATE_INIT;
-        if(length*2 - i*16 < 16) {
+        if((length*2 - i*32) <= 16) {
             char notfullbloc[32] = {0};
-            strcpy(notfullbloc, &texthex[i*32]);
+            for(int j = 0; j < (length*2 - i*32); j++) {
+                notfullbloc[j] = texthex[i*32+j];
+            }
             encodebloc(notfullbloc, key_expended, ciphered);
-            state_showhex(ciphered);
         }
         else {
             encodebloc(&texthex[i*32], key_expended, ciphered);   
@@ -48,6 +48,11 @@ void encodetext(char *text, int length, char *key, char *output) {
         state_getstr(ciphered, &textcipherhex[i*32]);
     }
 
+    // for(int i = 0; i < (32+(length/16)*32); i+=2) {
+    //     char charval = search_hexval(textcipherhex[i])*16 + search_hexval(textcipherhex[i]);
+    //     printf("%c", charval);
+    //     output[i/2] = charval;
+    // }
     strcpy(output, textcipherhex);
     free(textcipherhex);
     free(texthex);
@@ -57,10 +62,10 @@ void encodetext(char *text, int length, char *key, char *output) {
 int main() {
     // char to_cipher[] = "3243f6a8885a308d313198a2e0370734";
     char testkey1[] = "2b7e151628aed2a6abf7158809cf4f3c";
-    char toencode[16] = "azerthgbvfgthj56";
-    char encoded[32*2] = {0};
-    encodetext(toencode, 16, testkey1, encoded);
-    // printf("%s\n", toencode);
+    char toencode[18] = "azerthgbvfgthj5658";
+    char encoded[32*3] = {0};
+    encodetext(toencode, 18, testkey1, encoded);
+    printf("%s\n", toencode);
     printf("%s", encoded);
 }
 
