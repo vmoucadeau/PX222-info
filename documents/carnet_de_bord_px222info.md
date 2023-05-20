@@ -81,3 +81,8 @@ Pour la prochaine séance, nous avons prévu de :
 # Mercredi 17 mai - 17h27
 - Améliorations sur le programme Haskell (possibilité de chiffrer/déchiffrer un texte entier)
 - Ajout de fonctions sur les mots de 32 bits (addition, multiplication)
+
+# Samedi 20 mai - 23h53
+- Implémentation en C terminée !
+- Programme capable de chiffrer/déchiffrer du texte avec une clé de 128 bits (à tester avec 192 et 256 bits)
+- Reste à faire : optimiser un peu le code, le rendre pratique à utiliser, chiffrer/déchiffrer des fichiers, faire une documentation...

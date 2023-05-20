@@ -12,6 +12,7 @@
 void encodebloc(char bloc[8*nB], w4 key_expended[nB*(nR+1)], state output) {
     state to_cipher = STATE_INIT;
     state_parse(bloc, to_cipher);
+    state_showhex(to_cipher);
     cipher(to_cipher, output, key_expended);
 }
 
@@ -58,15 +59,52 @@ void encodetext(char *text, int length, char *key, char *output) {
     free(texthex);
 }
 
+void decodetext(char *text, int length, char *key, char *output) {
+    char hex[] = "0123456789abcdef";
+    w4 key_expended[nB*(nR+1)] = {W4_INIT};
+    keyexpension(key, key_expended);
+    length -= 1;
+
+    char *textuncipherhex = malloc(length);
+    for(int i = 0; i < length/32; i++) {
+        state unciphered = STATE_INIT;
+        if((length - i*32) <= 32) {
+            char notfullbloc[32] = {0};
+            for(int j = 0; j < (length - i*32); j++) {
+                notfullbloc[j] = text[i*32+j];
+            }
+            decodebloc(notfullbloc, key_expended, unciphered);
+        }
+        else {
+            decodebloc(&text[i*32], key_expended, unciphered);   
+        }    
+        state_getstr(unciphered, &textuncipherhex[i*32]);
+    }
+
+    // char *textuncipher = malloc(1+length/2);
+    // for(int i = 0; i < (32+(length/16)*32); i+=2) {
+    //     char charval = search_hexval(textuncipherhex[i])*16 + search_hexval(textuncipherhex[i+1]);
+    //     printf("%c", charval);
+    //     textuncipher[i/2] = charval;
+    // }
+    strcpy(output, textuncipherhex);
+    free(textuncipherhex);
+    // free(textuncipherh);
+}
+
 
 int main() {
     // char to_cipher[] = "3243f6a8885a308d313198a2e0370734";
     char testkey1[] = "2b7e151628aed2a6abf7158809cf4f3c";
-    char toencode[18] = "azerthgbvfgthj5658";
+    char toencode[] = "azerthgbvfgthj5658";
     char encoded[32*3] = {0};
-    encodetext(toencode, 18, testkey1, encoded);
+    encodetext(toencode, strlen(toencode), testkey1, encoded);
+    char todecode[] = "068743c462d1927dd97749337cd504c27026d00c69e394819b7bf36d948732d8";
+    char decoded[65];
+    decodetext(todecode, 65, testkey1, decoded);
     printf("%s\n", toencode);
-    printf("%s", encoded);
+    printf("%s\n", encoded);
+    printf("%s\n", decoded);
 }
 
 /* TESTS POUR W4 */
