@@ -1,7 +1,7 @@
 #include "../../maths/words/words.h"
 #include "../../maths/pol/pol.h"
 
-#define nK 4
+#define nK 6
 #define nB 4
 #define nR 6+nK
 

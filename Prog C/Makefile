@@ -1,5 +1,5 @@
 CC = gcc
-FLAGS = -Wall -g
+FLAGS = -g
 aes.out : main.o pol.o bits.o words.o state.o cipher.o keyexp.o
 	$(CC) $(FLAGS) -o $@ $^
 
