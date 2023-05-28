@@ -1,2 +1,8 @@
 *.o
 *.out
+documents/jalon/jalon.aux
+documents/jalon/jalon.fdb_latexmk
+documents/jalon/jalon.fls
+documents/jalon/jalon.log
+documents/jalon/jalon.synctex.gz
+documents/jalon/jalon.toc

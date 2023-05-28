@@ -49,5 +49,4 @@ void keyexpension(char key[4*nK], w4 words[KEY_LENGTH]) {
         }
         w4_add(words[i-nK], tmp, words[i]);
     }
-
 }

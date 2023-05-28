@@ -79,9 +79,11 @@ void inv_mixcolumns(state input, state output) {
 void cipher(state input, state output, w4 key_expended[nB*(nR+1)]) {
     state ciphering = STATE_INIT;
     state_copy(input, ciphering);
+    
     int Nb = nB;
     int Nr = nR;
     addroundkey(ciphering, key_expended, ciphering);
+    
     for(int r = 1; r < Nr; r++) {
         subbytes(ciphering, ciphering);
         shiftrows(ciphering, ciphering);

@@ -1,0 +1,143 @@
+\documentclass[12pt]{article}
+
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{tikz,tkz-tab}
+\usepackage{mathrsfs}
+\usepackage{listings}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage{multicol}
+\usepackage{float,graphicx}
+\usepackage{pstricks,pst-all,pst-plot,pstricks-add,pst-3dplot}
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+\usepackage{indentfirst}
+\usepackage{cases}
+\usepackage{array}
+\usepackage[shortlabels]{enumitem}
+\usepackage{eurosym}
+\usepackage{bbm}
+\usepackage[european, straightvoltages, RPvoltages]{circuitikz}
+\usepackage{diagbox}
+\usetikzlibrary{positioning,calc}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+
+\title{PX222 IRC - Jalon intermédiaire \\ Advanced Encryption Standard}
+\author{Alexandre VINHAS - Vincent MOUCADEAU | 2A}
+\date{29/05/2023}
+
+
+\newenvironment{restoretext}%
+    {
+     \begin{adjustwidth}{}{\leftmargin}%
+    }{\end{adjustwidth}
+     }
+     
+\renewcommand*{\overrightarrow}[1]{\vbox{\halign{##\cr 
+  \tiny\rightarrowfill\cr\noalign{\nointerlineskip\vskip1pt} 
+  $#1\mskip2mu$\cr}}}
+
+
+\newcommand{\dvec}[1]{\overrightarrow{#1}} % Commande perso pour vecteurs
+\newcommand{\fracvec}[3]{\dfrac{#1}{#2}\dvec{#3}}
+
+     
+\newcommand*\Vc[2][1ex]{\Vcaux#2,,\Vcaux{#1}}% arg optionnel = espacement entre coordonnées
+\def\Vcaux#1,#2,#3,#4\Vcaux#5{%
+    \ensuremath{\left(\vcenter{\baselineskip0pt
+    \halign{\hfil\kern.25em$##$\kern.25em\hfil\crcr
+        #1\cr\noalign{\vskip#5}#2\cr\noalign{\vskip#5}#3\crcr}%
+    }\right)}%
+} 
+
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash }b{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash }b{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash }b{#1}}
+
+\renewcommand{\arraystretch}{1.4}
+
+% -------- PYTHON -------- %
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+
+\lstset{frame=tb,
+language=Python,
+aboveskip=3mm,
+belowskip=3mm,
+showstringspaces=false,
+columns=flexible,
+basicstyle={\small\ttfamily},
+numbers=left,
+numberstyle=\tiny\color{gray},
+keywordstyle=\color{blue},
+commentstyle=\color{dkgreen},
+stringstyle=\color{mauve},
+breaklines=true,
+breakatwhitespace=true,
+tabsize=3}
+
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+\renewcommand{\contentsname}{Table des matières}
+
+
+\begin{document}
+
+\maketitle
+
+%\tableofcontents
+%\newpage
+
+
+\section{Objectifs du projet}
+Le but de ce projet est de réaliser un programme de chiffrement et de déchiffrement de textes/fichiers en utilisant l'algorithme AES (Advanced Encryption Standard). Ce programme devra être capable de chiffrer et déchiffrer des fichiers de taille quelconque, en utilisant une clé de 128, 192 ou 256 bits. Nous devrons implémenter l'algorithme en Haskell et en C. Cela nous permettra de comprendre le fonctionnement d'AES, un algorithme de chiffrement très utilisé (car très robuste), et de mettre en application nos connaissances en Mathématiques aquises au premier semestre (polynômes, structures algébriques...).
+
+\section{Etat du projet}
+\noindent A l'heure actuelle, voici les tâches que nous avons réalisées :
+\begin{itemize}
+    \item Recherche sur l'algorithme AES et sur les structures algébriques utilisées (corps finis, polynômes...)
+    \item Implémentation complète de l'algorithme AES en Haskell (chiffrement et déchiffrement avec des clés de 128, 192 et 256 bits)
+    \item Implémentation complète de l'algorithme AES en C (chiffrement et déchiffrement avec des clés de 128 bits)
+\end{itemize}
+A ce stade, il nous reste donc à corriger l'implémentation en C pour qu'elle fonctionne avec des clés de 192 et 256 bits. Les objectifs que nous nous étions fixés sont donc presque atteints. Nous aimerions par la suite poursuivre le projet en ajoutant des fonctionnalités supplémentaires, comme par exemple la possibilité de chiffrer/déchiffrer des fichiers de taille quelconque en C ou encore une interface graphique (si nous avons le temps). 
+
+\section{Fonctionnement des programmes}
+\subsection{AES en Haskell}
+Le programme en Haskell est composé d'un dossier \texttt{Math} qui rassemble les fichiers définissant les structures algébriques utilisées (corps finis, polynômes...), la partie 4 de la documentation FIPS (préliminaires mathématiques) avec les opérations sur les polynômes de GF256, les \texttt{words} de 32 bits (polynômes à coefficients dans GF256) ainsi que les states. Le fichier \texttt{Cipher.hs} importe l'ensemble des modules du dossier \texttt{Math} et définit l'ensemble des transformations sur les states, les clés (keyexpension) ainsi que les fonctions de chiffrement et de déchiffrement. Voici les fonctions principales du programme :
+\begin{itemize}
+    \item \texttt{encode :: String -> String -> String} : prend en entrée une clé et un texte et renvoie le texte chiffré
+    \item \texttt{decode :: String -> String -> String} : prend en entrée une clé et un texte chiffré et renvoie le texte déchiffré
+\end{itemize}
+Exemple avec une clé de 128 bits et un chaine de 17 caractères :
+\begin{lstlisting}
+    ghci> encode "2B7E151628AED2A6ABF7158809CF4F3C" "azertyuiopqsdfgh5"
+    "\147\169\152\188\180R\245\219\190\228%b\248\ESC\217s:mlN\227\188\&8\237J\188\\\f(\150\&7x"
+\end{lstlisting}
+\begin{lstlisting}
+    ghci> decode "2B7E151628AED2A6ABF7158809CF4F3C" "\147...7x"
+    "azertyuiopqsdfgh5"
+\end{lstlisting}
+\subsection{AES en C}
+Le programme en C est composé d'un dossier \texttt{maths} qui contient les fichiers définissant les types et les fonctions sur les polynômes et les mots de 32 bits. Le dossier \texttt{algorithm} contient les fichiers définissant les fonctions sur les states, les clés et l'algorithme Cipher et InvCipher. Le fichier \texttt{main.c} contient quelques tests et définit les fonctions principales du programme :
+\begin{itemize}
+    \item \texttt{encodetext(char *key, char *text)} : prend en entrée une clé et un texte et renvoie le texte chiffré en hexadécimal.
+    \item \texttt{decodetext(char *key, char *text)} : prend en entrée une clé et un texte chiffré (en hexadécimal) et renvoie le texte déchiffré.
+\end{itemize}
+%\section{Difficultés rencontrées}
+
+
+\end{document}

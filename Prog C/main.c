@@ -12,7 +12,6 @@
 void encodebloc(char bloc[8*nB], w4 key_expended[nB*(nR+1)], state output) {
     state to_cipher = STATE_INIT;
     state_parse(bloc, to_cipher);
-    state_showhex(to_cipher);
     cipher(to_cipher, output, key_expended);
 }
 
@@ -22,10 +21,12 @@ void decodebloc(char bloc[8*nB], w4 key_expended[nB*(nR+1)], state output) {
     inv_cipher(to_uncipher, output, key_expended);
 }
 
-void encodetext(char *text, int length, char *key, char *output) {
+char *encodetext(char *text, char *key) {
     char hex[] = "0123456789abcdef";
     w4 key_expended[nB*(nR+1)] = {W4_INIT};
     keyexpension(key, key_expended);
+
+    int length = strlen(text);
     
     char *texthex = malloc(length*2);
     for(int i = 0; i < length*2; i+=2) {
@@ -33,7 +34,7 @@ void encodetext(char *text, int length, char *key, char *output) {
         texthex[i+1] = hex[text[i/2] & 0x0F];
     }
 
-    char *textcipherhex = malloc(32+(length/16)*32);
+    char *output = malloc(32+(length/16)*32);
     for(int i = 0; i < 1+length/16; i++) {
         state ciphered = STATE_INIT;
         if((length*2 - i*32) <= 16) {
@@ -46,24 +47,17 @@ void encodetext(char *text, int length, char *key, char *output) {
         else {
             encodebloc(&texthex[i*32], key_expended, ciphered);   
         }    
-        state_getstr(ciphered, &textcipherhex[i*32]);
+        state_getstr(ciphered, &output[i*32]);
     }
-
-    // for(int i = 0; i < (32+(length/16)*32); i+=2) {
-    //     char charval = search_hexval(textcipherhex[i])*16 + search_hexval(textcipherhex[i]);
-    //     printf("%c", charval);
-    //     output[i/2] = charval;
-    // }
-    strcpy(output, textcipherhex);
-    free(textcipherhex);
     free(texthex);
+    return output;
 }
 
-void decodetext(char *text, int length, char *key, char *output) {
+char *decodetext(char *text, char *key) {
     char hex[] = "0123456789abcdef";
     w4 key_expended[nB*(nR+1)] = {W4_INIT};
     keyexpension(key, key_expended);
-    length -= 1;
+    int length = strlen(text);
 
     char *textuncipherhex = malloc(length);
     for(int i = 0; i < length/32; i++) {
@@ -81,30 +75,38 @@ void decodetext(char *text, int length, char *key, char *output) {
         state_getstr(unciphered, &textuncipherhex[i*32]);
     }
 
-    // char *textuncipher = malloc(1+length/2);
-    // for(int i = 0; i < (32+(length/16)*32); i+=2) {
-    //     char charval = search_hexval(textuncipherhex[i])*16 + search_hexval(textuncipherhex[i+1]);
-    //     printf("%c", charval);
-    //     textuncipher[i/2] = charval;
-    // }
-    strcpy(output, textuncipherhex);
+    int truelength = 1;
+    for(int i = 0; i < length-1; i++) {
+        if(textuncipherhex[i] == '0' && textuncipherhex[i+1] == '0') {
+            truelength = i/2+1;
+            break;
+        }
+    }
+    char *textuncipher = malloc(truelength);
+    for(int i = 0; i < (32+(length/16)*32); i+=2) {
+        char charval = search_hexval(textuncipherhex[i])*16 + search_hexval(textuncipherhex[i+1]);
+        textuncipher[i/2] = charval;
+        if(textuncipherhex[i] == '0' && textuncipherhex[i+1] == '0') break;
+    }
+    // printf("Hex unciphered : %s\n", textuncipherhex);
     free(textuncipherhex);
-    // free(textuncipherh);
+    return textuncipher;
 }
 
 
 int main() {
-    // char to_cipher[] = "3243f6a8885a308d313198a2e0370734";
     char testkey1[] = "2b7e151628aed2a6abf7158809cf4f3c";
-    char toencode[] = "azerthgbvfgthj5658";
-    char encoded[32*3] = {0};
-    encodetext(toencode, strlen(toencode), testkey1, encoded);
-    char todecode[] = "068743c462d1927dd97749337cd504c27026d00c69e394819b7bf36d948732d8";
-    char decoded[65];
-    decodetext(todecode, 65, testkey1, decoded);
+    char toencode[] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc eu venenatis nunc, sed maximus erat. Sed neque elit, facilisis non quam id, lacinia vehicula mauris. Vivamus eu bibendum enim. Sed risus nunc, venenatis at finibus nec, auctor eu libero. Nulla auctor blandit ex sed malesuada. Suspendisse vehicula, ipsum et lacinia varius, tellus nisl malesuada nisi, at vulputate ipsum odio eu mi. Proin vitae nibh eros. Nulla purus velit, commodo non ornare et, commodo vitae felis. Praesent egestas justo mauris, vel consequat tellus mollis ac. Vivamus mattis lacinia magna, mollis elementum justo dictum id. In varius nulla egestas quam pulvinar, eget gravida eros porta. Maecenas at orci diam. Curabitur pulvinar, leo vel ornare tincidunt, mauris nisi vehicula lorem, eu ullamcorper arcu arcu sed arcu. Pellentesque bibendum tortor sed sagittis feugiat. Etiam consequat mi vitae facilisis vestibulum. Sed cursus, nibh at tempus varius, dui tellus lobortis nulla, ut cursus nulla orci in arcu. Curabitur nisi magna, volutpat at dui ac, egestas fringilla magna. Praesent malesuada velit eros, sed egestas sem sagittis sit amet. Duis accumsan gravida euismod. Sed ipsum sem, interdum eget congue in, luctus eget justo. Curabitur ut lacinia erat, at pharetra nisl. Ut ullamcorper eu felis in scelerisque. Nullam in vulputate metus. Morbi pharetra, magna ultrices dignissim tempus, quam ligula dignissim enim, et viverra metus sem a nisl. Sed nec orci id tortor convallis varius vitae id odio. \n In quis condimentum nibh. Aliquam malesuada sed tortor non lacinia. Nulla imperdiet porta quam, eu pellentesque ante finibus eget. Nullam volutpat gravida lorem vitae fermentum. Proin sit amet ultrices dui. Pellentesque feugiat tempor lorem in ultricies. Sed commodo mattis quam ac vestibulum. \n Curabitur et rhoncus libero. Nam tortor ligula, sagittis quis massa dapibus, consectetur iaculis eros. Aliquam auctor faucibus arcu vel faucibus. Morbi eleifend accumsan massa, vitae convallis tellus fermentum eget. Vivamus lorem nunc, tincidunt non posuere non, sodales vitae neque. Nam nec augue condimentum erat fermentum facilisis eu id felis. Vestibulum facilisis leo leo, non facilisis lectus congue et. Maecenas et elit ut elit malesuada sodales. In malesuada rutrum ullamcorper. Integer cursus, urna eget imperdiet vestibulum, nisl tortor bibendum diam, nec maximus nulla lorem sit amet felis. Nam nec est id quam molestie volutpat. Phasellus ornare magna volutpat sem convallis commodo. Maecenas a mi eget tortor sagittis tempor sit amet eget nulla. \n Cras tincidunt posuere ipsum vitae laoreet. Quisque auctor blandit ipsum. Donec nisl massa, vulputate sit amet ornare sed, tincidunt sed turpis. Curabitur et blandit augue. Donec dictum ante in tortor feugiat, id egestas turpis eleifend. Aenean rutrum elementum sodales. Aliquam dui augue, porttitor nec turpis id, hendrerit maximus odio. Ut semper gravida ligula at pretium. Integer sed magna ut sem auctor tincidunt.";
+    char *encoded = encodetext(toencode, testkey1);
+
+    // char *decoded = decodetext(encoded, testkey1);
+
     printf("%s\n", toencode);
-    printf("%s\n", encoded);
-    printf("%s\n", decoded);
+    printf("Ciphered: %s\n", encoded);
+    // rintf("Unciphered: %s\n", decoded);
+
+    free(encoded);
+    // free(decoded);
 }
 
 /* TESTS POUR W4 */
@@ -213,4 +215,18 @@ int main() {
     state unciphered = STATE_INIT;
     decodebloc(ciphered_str, expended, unciphered);
     state_showhex(unciphered);
+*/
+
+/* TEST POUR ENCODE ET DECODE */
+/*
+    char testkey1[] = "2b7e151628aed2a6abf7158809cf4f3c";
+    char toencode[] = "azerthgbvfgthj5658";
+    char encoded[65] = {0};
+    encodetext(toencode, strlen(toencode), testkey1, encoded);
+    char todecode[] = "068743c462d1927dd97749337cd504c27026d00c69e394819b7bf36d948732d8";
+    char decoded[65];
+    decodetext(todecode, 65, testkey1, decoded);
+    printf("%s\n", toencode);
+    printf("%s\n", encoded);
+    printf("%s\n", decoded);
 */
