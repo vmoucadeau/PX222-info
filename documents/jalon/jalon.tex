@@ -164,7 +164,7 @@ Le but de ce projet est de réaliser un programme de chiffrement et de déchiffr
 \section{Etat du projet}
 \noindent A l'heure actuelle, voici les tâches que nous avons réalisées :
 \begin{itemize}
-    \item Recherche sur l'algorithme AES et sur les structures algébriques utilisées (corps finis, polynômes...)
+    \item Recherches sur l'algorithme AES et sur les structures algébriques utilisées (corps finis, polynômes...)
     \item Implémentation complète de l'algorithme AES en Haskell (chiffrement et déchiffrement avec des clés de 128, 192 et 256 bits)
     \item Implémentation complète de l'algorithme AES en C (chiffrement et déchiffrement avec des clés de 128 bits)
 \end{itemize}
@@ -188,7 +188,7 @@ Exemple avec une clé de 128 bits et un chaine de 17 caractères :
 \end{lstlisting}
 \subsection{AES en C}
 Le programme en C est composé d'un dossier \texttt{maths} qui contient les fichiers définissant les types et les fonctions sur les polynômes et les mots de 32 bits. Le dossier \texttt{algorithm} contient les fichiers définissant les fonctions sur les states, les clés et l'algorithme Cipher et InvCipher. Le fichier \texttt{main.c} contient quelques tests et définit les fonctions principales du programme :
-\begin{itemize}
+\begin{itemize} 
     \item \texttt{char *encodetext(char *key, char *text)} : prend en entrée une clé et un texte et renvoie un pointeur vers le texte chiffré en hexadécimal (allocation dynamique).
     \item \texttt{char *decodetext(char *key, char *text)} : prend en entrée une clé et un texte chiffré (en hexadécimal) et renvoie un pointeur vers le texte déchiffré (allocation dynamique).
 \end{itemize}
