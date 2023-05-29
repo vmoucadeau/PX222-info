@@ -24,6 +24,9 @@
 \usepackage{diagbox}
 \usetikzlibrary{positioning,calc}
 \usepackage{hyperref}
+\usepackage{titling}
+\setlength{\droptitle}{-2cm}
+
 \hypersetup{
     colorlinks,
     citecolor=black,
@@ -66,14 +69,14 @@
 
 \renewcommand{\arraystretch}{1.4}
 
-% -------- PYTHON -------- %
+% -------- Haskell -------- %
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
 \definecolor{mauve}{rgb}{0.58,0,0.82}
 
 
 \lstset{frame=tb,
-language=Python,
+language=Haskell,
 aboveskip=3mm,
 belowskip=3mm,
 showstringspaces=false,
@@ -86,7 +89,59 @@ commentstyle=\color{dkgreen},
 stringstyle=\color{mauve},
 breaklines=true,
 breakatwhitespace=true,
-tabsize=3}
+tabsize=3,
+frame=single,
+frameround={t}{t}{t}{t},
+xleftmargin=.05\textwidth, xrightmargin=.05\textwidth 
+}
+
+% -------- C -------- %
+\definecolor{mGreen}{rgb}{0,0.6,0}
+\definecolor{mGray}{rgb}{0.5,0.5,0.5}
+\definecolor{mPurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundColour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{CStyle}{
+    commentstyle=\color{mGreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{mGray},
+    stringstyle=\color{mPurple},
+    basicstyle={\small\ttfamily},
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=3,
+    language=C,
+    frame=single,
+    frameround={t}{t}{t}{t},
+    xleftmargin=.15\textwidth, xrightmargin=.15\textwidth 
+}
+
+\lstdefinestyle{CStyleL}{
+    commentstyle=\color{mGreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{mGray},
+    stringstyle={\small\ttfamily},
+    basicstyle={\small\ttfamily},
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=3,
+    language=C,
+    frame=single,
+    frameround={t}{t}{t}{t},
+    xleftmargin=.05\textwidth, xrightmargin=.05\textwidth 
+}
 
 % Default fixed font does not support bold face
 \DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
@@ -123,21 +178,37 @@ Le programme en Haskell est composé d'un dossier \texttt{Math} qui rassemble le
     \item \texttt{decode :: String -> String -> String} : prend en entrée une clé et un texte chiffré et renvoie le texte déchiffré
 \end{itemize}
 Exemple avec une clé de 128 bits et un chaine de 17 caractères :
-\begin{lstlisting}
+\begin{lstlisting}[language=Haskell]
     ghci> encode "2B7E151628AED2A6ABF7158809CF4F3C" "azertyuiopqsdfgh5"
-    "\147\169\152\188\180R\245\219\190\228%b\248\ESC\217s:mlN\227\188\&8\237J\188\\\f(\150\&7x"
+    "\147\169\152\188\180R\245\219\190\228%b\248..."
 \end{lstlisting}
-\begin{lstlisting}
+\begin{lstlisting}[language=Haskell]
     ghci> decode "2B7E151628AED2A6ABF7158809CF4F3C" "\147...7x"
     "azertyuiopqsdfgh5"
 \end{lstlisting}
 \subsection{AES en C}
 Le programme en C est composé d'un dossier \texttt{maths} qui contient les fichiers définissant les types et les fonctions sur les polynômes et les mots de 32 bits. Le dossier \texttt{algorithm} contient les fichiers définissant les fonctions sur les states, les clés et l'algorithme Cipher et InvCipher. Le fichier \texttt{main.c} contient quelques tests et définit les fonctions principales du programme :
 \begin{itemize}
-    \item \texttt{encodetext(char *key, char *text)} : prend en entrée une clé et un texte et renvoie le texte chiffré en hexadécimal.
-    \item \texttt{decodetext(char *key, char *text)} : prend en entrée une clé et un texte chiffré (en hexadécimal) et renvoie le texte déchiffré.
+    \item \texttt{char *encodetext(char *key, char *text)} : prend en entrée une clé et un texte et renvoie le texte chiffré en hexadécimal.
+    \item \texttt{char *decodetext(char *key, char *text)} : prend en entrée une clé et un texte chiffré (en hexadécimal) et renvoie le texte déchiffré.
 \end{itemize}
-%\section{Difficultés rencontrées}
+Le programme ne peut pour l'instant pas intéragir avec l'utilisateur, il faut modifier le code pour changer la clé et le texte à chiffrer/déchiffrer. Voici un exemple avec une clé de 128 bits et un chaine de caractères :
+\begin{lstlisting}[caption=Contenu de la fonction \texttt{main},style=CStyle]
+    char testkey1[] = "2b7e151628aed2a6abf7158809cf4f3c";
+    char toencode[] = "J'aime les pates aux basilic !";
+    char *encoded = encodetext(testkey1, toencode);
+    char *decoded = decodetext(testkey1, encoded);
+    printf("To encode: %s\n", toencode);
+    printf("Ciphered: %s\n", encoded);
+    printf("Unciphered: %s\n", decoded);
+    free(encoded);
+    free(decoded);
+\end{lstlisting}
+\begin{lstlisting}[caption=Résultat de l'exécution du programme \texttt{aes.out},style=CStyleL]
+To encode: J'aime les pates aux basilic !
+Ciphered: f52083fb00fd77b552cd17a53eadca86e10b2a444038cddfae11dcd9d94a1622
+Unciphered: J'aime les pates aux basilic !
+\end{lstlisting}
 
 
 \end{document}
