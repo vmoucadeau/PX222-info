@@ -25,7 +25,7 @@
 \usetikzlibrary{positioning,calc}
 \usepackage{hyperref}
 \usepackage{titling}
-\setlength{\droptitle}{-2cm}
+\setlength{\droptitle}{-1.9cm}
 
 \hypersetup{
     colorlinks,
@@ -189,8 +189,8 @@ Exemple avec une clé de 128 bits et un chaine de 17 caractères :
 \subsection{AES en C}
 Le programme en C est composé d'un dossier \texttt{maths} qui contient les fichiers définissant les types et les fonctions sur les polynômes et les mots de 32 bits. Le dossier \texttt{algorithm} contient les fichiers définissant les fonctions sur les states, les clés et l'algorithme Cipher et InvCipher. Le fichier \texttt{main.c} contient quelques tests et définit les fonctions principales du programme :
 \begin{itemize}
-    \item \texttt{char *encodetext(char *key, char *text)} : prend en entrée une clé et un texte et renvoie le texte chiffré en hexadécimal.
-    \item \texttt{char *decodetext(char *key, char *text)} : prend en entrée une clé et un texte chiffré (en hexadécimal) et renvoie le texte déchiffré.
+    \item \texttt{char *encodetext(char *key, char *text)} : prend en entrée une clé et un texte et renvoie un pointeur vers le texte chiffré en hexadécimal (allocation dynamique).
+    \item \texttt{char *decodetext(char *key, char *text)} : prend en entrée une clé et un texte chiffré (en hexadécimal) et renvoie un pointeur vers le texte déchiffré (allocation dynamique).
 \end{itemize}
 Le programme ne peut pour l'instant pas intéragir avec l'utilisateur, il faut modifier le code pour changer la clé et le texte à chiffrer/déchiffrer. Voici un exemple avec une clé de 128 bits et un chaine de caractères :
 \begin{lstlisting}[caption=Contenu de la fonction \texttt{main},style=CStyle]
