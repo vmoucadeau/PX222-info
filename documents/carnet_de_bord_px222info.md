@@ -86,3 +86,7 @@ Pour la prochaine séance, nous avons prévu de :
 - Implémentation en C terminée !
 - Programme capable de chiffrer/déchiffrer du texte avec une clé de 128 bits (à tester avec 192 et 256 bits)
 - Reste à faire : optimiser un peu le code, le rendre pratique à utiliser, chiffrer/déchiffrer des fichiers, faire une documentation...
+
+# Lundi 29 mai - 11h33
+- Jalon intermédiaire terminé (dans documents/jalon/jalon.pdf)
+- Fonctions encodetext et decodetext améliorées en C (prend en arguments des textes de longueur variable)
