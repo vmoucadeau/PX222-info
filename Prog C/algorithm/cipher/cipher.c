@@ -76,31 +76,31 @@ void inv_mixcolumns(state input, state output) {
     }
 }
 
-void cipher(state input, state output, w4 key_expended[nB*(nR+1)]) {
+void cipher(state input, state output, w4 *key_expended, int nK) {
     state ciphering = STATE_INIT;
     state_copy(input, ciphering);
     
     int Nb = nB;
-    int Nr = nR;
+    int Nr = 6+nK;
     addroundkey(ciphering, key_expended, ciphering);
-    
     for(int r = 1; r < Nr; r++) {
         subbytes(ciphering, ciphering);
         shiftrows(ciphering, ciphering);
         mixcolumns(ciphering, ciphering);
         addroundkey(ciphering, &key_expended[r*Nb], ciphering);
     }
+    
     subbytes(ciphering, ciphering);
     shiftrows(ciphering, ciphering);
     addroundkey(ciphering, &key_expended[Nb*Nr], ciphering);
     state_copy(ciphering, output);
 }
 
-void inv_cipher(state input, state output, w4 key_expended[KEY_LENGTH]) {
+void inv_cipher(state input, state output, w4 *key_expended, int nK) {
     state unciphering = STATE_INIT;
     state_copy(input, unciphering);
     int Nb = nB;
-    int Nr = nR;
+    int Nr = 6+nK;
     addroundkey(unciphering, &key_expended[Nb*Nr], unciphering);
     for(int r = Nr-1; r >= 1; r--) {
         inv_shiftrows(unciphering, unciphering);

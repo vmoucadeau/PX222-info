@@ -1,4 +1,6 @@
 #include "keyexp.h"
+#include <stdio.h>
+#include <string.h>
 
 const unsigned char s_box[16][16] = SBOX_TABLE;
 const unsigned char s_box_inv[16][16] = SBOX_INV_TABLE;
@@ -27,7 +29,10 @@ void rcon(int i, w4 output) {
     output[3] = 0;
 }
 
-void keyexpension(char key[4*nK], w4 words[KEY_LENGTH]) {
+void keyexpension(char *key, w4 *words) {
+    int nK = (strlen(key))/8;
+    int nR = 6+nK;
+    int key_length = (nR+1)*nB;
     w4 tmp = W4_INIT;
     // Copie (et parsing) de la clé dans la future clé étendue
     for(int i = 0; i < 2*nK; i += 2) {
@@ -35,7 +40,7 @@ void keyexpension(char key[4*nK], w4 words[KEY_LENGTH]) {
     }
 
     // Expension de la clé
-    for(int i = nK; i < KEY_LENGTH; i++) {
+    for(int i = nK; i < key_length; i++) {
         w4_copy(words[i-1], tmp);
         if(i % nK == 0) {
             rotword(tmp, tmp);

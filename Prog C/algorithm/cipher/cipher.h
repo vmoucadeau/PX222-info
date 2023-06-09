@@ -19,5 +19,5 @@ void inv_mixcolumns(state input, state output);
 
 void addroundkey(state input, w4 words[nB], state output);
 
-void cipher(state input, state output, w4 key_expended[nB*(nR+1)]);
-void inv_cipher(state input, state output, w4 key_expended[KEY_LENGTH]);
+void cipher(state input, state output, w4 *key_expended, int nK);
+void inv_cipher(state input, state output, w4 *key_expended, int nK);
