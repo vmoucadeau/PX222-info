@@ -50,14 +50,12 @@ void decode_file(char *key, char *fileinput, char *fileoutput) {
     char decoded[4*nB];
     state_concat(result, decoded);
     byte_read = fread(buffer, 1, 4*nB, file_todecode);
-    state_showhex(result);
     while(byte_read == 16) {
         fwrite(decoded, 4*nB, 1, file_decoded);
         state result = STATE_INIT;
         decode_block(buffer, key_expended, result);
         state_concat(result, decoded);
         byte_read = fread(buffer, 1, 4*nB, file_todecode);
-        state_showhex(result);
     }
     //traitement decoded
     char padding = decoded[15];

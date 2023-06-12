@@ -208,7 +208,7 @@ void testall() {
 }
 
 int main() {
-    encode_file(key_exvect1, "monfichier.txt", "ciphered.txt");
-    decode_file(key_exvect1, "ciphered.txt", "unciphered.txt");
+    encode_file(key_exvect1, "monfichier.txt", "monfichier.ciphered");
+    decode_file(key_exvect1, "monfichier.ciphered", "monfichier.unciph");
     return 0;
 }
