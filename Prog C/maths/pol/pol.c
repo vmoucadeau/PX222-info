@@ -18,73 +18,73 @@ int search_hexval(char val) {
 
 // Polynômes génériques
 
-void pol_init(pol a) {
-    for(int i = 0; i <= DEG_MAX_POL; i++) {
-        a[i] = 0;   
-    }
-}
+// void pol_init(pol a) {
+//     for(int i = 0; i <= DEG_MAX_POL; i++) {
+//         a[i] = 0;   
+//     }
+// }
 
-void pol_fill(pol a, int deg, pol res) {
-    pol_init(res);
-    for(int i = deg; i >= 0; i--) {
-        res[i] = a[i];
-    }
-}
+// void pol_fill(pol a, int deg, pol res) {
+//     pol_init(res);
+//     for(int i = deg; i >= 0; i--) {
+//         res[i] = a[i];
+//     }
+// }
 
-void pol_show(pol a) {
-    int deg_a = pol_deg(a);
-    printf("[");
-    for(int i = 0; i <= deg_a; i++) {
-        i == deg_a ? printf("%i", a[i]) : printf("%i ", a[i]); 
-    }
-    printf("]\n");
-}
+// void pol_show(pol a) {
+//     int deg_a = pol_deg(a);
+//     printf("[");
+//     for(int i = 0; i <= deg_a; i++) {
+//         i == deg_a ? printf("%i", a[i]) : printf("%i ", a[i]); 
+//     }
+//     printf("]\n");
+// }
 
-int pol_deg(pol a) {
-    int deg = DEG_MAX_POL;
-    for(deg; deg >= 0 && a[deg] == 0; deg--);
-    return deg;
-}
+// int pol_deg(pol a) {
+//     int deg = DEG_MAX_POL;
+//     for(deg; deg >= 0 && a[deg] == 0; deg--);
+//     return deg;
+// }
 
-int pol_maxdeg(pol a, pol b) {
-    return pol_deg(a) > pol_deg(b) ? pol_deg(a) : pol_deg(b);
-}
+// int pol_maxdeg(pol a, pol b) {
+//     return pol_deg(a) > pol_deg(b) ? pol_deg(a) : pol_deg(b);
+// }
 
-void pol_copy(pol a, pol dest) {
-    for(int i = 0; i <= DEG_MAX_POL; i++) {
-        dest[i] = a[i];
-    }
-}
+// void pol_copy(pol a, pol dest) {
+//     for(int i = 0; i <= DEG_MAX_POL; i++) {
+//         dest[i] = a[i];
+//     }
+// }
 
-void pol_add(pol a, pol b, pol res) {
-    pol_init(res);
-    for(int i = 0; i <= DEG_MAX_POL; i++) {
-        res[i] = a[i] + b[i];
-    }
-}
+// void pol_add(pol a, pol b, pol res) {
+//     pol_init(res);
+//     for(int i = 0; i <= DEG_MAX_POL; i++) {
+//         res[i] = a[i] + b[i];
+//     }
+// }
 
-void pol_sub(pol a, pol b, pol res) {
-    pol_init(res);
-    for(int i = 0; i <= DEG_MAX_POL; i++) {
-        res[i] = a[i] - b[i];
-    }
-}
+// void pol_sub(pol a, pol b, pol res) {
+//     pol_init(res);
+//     for(int i = 0; i <= DEG_MAX_POL; i++) {
+//         res[i] = a[i] - b[i];
+//     }
+// }
 
-void pol_mul(pol a, pol b, pol res) {
-    int deg_a = pol_deg(a); int deg_b = pol_deg(b);
-    pol_init(res);
-    for(int i = deg_a; i >= 0; i--) {
-        for(int j = deg_b; j >= 0; j--) {
-            res[i+j] += a[i] * b[j]; // Attention de ne pas dépasser le degré max
-        }
-    }
-}
+// void pol_mul(pol a, pol b, pol res) {
+//     int deg_a = pol_deg(a); int deg_b = pol_deg(b);
+//     pol_init(res);
+//     for(int i = deg_a; i >= 0; i--) {
+//         for(int j = deg_b; j >= 0; j--) {
+//             res[i+j] += a[i] * b[j]; // Attention de ne pas dépasser le degré max
+//         }
+//     }
+// }
 
-void pol_mulbyx(pol a, pol res) {
-    for(int i = 0; i < DEG_MAX_POL; i++) { // Attention de ne pas dépasser le degré max
-        res[i+1] = a[i];
-    }
-}
+// void pol_mulbyx(pol a, pol res) {
+//     for(int i = 0; i < DEG_MAX_POL; i++) { // Attention de ne pas dépasser le degré max
+//         res[i+1] = a[i];
+//     }
+// }
 
 
 // GF256

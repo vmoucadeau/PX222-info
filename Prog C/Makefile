@@ -1,6 +1,6 @@
 CC = gcc
-FLAGS = -g
-aes.out : main.o pol.o bits.o words.o state.o cipher.o keyexp.o
+FLAGS = -g -Wall -Wextra
+aes.out : main.o pol.o bits.o words.o state.o cipher.o keyexp.o text.o files.o
 	$(CC) $(FLAGS) -o $@ $^
 
 main.o : main.c maths/pol/pol.h maths/bits/bits.h
@@ -22,6 +22,12 @@ cipher.o : algorithm/cipher/cipher.c algorithm/cipher/cipher.h
 	$(CC) $(FLAGS) -c $< 
 
 keyexp.o : algorithm/keyexp/keyexp.c algorithm/keyexp/keyexp.h
+	$(CC) $(FLAGS) -c $<
+
+text.o : plugins/text/text.c plugins/text/text.h
+	$(CC) $(FLAGS) -c $<
+
+files.o : plugins/files/files.c plugins/files/files.h
 	$(CC) $(FLAGS) -c $<
 
 clean :

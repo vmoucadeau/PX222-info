@@ -13,7 +13,7 @@ nB :: Int
 nB = 4
 
 nK :: Int
-nK = 8
+nK = 4
 
 nR :: Int
 nR = 6 + nK
@@ -251,6 +251,12 @@ stateprint (SQ (Px x)) = let
 
 chartoGF :: Char -> GF256
 chartoGF c = let x = fromEnum c in let
+    f 0 = "0"
+    f x = (if even x then '0' else '1'):(f $ div x 2)
+    in F8 $ Px $ parse <$> return <$> take 8 (f x ++ "00000000")
+
+inttoGF :: Int -> GF256
+inttoGF x = let
     f 0 = "0"
     f x = (if even x then '0' else '1'):(f $ div x 2)
     in F8 $ Px $ parse <$> return <$> take 8 (f x ++ "00000000")

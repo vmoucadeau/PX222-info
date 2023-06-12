@@ -3,7 +3,9 @@
         "stdio.h": "c",
         "state.h": "c",
         "keyexp.h": "c",
-        "functional": "c"
+        "functional": "c",
+        "cipher.h": "c",
+        "*.tcc": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

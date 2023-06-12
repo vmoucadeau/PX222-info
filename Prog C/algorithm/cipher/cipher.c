@@ -1,8 +1,25 @@
 #include "cipher.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 const unsigned char sbox[16][16] = SBOX_TABLE;
 const unsigned char sbox_inv[16][16] = SBOX_INV_TABLE;
+
+int nK;
+int nR;
+int keyexp_length;
+
+w4 *key_expended;
+
+void select_key(char *key) {
+    free(key_expended);
+    nK = (strlen(key))/8;
+    nR = 6 + nK;
+    keyexp_length = nB * (nR+1);
+    key_expended = malloc(sizeof(w4)*keyexp_length);
+    keyexpension(key, key_expended);
+}
 
 void subbytes(state input, state output) {
     for(int i = 0; i < 4; i++) {
@@ -76,14 +93,14 @@ void inv_mixcolumns(state input, state output) {
     }
 }
 
-void cipher(state input, state output, w4 *key_expended, int nK) {
+void cipher(state input, state output, w4 *key_expended) {
     state ciphering = STATE_INIT;
     state_copy(input, ciphering);
     
     int Nb = nB;
-    int Nr = 6+nK;
+    nR = 6+nK;
     addroundkey(ciphering, key_expended, ciphering);
-    for(int r = 1; r < Nr; r++) {
+    for(int r = 1; r < nR; r++) {
         subbytes(ciphering, ciphering);
         shiftrows(ciphering, ciphering);
         mixcolumns(ciphering, ciphering);
@@ -92,11 +109,11 @@ void cipher(state input, state output, w4 *key_expended, int nK) {
     
     subbytes(ciphering, ciphering);
     shiftrows(ciphering, ciphering);
-    addroundkey(ciphering, &key_expended[Nb*Nr], ciphering);
+    addroundkey(ciphering, &key_expended[Nb*nR], ciphering);
     state_copy(ciphering, output);
 }
 
-void inv_cipher(state input, state output, w4 *key_expended, int nK) {
+void inv_cipher(state input, state output, w4 *key_expended) {
     state unciphering = STATE_INIT;
     state_copy(input, unciphering);
     int Nb = nB;
@@ -112,4 +129,38 @@ void inv_cipher(state input, state output, w4 *key_expended, int nK) {
     inv_subbytes(unciphering, unciphering);
     addroundkey(unciphering, key_expended, unciphering);
     state_copy(unciphering, output);
+}
+
+void encode_blockstr(char bloc[8*nB], w4 *key_expended, state output) {
+    state to_cipher = STATE_INIT;
+    state_parse(bloc, to_cipher);
+    cipher(to_cipher, output, key_expended);
+}
+
+void decode_blockstr(char bloc[8*nB], w4 *key_expended, state output) {
+    state to_uncipher = STATE_INIT;
+    state_parse(bloc, to_uncipher);
+    inv_cipher(to_uncipher, output, key_expended);
+}
+
+void encode_block(char bloc[4*nB], w4 *key_expended, state output) {
+    state to_cipher = STATE_INIT;
+    for(int i = 0; i < 4; i++) {
+        for(int j = 0; j < nB; j++) {
+            to_cipher[i][j] = bloc[i*nB+j];
+        }
+    }
+    cipher(to_cipher, output, key_expended);
+}
+
+void decode_block(char bloc[4*nB], w4 *key_expended, state output) {
+    state to_uncipher = STATE_INIT;
+    for(int i = 0; i < 4; i++) {
+        for(int j = 0; j < nB; j++) {
+            to_uncipher[i][j] = bloc[i*nB+j];
+        }
+    }
+
+    inv_cipher(to_uncipher, output, key_expended);
+
 }

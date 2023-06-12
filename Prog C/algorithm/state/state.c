@@ -47,6 +47,12 @@ void state_getstr(state list, char res[8*nB]) {
     }
 }
 
+void state_concat(state list, char res[4*nB]) {
+    for(int i = 0; i < 4*nB; i++) {
+        res[i] = list[i/4][i%4];
+    }
+}
+
 void state_copy(state a, state res) {
     for(int i = 0; i < 4; i++) {
         w4_copy(a[i], res[i]);
