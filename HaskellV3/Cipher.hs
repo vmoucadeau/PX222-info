@@ -23,7 +23,8 @@ sqeq (SQ x) (SQ y) = (==) x y
 
 sqshow :: State -> String
 sqshow x = let [x0,x1,x2,x3] = ranks x
-    in show (W4 $ Px x0) ++ "\n" ++ show (W4 $ Px x1) ++ "\n" ++ show (W4 $ Px x2) ++ "\n" ++ show (W4 $ Px x3)
+    in show (W4 $ Px x0) ++ show (W4 $ Px x1) ++ show (W4 $ Px x2) ++ show (W4 $ Px x3)
+    -- in show (W4 $ Px x0) ++ "\n" ++ show (W4 $ Px x1) ++ "\n" ++ show (W4 $ Px x2) ++ "\n" ++ show (W4 $ Px x3)
 
 sqparse :: String -> State
 sqparse [a0,a1,a2,a3,a4,a5,a6,a7,b0,b1,b2,b3,b4,b5,b6,b7,c0,c1,c2,c3,c4,c5,c6,c7,d0,d1,d2,d3,d4,d5,d6,d7] = SQ $ Px $
@@ -88,7 +89,7 @@ unranks x = let
     in build $ unrank x
 
 ------------------------------------------------------------
--- -------- Cipher and Inverse Cipher prototypes -------- --
+-- ---------- Cipher and Inverse Cipher addons ---------- --
 ------------------------------------------------------------
 
 encode :: String -> String -> String
@@ -102,10 +103,14 @@ decode k x | length x == 16 = decodebloc k x
 decode k x = decode k (x ++ " ")
 
 encodebloc :: String -> String -> String
-encodebloc k x = map invchartoGF $ pixel $ encodeciph (bpkey $ spacewords k) $ build $ map chartoGF x
+encodebloc k x = map invchartoGF $ pixel $ encodeciph (bpkey k) $ build $ map chartoGF x
 
 decodebloc :: String -> String -> String
-decodebloc k x = map invchartoGF $ pixel $ decodeciph (bpkey $ spacewords k) $ build $ map chartoGF x
+decodebloc k x = map invchartoGF $ pixel $ decodeciph (bpkey k) $ build $ map chartoGF x
+
+------------------------------------------------------------
+-- -------- Cipher and Inverse Cipher prototypes -------- --
+------------------------------------------------------------
 
 encodeciph :: [GF256] -> State -> State
 encodeciph k x = let key = keyexpansion k in rounds 1 key $ addroundkey 0 key x
@@ -132,29 +137,27 @@ invmorph n k x = invmixcolumns $ addroundkey n k $ invsubbytes $ invshiftrows x
 ------------------------------------------------------------
 
 subbytes :: State -> State
-subbytes x = build $ map subbyte $ pixel x
+subbytes x = build $ subbyte <$> pixel x
 
 shiftrows :: State -> State
-shiftrows x = let [x0,x1,x2,x3] = ranks x in let
-    [Px y0,Px y1,Px y2,Px y3] = [shiftrow 0 (Px x0),shiftrow 3 (Px x1),shiftrow 2 (Px x2),shiftrow 1 (Px x3)]
-    in unranks [y0,y1,y2,y3]
+shiftrows x = let [x0,x1,x2,x3] = ranks x
+    in unranks [shiftrow 0 x0,shiftrow 3 x1,shiftrow 2 x2,shiftrow 1 x3]
 
 mixcolumns :: State -> State
-mixcolumns x = SQ $ Px $ map (\x -> mul ax (W4 $ Px x)) $ files x
+mixcolumns x = SQ $ Px $ mul ax <$> W4 <$> Px <$> files x
 
 addroundkey :: Int -> [GF4X] -> State -> State
 addroundkey n k x = add x $ SQ $ Px $ take 4 $ drop (4*n) k
 
 invsubbytes :: State -> State
-invsubbytes x = build $ map invsubbyte $ pixel x
+invsubbytes x = build $ invsubbyte <$> pixel x
 
 invshiftrows :: State -> State
-invshiftrows x = let [x0,x1,x2,x3] = ranks x in let
-    [Px y0,Px y1,Px y2,Px y3] = [shiftrow 0 (Px x0),shiftrow 1 (Px x1),shiftrow 2 (Px x2),shiftrow 3 (Px x3)]
-    in unranks [y0,y1,y2,y3]
+invshiftrows x = let [x0,x1,x2,x3] = ranks x
+    in unranks [shiftrow 0 x0,shiftrow 1 x1,shiftrow 2 x2,shiftrow 3 x3]
 
 invmixcolumns :: State -> State
-invmixcolumns x = SQ $ Px $ map (\x -> mul axi (W4 $ Px x)) $ files x
+invmixcolumns x = SQ $ Px $ mul axi <$> W4 <$> Px <$> files x
 
 ------------------------------------------------------------
 -- -------- Support functions to transformations -------- --
@@ -190,8 +193,8 @@ px02 = Px [zer,one]
 powerxn :: Field a => Int -> Poly a
 powerxn n = apply n (mul px02) one
 
-shiftrow :: Int -> Poly GF256 -> Poly GF256
-shiftrow n x = let (_,z) = die (mul x (powerxn n)) (add one (powerxn nB)) in fillpx nB z
+shiftrow :: Int -> [GF256] -> [GF256]
+shiftrow n x = let (_,z) = die (mul (Px x) (powerxn n)) (add one (powerxn nB)) in let (Px y) = fillpx nB z in y
 
 ------------------------------------------------------------
 
@@ -235,19 +238,19 @@ genword n x = add (x !! (n-nK)) $ last x
 -- ----------- Simple tools to manage strings ----------- --
 ------------------------------------------------------------
 
-bpkey :: String -> [GF256]
-bpkey x = let (Px z) = parse x in z
+stateprint :: State -> String
+stateprint (SQ (Px x)) = let
+    f [] = []
+    f ((W4 (Px x)):xs) = x ++ f xs
+    g (F8 (Px [x0,x1,x2,x3,x4,x5,x6,x7])) = hexaprint ([x7,x6,x5,x4] >>= show) ++ hexaprint ([x3,x2,x1,x0] >>= show)
+    in f x >>= g
 
 spacewords :: String -> String
 spacewords [] = []
 spacewords (x:y:l) = x:y:' ':(spacewords l)
 
-stateprint :: State -> String
-stateprint (SQ (Px x)) = let
-    f [] = []
-    f (W4 (Px x):xs) = x ++ f xs
-    g (F8 (Px [x0,x1,x2,x3,x4,x5,x6,x7])) = hexaprint ([x7,x6,x5,x4] >>= show) ++ hexaprint ([x3,x2,x1,x0] >>= show)
-    in f x >>= g
+bpkey :: String -> [GF256]
+bpkey x = let (Px z) = parse $ spacewords $ filter ((/=) ' ') x in z
 
 chartoGF :: Char -> GF256
 chartoGF c = let x = fromEnum c in let
@@ -262,7 +265,7 @@ inttoGF x = let
     in F8 $ Px $ parse <$> return <$> take 8 (f x ++ "00000000")
 
 invchartoGF :: GF256 -> Char
-invchartoGF z = let b = let [x,y] = take 2 $ drop 1 $ show z in hexaparse [x] ++ hexaparse [y] in let
+invchartoGF z = let b = let [x,y] = show z in hexaparse [x] ++ hexaparse [y] in let
     f [] = 0
     f (c:cs) = (if c == '0' then 0 else 1) + 2 * (f cs)
     in toEnum $ f $ reverse b
