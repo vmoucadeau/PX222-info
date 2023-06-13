@@ -70,6 +70,8 @@ void w4_test() {
     w4 mul = W4_INIT;
     w4_mul(ax, ax_inv, mul);
     w4_showhex(mul);
+    w4 one = {0x01, 0x00, 0x00, 0x00};
+    assert(w4_isequal(mul, one));
     printf("\n---- W4 TEST OK ----\n\n");
 }
 
@@ -87,6 +89,10 @@ void subbyte_test() {
     state_showhex(subed);
     printf("\n");
     state_showhex(unsubed);
+    char subed_str[8 * nB + 1];
+    state_getstr(subed, subed_str);
+    assert(strcmp(subed_str, "fee44ccab704095947cabb5759266a92") == 0);
+    assert(state_isequal(test, unsubed));
     printf("---- SUBBYTE TEST OK ----\n\n");
 }
 
@@ -104,6 +110,10 @@ void shiftrows_test() {
     state_showhex(shifted);
     printf("\n");
     state_showhex(unshifted);
+    char shifted_str[8 * nB + 1];
+    state_getstr(shifted, shifted_str);
+    assert(strcmp(shifted_str, "0c30fe742010581016235d1515ae40da") == 0);
+    assert(state_isequal(test, unshifted));
     printf("---- SHIFTROW TEST OK ----\n\n");
 }
 
@@ -121,6 +131,10 @@ void mixcolumns_test() {
     state_showhex(mixed);
     printf("\n");
     state_showhex(unmixed);
+    char mixed_str[8 * nB + 1];
+    state_getstr(mixed, mixed_str);
+    assert(strcmp(mixed_str, "bcbc28c74595af3a38f5947b63cf1aac") == 0);
+    assert(state_isequal(test, unmixed));
     printf("---- MIXCOLUMNS TEST OK ----\n\n");
 }
 
@@ -128,10 +142,12 @@ void mixcolumns_test() {
 void rcon_test() {
     printf("---- RCON TEST ----\n");
     w4 test = W4_INIT;
+    w4 rconlst[] = {{0x01, 0x00, 0x00, 0x00}, {0x02, 0x00, 0x00, 0x00}, {0x04, 0x00, 0x00, 0x00}, {0x08, 0x00, 0x00, 0x00}, {0x10, 0x00, 0x00, 0x00}, {0x20, 0x00, 0x00, 0x00}, {0x40, 0x00, 0x00, 0x00}, {0x80, 0x00, 0x00, 0x00}, {0x1b, 0x00, 0x00, 0x00}, {0x36, 0x00, 0x00, 0x00}};
     for (int i = 0; i < 10; i++)
     {
         rcon(i+1,test);
         w4_showhex(test);
+        assert(w4_isequal(test, rconlst[i]));
     }
     printf("\n---- RCON TEST OK ----\n\n");
 }
@@ -182,7 +198,7 @@ void encodetext_test() {
 }
 
 /* APPENDIX C - TESTS */
-void test_appendix_c() {
+void appendix_c_test() {
     printf("---- APPENDIX C TEST ----\n");
     select_key(key_exvect3, strlen(key_exvect3));
     char to_cipher[] = "00112233445566778899aabbccddeeff";
@@ -202,7 +218,7 @@ void test_appendix_c() {
     printf("---- APPENDIX C TEST OK ----\n\n");
 }
 
-void testapi() {
+void api_test() {
     printf("---- API TEST ----\n");
     char testchar[] = "00112233445566778899aabbccddeeff";
     int test = aes_encrypt(testchar, 32, key_exvect1, strlen(key_exvect1));
@@ -217,6 +233,13 @@ void testapi() {
     printf("---- API TEST OK ----\n\n");
 }
 
+void bmp_test() {
+    printf("---- BMP TEST ----\n");
+    encode_bmp(key_exvect1, "monfichier.bmp", "monfichierciph.bmp");
+    decode_bmp(key_exvect1, "monfichierciph.bmp", "monfichierunciph.bmp");
+    printf("---- BMP TEST OK ----\n\n");
+}
+
 void testall() {
     printf("------ TEST ALL ------\n\n");
     w4_test();
@@ -227,13 +250,11 @@ void testall() {
     keyexp_test();
     cipher_test();
     encodetext_test();
-    test_appendix_c();
-    testapi();
+    appendix_c_test();
+    api_test();
 }
 
 int main() {
-    // encode_bmp(key_exvect1, "monfichier.bmp", "monfichierciph.bmp");
-    // decode_bmp(key_exvect1, "monfichierciph.bmp", "monfichierunciph.bmp");
     testall();
     return 0;
 }

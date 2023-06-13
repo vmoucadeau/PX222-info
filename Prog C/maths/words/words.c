@@ -1,7 +1,9 @@
 
+#include "words.h"
+
 #include <stdbool.h>
 #include <stdio.h>
-#include "words.h"
+
 #include "../pol/pol.h"
 
 void w4_showbin(w4 list) {
@@ -41,8 +43,6 @@ void w4_showlst(w4 *list, int length) {
         }
     }
 }
-
-
 
 void w4_getstr(w4 list, char res[8]) {
     for (int i = 0; i < 4; i++) {
