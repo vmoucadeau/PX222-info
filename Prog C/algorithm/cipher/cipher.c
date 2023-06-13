@@ -143,22 +143,20 @@ void decode_blockhex(char bloc[8*nB], w4 *key_expended, state output) {
     inv_cipher(to_uncipher, output, key_expended);
 }
 
-void encode_block(char bloc[4*nB], w4 *key_expended, state output) {
+void encode_block(char bloc[4*nB], w4 *key_expended, state output, state previous) {
     state to_cipher = STATE_INIT;
     for(int i = 0; i < 4; i++) {
         for(int j = 0; j < nB; j++) {
             to_cipher[i][j] = bloc[i*nB+j];
         }
     }
+    state_add(to_cipher, previous, to_cipher);
     cipher(to_cipher, output, key_expended);
 }
 
-void decode_block(char bloc[4*nB], w4 *key_expended, state output) {
+void decode_block(char bloc[4*nB], w4 *key_expended, state output, state previous) {
     state to_uncipher = STATE_INIT;
-    for(int i = 0; i < 4; i++) {
-        for(int j = 0; j < nB; j++) {
-            to_uncipher[i][j] = bloc[i*nB+j];
-        }
-    }
+    state_init(bloc, to_uncipher);
     inv_cipher(to_uncipher, output, key_expended);
+    state_add(output, previous, output);
 }

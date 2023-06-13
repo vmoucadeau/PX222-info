@@ -18,8 +18,8 @@ void addroundkey(state input, w4 words[nB], state output);
 void cipher(state input, state output, w4 *key_expended);
 void inv_cipher(state input, state output, w4 *key_expended);
 
-void encode_block(char bloc[4*nB], w4 *key_expended, state output);
-void decode_block(char bloc[4*nB], w4 *key_expended, state output);
+void encode_block(char bloc[4*nB], w4 *key_expended, state output, state previous);
+void decode_block(char bloc[4*nB], w4 *key_expended, state output, state previous);
 
 void encode_blockhex(char bloc[8*nB], w4 *key_expended, state output);
 void decode_blockhex(char bloc[8*nB], w4 *key_expended, state output);

@@ -30,7 +30,7 @@ int prog_io(int argc, char **argv) {
             if (strcmp(argv[2], "-b") == 0) {
                 select_key(argv[3], strlen(argv[3]));
                 state result = STATE_INIT;
-                encode_block(argv[4], key_expended, result);
+                encode_block(argv[4], key_expended, result, result);
                 char encoded[8 * nB + 1];
                 state_getstr(result, encoded);
                 printf("Encoded : %s\n", encoded);
@@ -44,7 +44,7 @@ int prog_io(int argc, char **argv) {
             if (strcmp(argv[2], "-b") == 0) {
                 select_key(argv[3], strlen(argv[3]));
                 state result = STATE_INIT;
-                decode_block(argv[4], key_expended, result);
+                decode_block(argv[4], key_expended, result, result);
                 char decoded[8 * nB + 1];
                 state_getstr(result, decoded);
                 printf("Decoded : %s\n", decoded);
@@ -225,30 +225,42 @@ void appendix_c_test() {
 
 void api_test() {
     printf("---- API TEST ----\n");
-    char testchar[] = "00112233445566778899aabbccddeeff";
-    int test = aes_encrypt(testchar, 32, key_exvect1, strlen(key_exvect1));
-    printf("encrypt res: %d\n", test);
-    printf("testchar: %s\n", testchar);
-    int test2 = aes_decrypt(testchar, 32, key_exvect1, strlen(key_exvect1));
-    printf("decrypt res: %d\n", test2);
-    printf("testchar: %s\n", testchar);
-    assert(test == 0);
-    assert(test2 == 0);
-    assert(strcmp(testchar, "00112233445566778899aabbccddeeff") == 0);
+    char toencrypt[] = "00112233445566778899aabbccddeeff";
+    int testecb_enc = aes_encrypt(toencrypt, 32, key_exvect1, strlen(key_exvect1), 0);
+    printf("ecb encrypt res: %d\n", testecb_enc);
+    printf("testchar: %s\n", toencrypt);
+    int testecb_dec = aes_decrypt(toencrypt, 32, key_exvect1, strlen(key_exvect1), 0);
+    printf("ecb decrypt res: %d\n", testecb_dec);
+    printf("testchar: %s\n", toencrypt);
+    assert(testecb_enc == 0);
+    assert(testecb_dec == 0);
+    assert(strcmp(toencrypt, "00112233445566778899aabbccddeeff") == 0);
+
+    int testcbc_enc = aes_encrypt(toencrypt, 32, key_exvect1, strlen(key_exvect1), 1);
+    printf("cbc encrypt res: %d\n", testcbc_enc);
+    printf("testchar: %s\n", toencrypt);
+    int testcbc_dec = aes_decrypt(toencrypt, 32, key_exvect1, strlen(key_exvect1), 1);
+    printf("cbc decrypt res: %d\n", testcbc_dec);
+    printf("testchar: %s\n", toencrypt);
+    assert(testcbc_enc == 0);
+    assert(testcbc_dec == 0);
+    assert(strcmp(toencrypt, "00112233445566778899aabbccddeeff") == 0);
     printf("---- API TEST OK ----\n\n");
 }
 
-void bmp_test() {
+void bmp_test(char *key) {
     printf("---- BMP TEST ----\n");
-    encode_bmp(key_exvect1, "monfichier.bmp", "monfichierciph.bmp");
-    decode_bmp(key_exvect1, "monfichierciph.bmp", "monfichierunciph.bmp");
+    encode_bmp(key, "monfichier.bmp", "monfichierECBciph.bmp", 0);
+    decode_bmp(key, "monfichierECBciph.bmp", "monfichierECBunciph.bmp", 0);
+    encode_bmp(key, "monfichier.bmp", "monfichierCBCciph.bmp", 1);
+    decode_bmp(key, "monfichierCBCciph.bmp", "monfichierCBCunciph.bmp", 1);
     printf("---- BMP TEST OK ----\n\n");
 }
 
 void file_test() {
     printf("---- FILE TEST ----\n");
-    encode_file(key_exvect1, "monfichier.bmp", "monfichierciph.bmp");
-    decode_file(key_exvect1, "monfichierciph.bmp", "monfichierunciph.bmp");
+    encode_file(key_exvect1, "monfichier.bmp", "monfichierciph.bmp", 1);
+    decode_file(key_exvect1, "monfichierciph.bmp", "monfichierunciph.bmp", 1);
     printf("---- FILE TEST OK ----\n\n");
 }
 
@@ -267,6 +279,6 @@ void testall() {
 }
 
 int main() {
-    testall();
+    bmp_test(key_exvect2);
     return 0;
 }

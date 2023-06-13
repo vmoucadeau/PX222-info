@@ -13,6 +13,14 @@ void state_parse(char input[8 * nB], state res) {
     }
 }
 
+void state_init(char content[4*nB], state res) {
+    for(int i = 0; i < 4; i++) {
+        for(int j = 0; j < nB; j++) {
+            res[i][j] = content[i*nB+j];
+        }
+    }
+}
+
 void state_showhex(state list) {
     for (int i = 0; i < 4; i++) {
         printf("[");

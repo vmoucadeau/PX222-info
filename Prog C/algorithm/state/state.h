@@ -9,6 +9,7 @@
 typedef unsigned char state[nB][nB];
 
 void state_parse(char input[8*nB], state res);
+void state_init(char content[4*nB], state res);
 void state_showhex(state list);
 void state_showstr(state list); 
 void state_showbin(state list);

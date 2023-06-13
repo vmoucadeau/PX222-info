@@ -6,7 +6,7 @@
 
 extern w4 *key_expended;
 
-void encode_file(char *key, char *fileinput, char *fileoutput) {
+void encode_file(char *key, char *fileinput, char *fileoutput, int mode) {
     select_key(key, strlen(key));
     FILE *file_toencode = fopen(fileinput, "r");
     FILE *file_encoded = fopen(fileoutput, "w");
@@ -16,10 +16,12 @@ void encode_file(char *key, char *fileinput, char *fileoutput) {
         fprintf( stderr, "Impossible d'ouvrir le fichier\n" );
         exit( -1 );
     }
+    state previous = STATE_INIT;
     size_t byte_read = fread(buffer, 1, 4*nB, file_toencode);
     while(byte_read == 16) {
         state result = STATE_INIT;
-        encode_block(buffer, key_expended, result);
+        encode_block(buffer, key_expended, result, previous);
+        if(mode != 0) state_copy(result, previous); // cbc mode
         state_concat(result, encoded);
         fwrite(encoded, 4*nB, 1, file_encoded);
         byte_read = fread(buffer, 1, 4*nB, file_toencode);
@@ -28,36 +30,41 @@ void encode_file(char *key, char *fileinput, char *fileoutput) {
         buffer[i] = 16-byte_read;
     }
     state result = STATE_INIT;
-    encode_block(buffer, key_expended, result);
+    encode_block(buffer, key_expended, result, previous);
     state_concat(result, encoded);
     fwrite(encoded, 4*nB, 1, file_encoded);
     fclose(file_toencode);
     fclose(file_encoded);
 }
 
-void decode_file(char *key, char *fileinput, char *fileoutput) {
+void decode_file(char *key, char *fileinput, char *fileoutput, int mode) {
     select_key(key, strlen(key));
     FILE *file_todecode = fopen(fileinput, "r");
     FILE *file_decoded = fopen(fileoutput, "w");
     char buffer[4*nB];
     char decoded[4*nB];
+    state previous = STATE_INIT;
     if ( file_todecode == NULL ) {
         fprintf( stderr, "Impossible d'ouvrir le fichier\n" );
         exit( -1 );
     }
     size_t byte_read = fread(buffer, 1, 4*nB, file_todecode);
     state result = STATE_INIT;
-    decode_block(buffer, key_expended, result);
+    state input = STATE_INIT;
+    state_init(buffer, input);
+    decode_block(buffer, key_expended, result, previous);
+    if(mode != 0) state_copy(input, previous);
     state_concat(result, decoded);
     byte_read = fread(buffer, 1, 4*nB, file_todecode);
     while(byte_read == 16) {
         fwrite(decoded, 4*nB, 1, file_decoded);
-        state result = STATE_INIT;
-        decode_block(buffer, key_expended, result);
+        state_init(buffer, input);
+        decode_block(buffer, key_expended, result, previous);
+        if(mode != 0) state_copy(input, previous);
         state_concat(result, decoded);
         byte_read = fread(buffer, 1, 4*nB, file_todecode);
     }
-    //traitement decoded
+    // padding
     char padding = decoded[15];
     fwrite(decoded, 16-padding, 1, file_decoded);
     fclose(file_todecode);
