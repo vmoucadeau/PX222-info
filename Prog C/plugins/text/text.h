@@ -1,3 +1,3 @@
 
-char *encode_text(char *key, char *text);
-char *decode_text(char *key, char *text);
+void encode_text(char *key, char *text, char *output);
+void decode_text(char *key, char *text, char *output);

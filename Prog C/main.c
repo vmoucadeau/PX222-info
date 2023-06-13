@@ -36,7 +36,8 @@ int prog_io(int argc, char **argv) {
                 printf("Encoded : %s\n", encoded);
                 return 0;
             }
-            char *encoded = encode_text(argv[2], argv[3]);
+            char *encoded = malloc(32 + (strlen(argv[3]) / 16) * 32);
+            encode_text(argv[2], argv[3], encoded);
             printf("Encoded : %s\n", encoded);
             free(encoded);
         } else if (strcmp(argv[1], "decode") == 0) {
@@ -49,7 +50,8 @@ int prog_io(int argc, char **argv) {
                 printf("Decoded : %s\n", decoded);
                 return 0;
             }
-            char *decoded = decode_text(argv[2], argv[3]);
+            char *decoded = malloc(strlen(argv[3])+1);
+            decode_text(argv[2], argv[3], decoded);
             printf("Decoded : %s\n", decoded);
             free(decoded);
         } else {
@@ -186,14 +188,17 @@ void encodetext_test() {
     printf("---- ENCODE TEXT TEST ----\n");
     // char toencode[] = "J'aime les pates aux basilic !";
     char toencode[] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc eu venenatis nunc, sed maximus erat. Sed neque elit, facilisis non quam id, lacinia vehicula mauris. Vivamus eu bibendum enim. Sed risus nunc, venenatis at finibus nec, auctor eu libero. Nulla auctor blandit ex sed malesuada. Suspendisse vehicula, ipsum et lacinia varius, tellus nisl malesuada nisi, at vulputate ipsum odio eu mi. Proin vitae nibh eros. Nulla purus velit, commodo non ornare et, commodo vitae felis. Praesent egestas justo mauris, vel consequat tellus mollis ac. Vivamus mattis lacinia magna, mollis elementum justo dictum id. In varius nulla egestas quam pulvinar, eget gravida eros porta. Maecenas at orci diam. Curabitur pulvinar, leo vel ornare tincidunt, mauris nisi vehicula lorem, eu ullamcorper arcu arcu sed arcu. Pellentesque bibendum tortor sed sagittis feugiat. Etiam consequat mi vitae facilisis vestibulum. Sed cursus, nibh at tempus varius, dui tellus lobortis nulla, ut cursus nulla orci in arcu. Curabitur nisi magna, volutpat at dui ac, egestas fringilla magna. Praesent malesuada velit eros, sed egestas sem sagittis sit amet. Duis accumsan gravida euismod. Sed ipsum sem, interdum eget congue in, luctus eget justo. Curabitur ut lacinia erat, at pharetra nisl. Ut ullamcorper eu felis in scelerisque. Nullam in vulputate metus. Morbi pharetra, magna ultrices dignissim tempus, quam ligula dignissim enim, et viverra metus sem a nisl. Sed nec orci id tortor convallis varius vitae id odio. In quis condimentum nibh. Aliquam malesuada sed tortor non lacinia. Nulla imperdiet porta quam, eu pellentesque ante finibus eget. Nullam volutpat gravida lorem vitae fermentum. Proin sit amet ultrices dui. Pellentesque feugiat tempor lorem in ultricies. Sed commodo mattis quam ac vestibulum. Curabitur et rhoncus libero. Nam tortor ligula, sagittis quis massa dapibus, consectetur iaculis eros. Aliquam auctor faucibus arcu vel faucibus. Morbi eleifend accumsan massa, vitae convallis tellus fermentum eget. Vivamus lorem nunc, tincidunt non posuere non, sodales vitae neque. Nam nec augue condimentum erat fermentum facilisis eu id felis. Vestibulum facilisis leo leo, non facilisis lectus congue et. Maecenas et elit ut elit malesuada sodales. In malesuada rutrum ullamcorper. Integer cursus, urna eget imperdiet vestibulum, nisl tortor bibendum diam, nec maximus nulla lorem sit amet felis. Nam nec est id quam molestie volutpat. Phasellus ornare magna volutpat sem convallis commodo. Maecenas a mi eget tortor sagittis tempor sit amet eget nulla. Cras tincidunt posuere ipsum vitae laoreet. Quisque auctor blandit ipsum. Donec nisl massa, vulputate sit amet ornare sed, tincidunt sed turpis. Curabitur et blandit augue. Donec dictum ante in tortor feugiat, id egestas turpis eleifend. Aenean rutrum elementum sodales. Aliquam dui augue, porttitor nec turpis id, hendrerit maximus odio. Ut semper gravida ligula at pretium. Integer sed magna ut sem auctor tincidunt.";
-    char *encoded = encode_text(key_exvect1, toencode);
-    char *decoded = decode_text(key_exvect1, encoded);
+    int length = strlen(toencode);
+    char *encoded = malloc(33 + (length / 16) * 32);
+    encode_text(key_exvect1, toencode, encoded);
+    char *decoded = malloc(33 + (length / 16) * 32);
+    decode_text(key_exvect1, encoded, decoded);
     printf("To encode: %s\n", toencode);
     printf("Ciphered: %s\n", encoded);
     printf("Unciphered: %s\n", decoded);
+    assert(strcmp(toencode, decoded) == 0);
     free(encoded);
     free(decoded);
-    assert(strcmp(toencode, decoded) == 0);
     printf("---- ENCODE TEXT TEST OK ----\n\n");
 }
 
@@ -238,6 +243,13 @@ void bmp_test() {
     encode_bmp(key_exvect1, "monfichier.bmp", "monfichierciph.bmp");
     decode_bmp(key_exvect1, "monfichierciph.bmp", "monfichierunciph.bmp");
     printf("---- BMP TEST OK ----\n\n");
+}
+
+void file_test() {
+    printf("---- FILE TEST ----\n");
+    encode_file(key_exvect1, "monfichier.bmp", "monfichierciph.bmp");
+    decode_file(key_exvect1, "monfichierciph.bmp", "monfichierunciph.bmp");
+    printf("---- FILE TEST OK ----\n\n");
 }
 
 void testall() {
