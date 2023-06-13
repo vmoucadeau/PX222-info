@@ -1,5 +1,6 @@
 *.o
 *.out
+*.txt
 documents/jalon/jalon.aux
 documents/jalon/jalon.fdb_latexmk
 documents/jalon/jalon.fls
