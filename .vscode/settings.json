@@ -5,7 +5,10 @@
         "keyexp.h": "c",
         "functional": "c",
         "cipher.h": "c",
-        "*.tcc": "c"
+        "*.tcc": "c",
+        "string_view": "c",
+        "string.h": "c",
+        "bits.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

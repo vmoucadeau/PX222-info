@@ -1,6 +1,6 @@
 CC = gcc
 FLAGS = -g -Wall -Wextra
-aes.out : main.o pol.o bits.o words.o state.o cipher.o keyexp.o text.o files.o
+aes.out : main.o pol.o bits.o words.o state.o cipher.o keyexp.o text.o files.o api.o bmp.o
 	$(CC) $(FLAGS) -o $@ $^
 
 main.o : main.c maths/pol/pol.h maths/bits/bits.h
@@ -30,5 +30,11 @@ text.o : plugins/text/text.c plugins/text/text.h
 files.o : plugins/files/files.c plugins/files/files.h
 	$(CC) $(FLAGS) -c $<
 
+bmp.o : plugins/bmp/bmp.c plugins/bmp/bmp.h
+	$(CC) $(FLAGS) -c $<
+
+api.o : plugins/api/api.c plugins/api/api.h
+	$(CC) $(FLAGS) -c $<
+
 clean :
-	rm *.o aes.out
+	rm *.o aes.out *ciph.bmp *ciph.txt

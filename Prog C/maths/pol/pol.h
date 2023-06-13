@@ -1,6 +1,6 @@
+
 #define DEG_MAX_POL 30
 #define DEG_MAX_W4 3
-
 
 typedef int pol [DEG_MAX_POL + 1];
 typedef unsigned char gf256;

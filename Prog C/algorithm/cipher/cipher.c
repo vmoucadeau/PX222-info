@@ -1,3 +1,4 @@
+
 #include "cipher.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,9 +13,9 @@ int keyexp_length;
 
 w4 *key_expended;
 
-void select_key(char *key) {
+void select_key(char *key, int keysize) {
     free(key_expended);
-    nK = (strlen(key))/8;
+    nK = keysize/8;
     nR = 6 + nK;
     keyexp_length = nB * (nR+1);
     key_expended = malloc(sizeof(w4)*keyexp_length);
@@ -27,7 +28,7 @@ void subbytes(state input, state output) {
             gf256 to_sub = input[i][j];
             int to_sub_x = to_sub >> 4;
             int to_sub_y = to_sub & 0x0F;
-            output[i][j] = sbox[to_sub_x][to_sub_y];       
+            output[i][j] = sbox[to_sub_x][to_sub_y];
         }
     }
 }
@@ -68,7 +69,7 @@ void inv_subbytes(state input, state output) {
             gf256 to_sub = input[i][j];
             int to_sub_x = to_sub >> 4;
             int to_sub_y = to_sub & 0x0F;
-            output[i][j] = sbox_inv[to_sub_x][to_sub_y];       
+            output[i][j] = sbox_inv[to_sub_x][to_sub_y];
         }
     }
 }
@@ -106,7 +107,6 @@ void cipher(state input, state output, w4 *key_expended) {
         mixcolumns(ciphering, ciphering);
         addroundkey(ciphering, &key_expended[r*Nb], ciphering);
     }
-    
     subbytes(ciphering, ciphering);
     shiftrows(ciphering, ciphering);
     addroundkey(ciphering, &key_expended[Nb*nR], ciphering);
@@ -131,13 +131,13 @@ void inv_cipher(state input, state output, w4 *key_expended) {
     state_copy(unciphering, output);
 }
 
-void encode_blockstr(char bloc[8*nB], w4 *key_expended, state output) {
+void encode_blockhex(char bloc[8*nB], w4 *key_expended, state output) {
     state to_cipher = STATE_INIT;
     state_parse(bloc, to_cipher);
     cipher(to_cipher, output, key_expended);
 }
 
-void decode_blockstr(char bloc[8*nB], w4 *key_expended, state output) {
+void decode_blockhex(char bloc[8*nB], w4 *key_expended, state output) {
     state to_uncipher = STATE_INIT;
     state_parse(bloc, to_uncipher);
     inv_cipher(to_uncipher, output, key_expended);
@@ -160,7 +160,5 @@ void decode_block(char bloc[4*nB], w4 *key_expended, state output) {
             to_uncipher[i][j] = bloc[i*nB+j];
         }
     }
-
     inv_cipher(to_uncipher, output, key_expended);
-
 }
