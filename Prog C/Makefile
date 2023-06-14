@@ -4,7 +4,7 @@ FLAGS = -g -Wall -Wextra # -lsan -lubsan
 FLAGSOUT = -g -Wall -Wextra # -fsanitize=address -fsanitize=undefined -fsanitize=shift -fsanitize=shift-exponent -fsanitize=shift-base -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict -fsanitize=bool -fsanitize=enum
 
 aes.out : main.o pol.o bits.o words.o state.o cipher.o keyexp.o text.o files.o api.o bmp.o
-	$(CC) $(FLAGSOUT) -o $@ $^
+	$(CC) $(FLAGSOUT) -o $@ $^ -lm
 
 main.o : main.c maths/pol/pol.h maths/bits/bits.h
 	$(CC) $(FLAGS) -c $<

@@ -90,3 +90,17 @@ Pour la prochaine séance, nous avons prévu de :
 # Lundi 29 mai - 11h33
 - Jalon intermédiaire terminé (dans documents/jalon/jalon.pdf)
 - Fonctions encodetext et decodetext améliorées en C (prend en arguments des textes de longueur variable)
+
+# Lundi 12 Juin
+- Réorganisation des fichiers du projet en C (création du dossier plugins)
+- Plugin pour le chiffrement/déchiffrement de fichiers en ECB
+- Premier test de chiffrement sur un fichier de 300 ko : 1,189s (252,3ko/s)
+
+# Mardi 13 Juin
+- Plugin pour l'implémentation de l'API demandée dans l'extension du sujet
+- Plugin pour le chiffrement/déchiffrement de fichiers bitmap en conservant l'en-tête
+- Modification des fonctions encode_block et decode_block pour prendre en charge le CBC
+- Modification des plugins api, files et bitmap pour prendre en charge le CBC
+- On remarque une différence visuelle notable entre un fichier bmp chiffré en mode ECB et CBC
+- Ecriture des tests unitaires pour certaines fonctions du programme
+- Correction des fuites de mémoire à l'aide des options -fsanitize

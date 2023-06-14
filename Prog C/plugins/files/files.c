@@ -3,6 +3,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
+#include <math.h>
 
 extern w4 *key_expended;
 
@@ -70,4 +71,28 @@ void decode_file(char *key, char *fileinput, char *fileoutput, int mode) {
     fclose(file_todecode);
     fclose(file_decoded);
     return;
+}
+
+float file_entropy(char *fileinput) {
+    FILE *myfile = fopen(fileinput, "r");
+    float occurences[256] = {0};
+    float proba[256] = {0};
+    int octet = fgetc(myfile);
+    float sum = 0;
+    float count = 0;
+    float entropy = 0;
+    while(octet != EOF) {
+        occurences[octet] += 1;
+        octet = fgetc(myfile);
+        count++;
+    }
+    for(int i = 0; i < 256; i++) {
+        proba[i] = occurences[i]/count;
+        sum += proba[i];
+        entropy += proba[i] != 0 ? proba[i]*log2(count/occurences[i]) : 0;
+    }
+    printf("\ncount = %f\n sum = %f \n", count, sum);
+    printf("entropy = %f\n", entropy);
+    fclose(myfile);
+    return 0.0;
 }
