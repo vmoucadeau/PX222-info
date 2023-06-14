@@ -73,8 +73,8 @@ fillpx n x | degpx x < n = x
 
 euclidpx :: Field a => (Poly a,Poly a,Poly a) -> (Poly a,Poly a,Poly a) -> (Poly a,Poly a,Poly a)
 euclidpx x (_,_,y) | y == zer = x
-euclidpx (x0,x1,or) (y0,y1,nr) = let (z,_) = die or nr in
-    euclidpx (y0,y1,nr) (subs x0 (mul z y0),subs x1 (mul z y1),wipepx $ subs or (mul z nr))
+euclidpx (ox,oy,or) (nx,ny,nr) = let (z,_) = die or nr in
+    euclidpx (nx,ny,nr) (subs ox (mul z nx),subs oy (mul z ny),wipepx $ subs or (mul z nr))
 
 ------------------------------------------------------------
 

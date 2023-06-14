@@ -13,8 +13,7 @@ f8eq (F8 x) (F8 y) = (==) x y
 f8show :: GF256 -> String
 f8show (F8 (Px (x0:x1:x2:x3:x4:x5:x6:x7:xs))) | degpx (Px (x0:x1:x2:x3:x4:x5:x6:x7:xs)) > 7
     = (++) ("{" ++ f8show (F8 $ Px xs) ++ "}") (f8show (F8 $ Px (x0:x1:x2:x3:x4:x5:x6:x7:[])))
-f8show (F8 (Px (x0:x1:x2:x3:x4:x5:x6:x7:[])))
-    = "[" ++ (hexaprint ([x7,x6,x5,x4] >>= show)) ++ (hexaprint ([x3,x2,x1,x0] >>= show)) ++ "]"
+f8show (F8 (Px (x0:x1:x2:x3:x4:x5:x6:x7:[]))) = (hexaprint ([x7,x6,x5,x4] >>= show)) ++ (hexaprint ([x3,x2,x1,x0] >>= show))
 f8show (F8 x) = f8show (F8 $ fillpx 8 x)
 
 f8parse :: String -> GF256

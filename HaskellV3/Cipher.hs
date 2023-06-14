@@ -22,9 +22,8 @@ sqeq :: State -> State -> Bool
 sqeq (SQ x) (SQ y) = (==) x y
 
 sqshow :: State -> String
-sqshow x = let [x0,x1,x2,x3] = ranks x
+sqshow x = let [x0,x1,x2,x3] = files x
     in show (W4 $ Px x0) ++ show (W4 $ Px x1) ++ show (W4 $ Px x2) ++ show (W4 $ Px x3)
-    -- in show (W4 $ Px x0) ++ "\n" ++ show (W4 $ Px x1) ++ "\n" ++ show (W4 $ Px x2) ++ "\n" ++ show (W4 $ Px x3)
 
 sqparse :: String -> State
 sqparse [a0,a1,a2,a3,a4,a5,a6,a7,b0,b1,b2,b3,b4,b5,b6,b7,c0,c1,c2,c3,c4,c5,c6,c7,d0,d1,d2,d3,d4,d5,d6,d7] = SQ $ Px $
@@ -258,17 +257,17 @@ chartoGF c = let x = fromEnum c in let
     f x = (if even x then '0' else '1'):(f $ div x 2)
     in F8 $ Px $ parse <$> return <$> take 8 (f x ++ "00000000")
 
-inttoGF :: Int -> GF256
-inttoGF x = let
-    f 0 = "0"
-    f x = (if even x then '0' else '1'):(f $ div x 2)
-    in F8 $ Px $ parse <$> return <$> take 8 (f x ++ "00000000")
-
 invchartoGF :: GF256 -> Char
 invchartoGF z = let b = let [x,y] = show z in hexaparse [x] ++ hexaparse [y] in let
     f [] = 0
     f (c:cs) = (if c == '0' then 0 else 1) + 2 * (f cs)
     in toEnum $ f $ reverse b
+
+inttoGF :: Int -> GF256
+inttoGF x = let
+    f 0 = "0"
+    f x = (if even x then '0' else '1'):(f $ div x 2)
+    in F8 $ Px $ parse <$> return <$> take 8 (f x ++ "00000000")
 
 table :: String -> String
 table z = drop 2 $ filter (/= ']') (show $ mul (parse z) <$> inttoGF <$> [0..255]) >>= (\x -> if (x == '[') then "0x" else return x)

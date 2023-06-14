@@ -13,8 +13,7 @@ w4eq (W4 x) (W4 y) = (==) x y
 w4show :: GF4X -> String
 w4show (W4 (Px (x0:x1:x2:x3:xs))) | degpx (Px (x0:x1:x2:x3:xs)) > 3
     = (++) ("{" ++ w4show (W4 $ Px xs) ++ "}") (w4show (W4 $ Px (x0:x1:x2:x3:[])))
-w4show (W4 (Px (x0:x1:x2:x3:[])))
-    = "[" ++ ([x0,x1,x2,x3] >>= show) ++ "]"
+w4show (W4 (Px (x0:x1:x2:x3:[]))) = ([x0,x1,x2,x3] >>= show)
 w4show (W4 x) = w4show (W4 $ fillpx 4 x)
 
 w4parse :: String -> GF4X

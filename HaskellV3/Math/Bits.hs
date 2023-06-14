@@ -17,7 +17,6 @@ z2zparse "0" = Z2Z False
 z2zparse "1" = Z2Z True
 z2zparse x = z2zparse $ filter ((/=) ' ') x
 
-
 z2zzer :: Zs2Z
 z2zzer = Z2Z False
 
