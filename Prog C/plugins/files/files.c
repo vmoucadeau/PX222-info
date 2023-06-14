@@ -94,5 +94,5 @@ float file_entropy(char *fileinput) {
     printf("\ncount = %f\n sum = %f \n", count, sum);
     printf("entropy = %f\n", entropy);
     fclose(myfile);
-    return 0.0;
+    return entropy;
 }

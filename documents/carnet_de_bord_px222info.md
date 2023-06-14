@@ -104,3 +104,8 @@ Pour la prochaine séance, nous avons prévu de :
 - On remarque une différence visuelle notable entre un fichier bmp chiffré en mode ECB et CBC
 - Ecriture des tests unitaires pour certaines fonctions du programme
 - Correction des fuites de mémoire à l'aide des options -fsanitize
+
+# Mercredi 14 Juin
+- Ecriture de la fonction file_entropy pour mesurer l'entropie d'un fichier
+- On a mesuré l'entropie de plusieurs fichiers : bitmap_original (3,63), bitmap_ciphered_ecb128 (6,59) et bitmap_ciphered_cbc128 (7,99)
+- 

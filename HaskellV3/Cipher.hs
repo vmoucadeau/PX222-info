@@ -270,6 +270,9 @@ invchartoGF z = let b = let [x,y] = show z in hexaparse [x] ++ hexaparse [y] in 
     f (c:cs) = (if c == '0' then 0 else 1) + 2 * (f cs)
     in toEnum $ f $ reverse b
 
+table :: String -> String
+table z = drop 2 $ filter (/= ']') (show $ mul (parse z) <$> inttoGF <$> [0..255]) >>= (\x -> if (x == '[') then "0x" else return x)
+
 ------------------------------------------------------------
 -- --------- Some multiple random State Example --------- --
 ------------------------------------------------------------
