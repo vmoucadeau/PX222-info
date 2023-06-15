@@ -4,6 +4,13 @@
 #include <stdio.h>
 
 // Tools
+const char gf256_table02[256] = GF256_TABLE02;
+const char gf256_table03[256] = GF256_TABLE03;
+const char gf256_table09[256] = GF256_TABLE09;
+const char gf256_table0b[256] = GF256_TABLE0B;
+const char gf256_table0d[256] = GF256_TABLE0D;
+const char gf256_table0e[256] = GF256_TABLE0E;
+
 
 int search_hexval(char val) {
     char hex[] = "0123456789abcdef";
@@ -73,23 +80,43 @@ gf256 gf256_mulbyxpower(gf256 pol, int power) {
 }
 
 gf256 gf256_mul(gf256 pol1, gf256 pol2) {
-    // switch (pol1)
-    // {
-    // case 0x01:
-    //     return gf256_table01[pol2];
-    //     break;
-    
-    // default:
-    //     break;
-    // }
-
-
-    int deg_b = gf256_deg(pol2);
-    gf256 res = 0;
-    for(int j = deg_b; j >= 0; j--) {
-        if(pol2 & 1 << j) {
-            res ^= gf256_mulbyxpower(pol1, j);
+    switch (pol1)
+    {
+    case 0x01:
+        return pol2;
+        break;
+    case 0x02:
+        return gf256_table02[pol2];
+        break;
+    case 0x03:
+        return gf256_table03[pol2];
+        break;
+    case 0x09:
+        return gf256_table09[pol2];
+        break;
+    case 0x0b:
+        return gf256_table0b[pol2];
+        break;
+    case 0x0d:
+        return gf256_table0d[pol2];
+        break;
+    case 0x0e:
+        return gf256_table0e[pol2];
+        break;
+    default:
+        {
+            int deg_b = gf256_deg(pol2);
+            gf256 res = 0;
+            for(int j = deg_b; j >= 0; j--) {
+                if(pol2 & 1 << j) {
+                    res ^= gf256_mulbyxpower(pol1, j);
+                }
+            }
+            return res;
+            break;
         }
     }
-    return res;
+
+
+    
 }

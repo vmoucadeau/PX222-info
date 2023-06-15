@@ -1,5 +1,5 @@
 
-CC = gcc
+CC = clang
 FLAGS = -g -Wall -Wextra # -lsan -lubsan
 FLAGSOUT = -g -Wall -Wextra # -fsanitize=address -fsanitize=undefined -fsanitize=shift -fsanitize=shift-exponent -fsanitize=shift-base -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict -fsanitize=bool -fsanitize=enum
 

@@ -250,6 +250,47 @@ void mixcolumns(W4 *state)
     return;
 }
 
+void invsubbytes(W4 *state)
+{
+    for(int i=0;i<4;i++)
+    {
+        W4 a=0;
+        a^=sboxi[state[i]<<0>>24]<<24;
+        a^=sboxi[state[i]<<8>>24]<<16;
+        a^=sboxi[state[i]<<16>>24]<<8;
+        a^=sboxi[state[i]<<24>>24]<<0;
+        state[i]=a;
+    }
+    return;
+}
+
+void invshiftrows(W4 *state)
+{
+    W4 w0=(state[0]&(0xFF<<0))|(state[3]&(0xFF<<8))|(state[2]&(0xFF<<16))|(state[1]&(0xFF<<24));
+    W4 w1=(state[1]&(0xFF<<0))|(state[0]&(0xFF<<8))|(state[3]&(0xFF<<16))|(state[2]&(0xFF<<24));
+    W4 w2=(state[2]&(0xFF<<0))|(state[1]&(0xFF<<8))|(state[0]&(0xFF<<16))|(state[3]&(0xFF<<24));
+    W4 w3=(state[3]&(0xFF<<0))|(state[2]&(0xFF<<8))|(state[1]&(0xFF<<16))|(state[0]&(0xFF<<24));
+    state[0]=w0;
+    state[1]=w1;
+    state[2]=w2;
+    state[3]=w3;
+    return;
+}
+
+void invmixcolumns(W4 *state)
+{
+    for(int i=0;i<4;i++)
+    {
+        W4 a=0;
+        a^=(F8x0e[state[i]<<24>>24]^F8x0b[state[i]<<16>>24]^F8x0d[state[i]<<8>>24]^F8x09[state[i]<<0>>24])<<0;
+        a^=(F8x0e[state[i]<<16>>24]^F8x0b[state[i]<<8>>24]^F8x0d[state[i]<<0>>24]^F8x09[state[i]<<24>>24])<<8;
+        a^=(F8x0e[state[i]<<8>>24]^F8x0b[state[i]<<0>>24]^F8x0d[state[i]<<24>>24]^F8x09[state[i]<<16>>24])<<16;
+        a^=(F8x0e[state[i]<<0>>24]^F8x0b[state[i]<<24>>24]^F8x0d[state[i]<<16>>24]^F8x09[state[i]<<8>>24])<<24;
+        state[i]=a;
+    }
+    return;
+}
+
 void addroundkey(W4 *state, W4 *key)
 {
     state[0]^=key[0];
@@ -277,6 +318,22 @@ void cipher(W4 *state, W4 *key, int nK)
     return;
 }
 
+void uncipher(W4 *state, W4 *key, int nK)
+{
+    addroundkey(state,key+4*(nK+6));
+    for(int i=nK+5;i>0;i--)
+    {
+        invshiftrows(state);
+        invsubbytes(state);
+        addroundkey(state,key+4*i);
+        invmixcolumns(state);
+    }
+    invshiftrows(state);
+    invsubbytes(state);
+    addroundkey(state,key);
+    return;
+}
+
 int aes_encrypt(char *data, int txtsize, char *key, int keysize)
 {
     if(txtsize%16!=0) return 1;
@@ -285,6 +342,17 @@ int aes_encrypt(char *data, int txtsize, char *key, int keysize)
     W4 keyDX[4*(nK+7)];
     keyexpansion((W4*)key,keyDX,nK);
     for(int i=0;i<txtsize/16;i++) cipher((W4*)(data+16*i),keyDX,nK);
+    return 0;
+}
+
+int aes_decrypt(char *data, int txtsize, char *key, int keysize)
+{
+    if(txtsize%16!=0) return 1;
+    if(keysize!=16 && keysize!=24 && keysize!=32) return 1;
+    int nK = keysize/4;
+    W4 keyDX[4*(nK+7)];
+    keyexpansion((W4*)key,keyDX,nK);
+    for(int i=0;i<txtsize/16;i++) uncipher((W4*)(data+16*i),keyDX,nK);
     return 0;
 }
 
@@ -364,10 +432,30 @@ void testcipher()
     W4 keyDX[4*(nK+7)];
     keyexpansion(key1,keyDX,nK);
     W4 state1[] = {0xdbaf2670,0xa2f28066,0x53546cf9,0x958769c0};
+    printstate(state1);
     cipher(state1,keyDX,nK);
     printstate(state1);
     W4 state2[] = {0xa8f64332,0x8d305a88,0xa2983131,0x340737e0};
+    printstate(state2);
     cipher(state2,keyDX,nK);
+    printstate(state2);
+    return;
+}
+
+void testuncipher()
+{
+    printf(" Tests uncipher:\n");
+    W4 key1[] = {0x16157e2b,0xa6d2ae28,0x8815f7ab,0x3c4fcf09};
+    int nK = sizeof(key1)/sizeof(*key1);
+    W4 keyDX[4*(nK+7)];
+    keyexpansion(key1,keyDX,nK);
+    W4 state1[] = {0xdbaf2670,0xa2f28066,0x53546cf9,0x958769c0};
+    printstate(state1);
+    uncipher(state1,keyDX,nK);
+    printstate(state1);
+    W4 state2[] = {0xa8f64332,0x8d305a88,0xa2983131,0x340737e0};
+    printstate(state2);
+    uncipher(state2,keyDX,nK);
     printstate(state2);
     return;
 }
@@ -385,6 +473,20 @@ void testencrypt()
     return;
 }
 
+void testdecrypt()
+{
+    printf(" Tests decrypt:\n");
+    char data[] = "[!] This is nothing more than a random and boring text. I don't even know why you're reading it...";
+    int txtsize = 96;
+    char key[] = "\x2b\x7e\x15\x16\x28\xae\xd2\xa6\xab\xf7\x15\x88\x09\xcf\x4f\x3c";
+    int keysize = 16;
+    aes_encrypt(data,txtsize,key,keysize);
+    aes_decrypt(data,txtsize,key,keysize);
+    for(int i=0;i<txtsize;i++) putchar(data[i]);
+    putchar('\n');
+    return;
+}
+
 void testzone()
 {
     testsubbytes();
@@ -392,7 +494,9 @@ void testzone()
     testmixcolumns();
     testkeyexpansion();
     testcipher();
+    testuncipher();
     testencrypt();
+    testdecrypt();
     return;
 }
 

@@ -108,4 +108,14 @@ Pour la prochaine séance, nous avons prévu de :
 # Mercredi 14 Juin
 - Ecriture de la fonction file_entropy pour mesurer l'entropie d'un fichier
 - On a mesuré l'entropie de plusieurs fichiers : bitmap_original (3,63), bitmap_ciphered_ecb128 (6,59) et bitmap_ciphered_cbc128 (7,99)
-- 
+- Début de la réécriture du programme en un seul fichier avec la nouvelle structure
+
+# Jeudi 15 Juin
+- Optimisation du programme C actuel (table de multiplications, améliorations mineures)
+- Performances actuelles :
+
+|Version|Taille du fichier|Temps de chiffrement|Temps de déchiffrement|Vitesse de chiffrement|Vitesse de déchiffrement|
+|:-:    |:-:    |:-:    |:-:    |:-:    |:-:    |
+|V1|300 ko|1,189s|1,189s|252,3 ko/s|252,3 ko/s
+|V2 (gcc)|1,1 Go|2 min 6s|       |8,62 mo/s|
+|V2 (gcc Ofast)|1,1 Go|2 min 6s|       |8,62 mo/s|
