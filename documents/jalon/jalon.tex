@@ -172,7 +172,7 @@ A ce stade, il nous reste donc à corriger l'implémentation en C pour qu'elle f
 
 \section{Fonctionnement des programmes}
 \subsection{AES en Haskell}
-Le programme en Haskell est composé d'un dossier \texttt{Math} qui rassemble les fichiers définissant les structures algébriques utilisées (corps finis, polynômes...), la partie 4 de la documentation FIPS (préliminaires mathématiques) avec les opérations sur les polynômes de GF256, les \texttt{words} de 32 bits (polynômes à coefficients dans GF256) ainsi que les states. Le fichier \texttt{Cipher.hs} importe l'ensemble des modules du dossier \texttt{Math} et définit l'ensemble des transformations sur les states, les clés (keyexpension) ainsi que les fonctions de chiffrement et de déchiffrement. Voici les fonctions principales du programme :
+Le programme en Haskell est composé d'un dossier \texttt{Math} qui rassemble les fichiers définissant les structures algébriques utilisées (corps finis, polynômes...), la partie 4 de la documentation FIPS (préliminaires mathématiques) avec les opérations sur les polynômes de GF256, les \texttt{words} de 32 bits (polynômes à coefficients dans GF256) ainsi que les states. Le fichier \texttt{Cipher.hs} importe l'ensemble des modules du dossier \texttt{Math} et définit l'ensemble des transformations sur les states, les clés (keyexpansion) ainsi que les fonctions de chiffrement et de déchiffrement. Voici les fonctions principales du programme :
 \begin{itemize}
     \item \texttt{encode :: String -> String -> String} : prend en entrée une clé et un texte et renvoie le texte chiffré
     \item \texttt{decode :: String -> String -> String} : prend en entrée une clé et un texte chiffré et renvoie le texte déchiffré

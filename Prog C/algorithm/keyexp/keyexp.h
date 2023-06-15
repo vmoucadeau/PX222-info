@@ -11,4 +11,4 @@
 void subword(w4 input, w4 output);
 void rotword(w4 input, w4 output);
 void rcon(int i, w4 output);
-void keyexpension(char *key, w4 *words);
+void keyexpansion(char *key, w4 *words);

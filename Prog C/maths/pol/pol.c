@@ -73,6 +73,17 @@ gf256 gf256_mulbyxpower(gf256 pol, int power) {
 }
 
 gf256 gf256_mul(gf256 pol1, gf256 pol2) {
+    // switch (pol1)
+    // {
+    // case 0x01:
+    //     return gf256_table01[pol2];
+    //     break;
+    
+    // default:
+    //     break;
+    // }
+
+
     int deg_b = gf256_deg(pol2);
     gf256 res = 0;
     for(int j = deg_b; j >= 0; j--) {

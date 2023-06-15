@@ -13,7 +13,6 @@
 char testkeyexp1[] = "2b7e151628aed2a6abf7158809cf4f3c";
 char testkeyexp2[] = "8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b";                  // nK = 6
 char testkeyexp3[] = "603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4";  // nK = 8
-
 char key_exvect1[] = "000102030405060708090a0b0c0d0e0f";
 char key_exvect2[] = "000102030405060708090a0b0c0d0e0f1011121314151617";
 char key_exvect3[] = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f";
@@ -279,10 +278,10 @@ void testall() {
 }
 
 int main() {
-    // file_test();
-    file_entropy("bitmap_original.bmp");
-    file_entropy("bitmap_ciphered_ecb192.bmp");
-    file_entropy("bitmap_ciphered_cbc192.bmp");
+    bmp_test(key_exvect1);
+    // file_entropy("bitmap_original.bmp");
+    // file_entropy("bitmap_ciphered_ecb192.bmp");
+    // file_entropy("bitmap_ciphered_cbc192.bmp");
 
     return 0;
 }

@@ -31,7 +31,7 @@ void rcon(int i, w4 output) {
     output[3] = 0;
 }
 
-void keyexpension(char *key, w4 *words) {
+void keyexpansion(char *key, w4 *words) {
     int nK = (strlen(key)) / 8;
     int nR = 6 + nK;
     int key_length = (nR + 1) * nB;

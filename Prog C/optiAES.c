@@ -5,10 +5,10 @@
 
 // Define Zone
 
-#define W4 unsigned int
-// typedef unsigned int W4;
-// typedef unsigned char F8;
-#define F8 unsigned char
+// #define W4 unsigned int
+// #define F8 unsigned char
+typedef unsigned int W4;
+typedef unsigned char F8;
 
 // Const Zone
 
@@ -201,7 +201,6 @@ void subbytes(W4 *state)
     for(int i=0;i<4;i++)
     {
         W4 a=0;
-        // for(int j=0;j<32;j+=8) a^=sbox[state[i]<<j>>24]<<(24-j);
         a^=sbox[state[i]<<0>>24]<<24;
         a^=sbox[state[i]<<8>>24]<<16;
         a^=sbox[state[i]<<16>>24]<<8;
@@ -247,6 +246,8 @@ void addroundkey(W4 *state, W4 *key)
     return;
 }
 
+// Encryption Zone
+
 void cipher(W4 *state, W4 *key, int nK)
 {
     addroundkey(state,key);
@@ -263,37 +264,31 @@ void cipher(W4 *state, W4 *key, int nK)
     return;
 }
 
-// Test Zone
-
-/*
-
-Empty zone to collapse tests...
-
-void experimentalzone()
-{
-    printf("\n --- EXPERIMENTAL ZONE:\n\n");
-    int a=0;
-    printf("%08x\n",a);
-    a^='\4'<<24;
-    printf("%08x\n",a);
-    a^='\1'<<16;
-    printf("%08x\n",a);
-    a^='\2'<<8;
-    printf("%08x\n",a);
-    a^='\3';
-    printf("%08x\n",a);
-    printf("\n");
-    return;
-}
-
-*/
-
 void printkeyDX(W4 *keyDX,int nK)
 {
     for(int i=0;i<4*(nK+7);i++) printf("%08x ",keyDX[i]);
     putchar('\n');
     return;
 }
+
+int aes_encrypt(char *data,int txtsize,char *key,int keysize)
+{
+    if(txtsize%16!=0) return 1;
+    if(keysize!=16 && keysize!=24 && keysize!=32) return 1;
+    int nK = keysize/4;
+    W4 keyDX[4*(nK+7)];
+    keyexpansion((W4*)key,keyDX,nK);
+    for(int i=0;i<txtsize/16;i++)
+    {
+        cipher((W4*)(data+16*i),keyDX,nK);
+    }
+    return 0;
+}
+
+    // W4 word1;
+    // word1 = *((W4*)data);
+    // printf("%x\n",word1);
+// Test Zone
 
 void testsubbytes()
 {
@@ -377,6 +372,19 @@ void testcipher()
     return;
 }
 
+void testencrypt()
+{
+    printf(" Tests encrypt:\n");
+    char data[] = "[!] This is nothing more than a random and boring text. I don't even know why you're reading it...";
+    int txtsize = 96;
+    char key[] = "\x2b\x7e\x15\x16\x28\xae\xd2\xa6\xab\xf7\x15\x88\x09\xcf\x4f\x3c";
+    int keysize = 16;
+    aes_encrypt(data,txtsize,key,keysize);
+    for(int i=0;i<txtsize;i++) putchar(data[i]);
+    putchar('\n');
+    return;
+}
+
 void testzone()
 {
     testsubbytes();
@@ -384,12 +392,13 @@ void testzone()
     testmixcolumns();
     testkeyexpansion();
     testcipher();
+    testencrypt();
     return;
 }
 
 int main()
 {
-    testzone();
+    testencrypt();
     return 0;
 }
 

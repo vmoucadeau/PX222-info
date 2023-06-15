@@ -19,7 +19,7 @@ void select_key(char *key, int keysize) {
     nR = 6 + nK;
     keyexp_length = nB * (nR+1);
     key_expended = malloc(sizeof(w4)*keyexp_length);
-    keyexpension(key, key_expended);
+    keyexpansion(key, key_expended);
 }
 
 void subbytes(state input, state output) {
@@ -47,8 +47,8 @@ void mixcolumns(state input, state output) {
     for(int i = 0; i < 4; i++) {
         w4 tmp = W4_INIT;
         w4_copy(input[i], tmp);
-        w4 ax = W4_INIT;
-        w4_parse(AX_HEX, ax);
+        w4 ax = AX;
+        // w4_parse(AX_HEX, ax); // useless
         w4_mul(ax, tmp, output[i]);
     }
 }
@@ -88,8 +88,8 @@ void inv_mixcolumns(state input, state output) {
     for(int i = 0; i < 4; i++) {
         w4 tmp = W4_INIT;
         w4_copy(input[i], tmp);
-        w4 ax_inv = W4_INIT;
-        w4_parse(AX_INV_HEX, ax_inv);
+        w4 ax_inv = AX_INV;
+        // w4_parse(AX_INV_HEX, ax_inv);
         w4_mul(ax_inv, tmp, output[i]);
     }
 }

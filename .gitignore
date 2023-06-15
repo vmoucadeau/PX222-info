@@ -3,6 +3,7 @@
 *.out
 *.txt
 *.bmp
+optiAES
 documents/jalon/jalon.aux
 documents/jalon/jalon.fdb_latexmk
 documents/jalon/jalon.fls

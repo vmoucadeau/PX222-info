@@ -3,7 +3,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
-#define head_size 72
+#define head_size 11
 
 extern w4 *key_expended;
 
@@ -11,15 +11,27 @@ void encode_bmp(char *key, char *fileinput, char *fileoutput, int mode) {
     select_key(key, strlen(key));
     FILE *file_toencode = fopen(fileinput, "r");
     FILE *file_encoded = fopen(fileoutput, "w");
-    char buffer[4*nB];
-    char encoded[4*nB];
-    char head[head_size];
+
     if ( file_toencode == NULL ) {
         fprintf( stderr, "Impossible d'ouvrir le fichier\n" );
         exit( -1 );
     }
+
+    char buffer[4*nB];
+    char encoded[4*nB];
+    char head[head_size];
+    char offset[4];
+    
     fread(head, 1, head_size, file_toencode);
     fwrite(head, head_size, 1, file_encoded);
+    fread(offset, 1, 4, file_toencode);
+    fwrite(offset, 4, 1, file_encoded);
+    int offset_int = offset[3] + offset[2] * 256 + offset[1] * 256 * 256 + offset[0] * 256 * 256 * 256;
+    char *offset_buffer = malloc(offset_int);
+    fread(offset_buffer, 1, offset_int, file_toencode);
+    fwrite(offset_buffer, offset_int, 1, file_encoded);
+    free(offset_buffer);
+    
     state previous = STATE_INIT;
     state result = STATE_INIT;
     size_t byte_read = fread(buffer, 1, 4*nB, file_toencode);
@@ -39,18 +51,29 @@ void decode_bmp(char *key, char *fileinput, char *fileoutput, int mode) {
     select_key(key, strlen(key));
     FILE *file_todecode = fopen(fileinput, "r");
     FILE *file_decoded = fopen(fileoutput, "w");
-    char buffer[4*nB];
-    char head[head_size];
     if ( file_todecode == NULL ) {
         fprintf( stderr, "Impossible d'ouvrir le fichier\n" );
         exit( -1 );
     }
+    
+    char buffer[4*nB];
+    char head[head_size];
+    char offset[4];
+    char decoded[4*nB];
+    
     fread(head, 1, head_size, file_todecode);
     fwrite(head, head_size, 1, file_decoded);
+    fread(offset, 1, 4, file_todecode);
+    fwrite(offset, 4, 1, file_decoded);
+    int offset_int = offset[3] + offset[2] * 256 + offset[1] * 256 * 256 + offset[0] * 256 * 256 * 256;
+    char *offset_buffer = malloc(offset_int);
+    fread(offset_buffer, 1, offset_int, file_todecode);
+    fwrite(offset_buffer, offset_int, 1, file_decoded);
+    free(offset_buffer);
+
     state previous = STATE_INIT;
     state result = STATE_INIT;
     state input = STATE_INIT;
-    char decoded[4*nB];
     size_t byte_read = fread(buffer, 1, 4*nB, file_todecode);
     while(byte_read == 16) {
         state_init(buffer, input);

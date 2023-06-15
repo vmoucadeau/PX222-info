@@ -4,7 +4,9 @@
 #define WORD_SIZE 4
 #define W4_INIT {0,0,0,0}
 #define AX_HEX "02010103"
+#define AX {0x02, 0x01, 0x01, 0x03}
 #define AX_INV_HEX "0e090d0b"
+#define AX_INV {0x0e, 0x09, 0x0d, 0x0b}
 
 typedef unsigned char w4 [WORD_SIZE];
 
