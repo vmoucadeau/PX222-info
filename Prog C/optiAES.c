@@ -156,15 +156,32 @@ const F8 F8x0e[] = {
     0x37,0x39,0x2b,0x25,0x0f,0x01,0x13,0x1d,0x47,0x49,0x5b,0x55,0x7f,0x71,0x63,0x6d,
     0xd7,0xd9,0xcb,0xc5,0xef,0xe1,0xf3,0xfd,0xa7,0xa9,0xbb,0xb5,0x9f,0x91,0x83,0x8d};
 
-const W4 Rcon[] = {0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80,0x1b,0x36,0x6c,0xd8,0xab,0x4d};
+const F8 Rcon[] = {0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80,0x1b,0x36,0x6c,0xd8,0xab,0x4d};
 
 // Support Zone
+
+void printW4(W4 word)
+{
+    printf("%02x%02x%02x%02x",word<<24>>24,word<<16>>24,word<<8>>24,word<<0>>24);
+    return;
+}
+
+void printkeyDX(W4 *keyDX,int nK)
+{
+    for(int i=0;i<4*(nK+7);i++)
+    {
+        printW4(keyDX[i]);
+        putchar(' ');
+    }
+    putchar('\n');
+    return;
+}
 
 void printstate(W4 *state)
 {
     for(int i=0;i<4;i++)
     {
-        printf("%08x",state[i]);
+        printW4(state[i]);
     }
     putchar('\n');
     return;
@@ -172,17 +189,13 @@ void printstate(W4 *state)
 
 W4 subword(W4 word)
 {
-    W4 a=0;
-    a^=sbox[word<<0>>24]<<24;
-    a^=sbox[word<<8>>24]<<16;
-    a^=sbox[word<<16>>24]<<8;
-    a^=sbox[word<<24>>24]<<0;
+    W4 a=(sbox[word<<0>>24]<<24)|(sbox[word<<8>>24]<<16)|(sbox[word<<16>>24]<<8)|(sbox[word<<24>>24]<<0);
     return a;
 }
 
 W4 rotword(W4 word)
 {
-    W4 a=word>>24|word<<8;
+    W4 a=word>>8|word<<24;
     return a;
 }
 
@@ -190,7 +203,7 @@ void keyexpansion(W4 *key, W4 *keyDX, int nK)
 {
     for(int i=0;i<nK;i++) keyDX[i]=key[i];
     for(int i=nK;i<4*(nK+7);i++)
-    keyDX[i]=keyDX[i-nK]^(i%nK==0?subword(rotword(keyDX[i-1]))^Rcon[i/nK-1]<<24:nK>7&&i%nK==4?subword(keyDX[i-1]):keyDX[i-1]);
+    keyDX[i]=keyDX[i-nK]^(i%nK==0?subword(rotword(keyDX[i-1]))^Rcon[i/nK-1]:nK>7&&i%nK==4?subword(keyDX[i-1]):keyDX[i-1]);
     return;
 }
 
@@ -212,10 +225,10 @@ void subbytes(W4 *state)
 
 void shiftrows(W4 *state)
 {
-    W4 w0=(state[0]&(0xFF<<24))|(state[1]&(0xFF<<16))|(state[2]&(0xFF<<8))|(state[3]&(0xFF<<0));
-    W4 w1=(state[1]&(0xFF<<24))|(state[2]&(0xFF<<16))|(state[3]&(0xFF<<8))|(state[0]&(0xFF<<0));
-    W4 w2=(state[2]&(0xFF<<24))|(state[3]&(0xFF<<16))|(state[0]&(0xFF<<8))|(state[1]&(0xFF<<0));
-    W4 w3=(state[3]&(0xFF<<24))|(state[0]&(0xFF<<16))|(state[1]&(0xFF<<8))|(state[2]&(0xFF<<0));
+    W4 w0=(state[0]&(0xFF<<0))|(state[1]&(0xFF<<8))|(state[2]&(0xFF<<16))|(state[3]&(0xFF<<24));
+    W4 w1=(state[1]&(0xFF<<0))|(state[2]&(0xFF<<8))|(state[3]&(0xFF<<16))|(state[0]&(0xFF<<24));
+    W4 w2=(state[2]&(0xFF<<0))|(state[3]&(0xFF<<8))|(state[0]&(0xFF<<16))|(state[1]&(0xFF<<24));
+    W4 w3=(state[3]&(0xFF<<0))|(state[0]&(0xFF<<8))|(state[1]&(0xFF<<16))|(state[2]&(0xFF<<24));
     state[0]=w0;
     state[1]=w1;
     state[2]=w2;
@@ -228,10 +241,10 @@ void mixcolumns(W4 *state)
     for(int i=0;i<4;i++)
     {
         W4 a=0;
-        a^=(F8x02[state[i]<<0>>24]^F8x03[state[i]<<8>>24]^(state[i]<<16>>24)^state[i]<<24>>24)<<24;
-        a^=(F8x02[state[i]<<8>>24]^F8x03[state[i]<<16>>24]^(state[i]<<24>>24)^state[i]<<0>>24)<<16;
-        a^=(F8x02[state[i]<<16>>24]^F8x03[state[i]<<24>>24]^(state[i]<<0>>24)^state[i]<<8>>24)<<8;
-        a^=(F8x02[state[i]<<24>>24]^F8x03[state[i]<<0>>24]^(state[i]<<8>>24)^state[i]<<16>>24)<<0;
+        a^=(F8x02[state[i]<<24>>24]^F8x03[state[i]<<16>>24]^(state[i]<<8>>24)^state[i]<<0>>24)<<0;
+        a^=(F8x02[state[i]<<16>>24]^F8x03[state[i]<<8>>24]^(state[i]<<0>>24)^state[i]<<24>>24)<<8;
+        a^=(F8x02[state[i]<<8>>24]^F8x03[state[i]<<0>>24]^(state[i]<<24>>24)^state[i]<<16>>24)<<16;
+        a^=(F8x02[state[i]<<0>>24]^F8x03[state[i]<<24>>24]^(state[i]<<16>>24)^state[i]<<8>>24)<<24;
         state[i]=a;
     }
     return;
@@ -264,40 +277,27 @@ void cipher(W4 *state, W4 *key, int nK)
     return;
 }
 
-void printkeyDX(W4 *keyDX,int nK)
-{
-    for(int i=0;i<4*(nK+7);i++) printf("%08x ",keyDX[i]);
-    putchar('\n');
-    return;
-}
-
-int aes_encrypt(char *data,int txtsize,char *key,int keysize)
+int aes_encrypt(char *data, int txtsize, char *key, int keysize)
 {
     if(txtsize%16!=0) return 1;
     if(keysize!=16 && keysize!=24 && keysize!=32) return 1;
     int nK = keysize/4;
     W4 keyDX[4*(nK+7)];
     keyexpansion((W4*)key,keyDX,nK);
-    for(int i=0;i<txtsize/16;i++)
-    {
-        cipher((W4*)(data+16*i),keyDX,nK);
-    }
+    for(int i=0;i<txtsize/16;i++) cipher((W4*)(data+16*i),keyDX,nK);
     return 0;
 }
 
-    // W4 word1;
-    // word1 = *((W4*)data);
-    // printf("%x\n",word1);
 // Test Zone
 
 void testsubbytes()
 {
     printf(" Tests subbytes:\n");
-    W4 state1[] = {0x7026afdb,0x6680f2a2,0xf96c5453,0xc0698795};
+    W4 state1[] = {0xdbaf2670,0xa2f28066,0x53546cf9,0x958769c0};
     printstate(state1);
     subbytes(state1);
     printstate(state1);
-    W4 state2[] = {0x00010203,0x04050607,0x08090a0b,0x0c0d0e0f};
+    W4 state2[] = {0x03020100,0x07060504,0x0b0a0908,0x0f0e0d0c};
     printstate(state2);
     subbytes(state2);
     printstate(state2);
@@ -307,11 +307,11 @@ void testsubbytes()
 void testshiftrows()
 {
     printf(" Tests shiftrows:\n");
-    W4 state1[] = {0x7026afdb,0x6680f2a2,0xf96c5453,0xc0698795};
+    W4 state1[] = {0xdbaf2670,0xa2f28066,0x53546cf9,0x958769c0};
     printstate(state1);
     shiftrows(state1);
     printstate(state1);
-    W4 state2[] = {0x00010203,0x04050607,0x08090a0b,0x0c0d0e0f};
+    W4 state2[] = {0x03020100,0x07060504,0x0b0a0908,0x0f0e0d0c};
     printstate(state2);
     shiftrows(state2);
     printstate(state2);
@@ -321,11 +321,11 @@ void testshiftrows()
 void testmixcolumns()
 {
     printf(" Tests mixcolumns:\n");
-    W4 state1[] = {0x7026afdb,0x6680f2a2,0xf96c5453,0xc0698795};
+    W4 state1[] = {0xdbaf2670,0xa2f28066,0x53546cf9,0x958769c0};
     printstate(state1);
     mixcolumns(state1);
     printstate(state1);
-    W4 state2[] = {0x00010203,0x04050607,0x08090a0b,0x0c0d0e0f};
+    W4 state2[] = {0x03020100,0x07060504,0x0b0a0908,0x0f0e0d0c};
     printstate(state2);
     mixcolumns(state2);
     printstate(state2);
@@ -336,19 +336,19 @@ void testkeyexpansion()
 {
     printf(" Tests keyexpansion:\n");
     printf(" --- Key1 (AES128):\n");
-    W4 key1[] = {0x2b7e1516,0x28aed2a6,0xabf71588,0x09cf4f3c};
+    W4 key1[] = {0x16157e2b,0xa6d2ae28,0x8815f7ab,0x3c4fcf09};
     int nK1 = sizeof(key1)/sizeof(*key1);
     W4 keyDX1[4*(nK1+7)];
     keyexpansion(key1,keyDX1,nK1);
     printkeyDX(keyDX1,nK1);
     printf(" --- Key2 (AES192):\n");
-    W4 key2[] = {0x8e73b0f7,0xda0e6452,0xc810f32b,0x809079e5,0x62f8ead2,0x522c6b7b};
+    W4 key2[] = {0xf7b0738e,0x52640eda,0x2bf310c8,0xe5799080,0xd2eaf862,0x7b6b2c52};
     int nK2 = sizeof(key2)/sizeof(*key2);
     W4 keyDX2[4*(nK2+7)];
     keyexpansion(key2,keyDX2,nK2);
     printkeyDX(keyDX2,nK2);
     printf(" --- Key3 (AES256):\n");
-    W4 key3[] = {0x603deb10,0x15ca71be,0x2b73aef0,0x857d7781,0x1f352c07,0x3b6108d7,0x2d9810a3,0x0914dff4};
+    W4 key3[] = {0x10eb3d60,0xbe71ca15,0xf0ae732b,0x81777d85,0x072c351f,0xd708613b,0xa310982d,0xf4df1409};
     int nK3 = sizeof(key3)/sizeof(*key3);
     W4 keyDX3[4*(nK3+7)];
     keyexpansion(key3,keyDX3,nK3);
@@ -359,14 +359,14 @@ void testkeyexpansion()
 void testcipher()
 {
     printf(" Tests cipher:\n");
-    W4 key1[] = {0x2b7e1516,0x28aed2a6,0xabf71588,0x09cf4f3c};
+    W4 key1[] = {0x16157e2b,0xa6d2ae28,0x8815f7ab,0x3c4fcf09};
     int nK = sizeof(key1)/sizeof(*key1);
     W4 keyDX[4*(nK+7)];
     keyexpansion(key1,keyDX,nK);
-    W4 state1[] = {0x7026afdb,0x6680f2a2,0xf96c5453,0xc0698795};
+    W4 state1[] = {0xdbaf2670,0xa2f28066,0x53546cf9,0x958769c0};
     cipher(state1,keyDX,nK);
     printstate(state1);
-    W4 state2[] = {0x3243f6a8,0x885a308d,0x313198a2,0xe0370734};
+    W4 state2[] = {0xa8f64332,0x8d305a88,0xa2983131,0x340737e0};
     cipher(state2,keyDX,nK);
     printstate(state2);
     return;
@@ -398,7 +398,7 @@ void testzone()
 
 int main()
 {
-    testencrypt();
+    testzone();
     return 0;
 }
 
