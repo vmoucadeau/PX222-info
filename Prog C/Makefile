@@ -3,6 +3,9 @@ CC ?= gcc
 FLAGS = -g -Wall -Wextra -O3 -flto -march=native # -lsan -lubsan
 FLAGSOUT = -g -Wall -Wextra -O3 -flto -march=native # -fsanitize=address -fsanitize=undefined -fsanitize=shift -fsanitize=shift-exponent -fsanitize=shift-base -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict -fsanitize=bool -fsanitize=enum
 
+FLAGS_INTRINSICS = -g -Wall -O2 -march=corei7 -maes -mpclmul
+
+
 aes.out : main.o pol.o bits.o words.o state.o cipher.o keyexp.o text.o files.o api.o bmp.o
 	$(CC) $(FLAGSOUT) -o $@ $^ -lm
 
@@ -44,3 +47,6 @@ clean :
 
 opti :
 	$(CC) optiAES.c -o optiAES.out $(FLAGS)
+
+intrinsics :
+	$(CC) $(FLAGS_INTRINSICS) aes_intrinsics.c -o aes_intrinsics.exe 
