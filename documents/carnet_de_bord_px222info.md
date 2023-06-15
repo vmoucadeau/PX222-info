@@ -112,10 +112,15 @@ Pour la prochaine séance, nous avons prévu de :
 
 # Jeudi 15 Juin
 - Optimisation du programme C actuel (table de multiplications, améliorations mineures)
-- Performances actuelles :
+- Performances actuelle (ECB) :
 
 |Version|Taille du fichier|Temps de chiffrement|Temps de déchiffrement|Vitesse de chiffrement|Vitesse de déchiffrement|
 |:-:    |:-:    |:-:    |:-:    |:-:    |:-:    |
 |V1|300 ko|1,189s|1,189s|252,3 ko/s|252,3 ko/s
 |V2 (gcc)|1,1 Go|2 min 6s|       |8,62 mo/s|
 |V2 (gcc Ofast)|1,1 Go|2 min 6s|       |8,62 mo/s|
+|V2 (gcc O3 flto march=native)|1,1 Go|2 min 1s|       |9 mo/s|
+|V2 (clang Ofast)|1,1 Go|1 min 47s|2 min 3s|10,12 mo/s|8,8 mo/s|
+|V2 (clang O2 flto march=native)|1,1 Go|1 min 39s|2 min 3s|11 mo/s|
+|V2 (clang O3 flto march=native)|1,1 Go|1 min 39s|2 min 3s|11 mo/s|
+|V3 (clang O3 flto march=native)|1,4 Go|20,384s| |68,68 mo/s|

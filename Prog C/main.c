@@ -258,8 +258,8 @@ void bmp_test(char *key) {
 
 void file_test() {
     printf("---- FILE TEST ----\n");
-    encode_file(key_exvect1, "sample.txt", "sampleciph.txt", 0);
-    // decode_file(key_exvect1, "monfichierciph.txt", "monfichierunciph.txt", 0);
+    encode_file(testkeyexp1, "opfile0.txt", "opfile0_ciphered.txt", 0);
+    // decode_file(key_exvect1, "ciphsample.txt", "sampleunciph.txt", 0);
     printf("---- FILE TEST OK ----\n\n");
 }
 

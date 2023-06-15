@@ -356,6 +356,67 @@ int aes_decrypt(char *data, int txtsize, char *key, int keysize)
     return 0;
 }
 
+// File Zone
+
+void file_encrypt(char *key, int keysize, char *nameinput, char *nameoutput)
+{
+    FILE *fileinput = fopen(nameinput,"r");
+    FILE *fileoutput = fopen(nameoutput,"w");
+    if(fileinput==NULL)
+    {
+        fprintf(stderr," [!] Error: couldn't open input file");
+        return;
+    }
+    if(keysize!=16 && keysize!=24 && keysize!=32) return;
+    int nK = keysize/4;
+    W4 keyDX[4*(nK+7)];
+    keyexpansion((W4*)key,keyDX,nK);
+    char data[16];
+    // fseek(fileinput, 0L, SEEK_END);
+    // size_t sz = ftell(fileinput);
+    // fseek(fileinput, 0L, SEEK_SET);
+    // printf("file size = %ld\n",sz);
+    unsigned long n=fread(data,1,16,fileinput);
+    while(n==16)
+    {
+        cipher((W4*)(data),keyDX,nK);
+        fwrite(data,16,1,fileoutput);
+        n=fread(data,1,16,fileinput);
+    }
+    for(int i=n;i<16;i++) data[i]=16-n;
+    cipher((W4*)(data),keyDX,nK);
+    fwrite(data,16,1,fileoutput);
+    fclose(fileinput);
+    fclose(fileoutput);
+    return;
+}
+
+void file_decrypt(char *key, int keysize, char *nameinput, char *nameoutput)
+{
+    FILE *fileinput = fopen(nameinput,"r");
+    FILE *fileoutput = fopen(nameoutput,"w");
+    if(fileinput==NULL)
+    {
+        fprintf(stderr," [!] Error: couldn't open input file");
+        return;
+    }
+    if(keysize!=16 && keysize!=24 && keysize!=32) return;
+    int nK = keysize/4;
+    W4 keyDX[4*(nK+7)];
+    keyexpansion((W4*)key,keyDX,nK);
+    char data[16];
+    unsigned long n=fread(data,1,16,fileinput);
+    while(n==16)
+    {
+        uncipher((W4*)(data),keyDX,nK);
+        fwrite(data,16,1,fileoutput);
+        n=fread(data,1,16,fileinput);
+    }
+    fclose(fileinput);
+    fclose(fileoutput);
+    return;
+}
+
 // Test Zone
 
 void testsubbytes()
@@ -502,7 +563,11 @@ void testzone()
 
 int main()
 {
-    testzone();
+    // testzone();
+    char key[] = "\x2b\x7e\x15\x16\x28\xae\xd2\xa6\xab\xf7\x15\x88\x09\xcf\x4f\x3c";
+    int keysize = 16;
+    file_encrypt(key,keysize,"opfile0.txt","opfile1.txt");
+    file_decrypt(key,keysize,"opfile1.txt","opfile2.txt");
     return 0;
 }
 
