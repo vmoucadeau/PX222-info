@@ -5,10 +5,10 @@
 
 // Define Zone
 
-// #define W4 unsigned int
-// #define F8 unsigned char
-typedef unsigned int W4;
-typedef unsigned char F8;
+#define W4 unsigned int
+#define F8 unsigned char
+// typedef unsigned int W4;
+// typedef unsigned char F8;
 
 // Const Zone
 
@@ -179,10 +179,7 @@ void printkeyDX(W4 *keyDX,int nK)
 
 void printstate(W4 *state)
 {
-    for(int i=0;i<4;i++)
-    {
-        printW4(state[i]);
-    }
+    for(int i=0;i<4;i++) printW4(state[i]);
     putchar('\n');
     return;
 }
@@ -214,10 +211,7 @@ void subbytes(W4 *state)
     for(int i=0;i<4;i++)
     {
         W4 a=0;
-        a^=sbox[state[i]<<0>>24]<<24;
-        a^=sbox[state[i]<<8>>24]<<16;
-        a^=sbox[state[i]<<16>>24]<<8;
-        a^=sbox[state[i]<<24>>24]<<0;
+        a^=(sbox[state[i]<<24>>24]<<0)|(sbox[state[i]<<16>>24]<<8)|(sbox[state[i]<<8>>24]<<16)|(sbox[state[i]<<0>>24]<<24);
         state[i]=a;
     }
     return;
@@ -334,31 +328,51 @@ void uncipher(W4 *state, W4 *key, int nK)
     return;
 }
 
-int aes_encrypt(char *data, int txtsize, char *key, int keysize)
+int aes_encrypt(char *data, int txtsize, char *key, int keysize, int mode)
 {
     if(txtsize%16!=0) return 1;
     if(keysize!=16 && keysize!=24 && keysize!=32) return 1;
     int nK = keysize/4;
     W4 keyDX[4*(nK+7)];
     keyexpansion((W4*)key,keyDX,nK);
-    for(int i=0;i<txtsize/16;i++) cipher((W4*)(data+16*i),keyDX,nK);
+    if(mode==0) for(int i=0;i<txtsize/16;i++) cipher((W4*)(data+16*i),keyDX,nK);
+    else
+    {
+        if(txtsize!=0) cipher((W4*)(data),keyDX,nK);
+        for(int i=1;i<txtsize/16;i++)
+        {
+            addroundkey((W4*)(data+16*i),(W4*)(data+16*(i-1)));
+            cipher((W4*)(data+16*i),keyDX,nK);
+        }
+    }
     return 0;
 }
 
-int aes_decrypt(char *data, int txtsize, char *key, int keysize)
+int aes_decrypt(char *data, int txtsize, char *key, int keysize, int mode)
 {
     if(txtsize%16!=0) return 1;
     if(keysize!=16 && keysize!=24 && keysize!=32) return 1;
     int nK = keysize/4;
     W4 keyDX[4*(nK+7)];
     keyexpansion((W4*)key,keyDX,nK);
-    for(int i=0;i<txtsize/16;i++) uncipher((W4*)(data+16*i),keyDX,nK);
+    if(mode==0) for(int i=0;i<txtsize/16;i++) uncipher((W4*)(data+16*i),keyDX,nK);
+    else
+    {
+        if(txtsize!=0) uncipher((W4*)(data+txtsize-16),keyDX,nK);
+        for(int i=txtsize/16-1;i>0;i--)
+        {
+            addroundkey((W4*)(data+16*i),(W4*)(data+16*(i-1)));
+            uncipher((W4*)(data+16*(i-1)),keyDX,nK);
+        }
+    }
     return 0;
 }
 
 // File Zone
 
-void file_encrypt(char *key, int keysize, char *nameinput, char *nameoutput)
+/*
+
+void file_encrypt(char *nameinput, char *nameoutput, char *key, int keysize, int mode)
 {
     FILE *fileinput = fopen(nameinput,"r");
     FILE *fileoutput = fopen(nameoutput,"w");
@@ -387,7 +401,7 @@ void file_encrypt(char *key, int keysize, char *nameinput, char *nameoutput)
     return;
 }
 
-void file_decrypt(char *key, int keysize, char *nameinput, char *nameoutput)
+void file_decrypt(char *nameinput, char *nameoutput, char *key, int keysize, int mode)
 {
     FILE *fileinput = fopen(nameinput,"r");
     FILE *fileoutput = fopen(nameoutput,"w");
@@ -415,11 +429,55 @@ void file_decrypt(char *key, int keysize, char *nameinput, char *nameoutput)
     return;
 }
 
+*/
+
+void file_encrypt(char *nameinput, char *nameoutput, char *key, int keysize, int mode)
+{
+    FILE *fileinput = fopen(nameinput,"r");
+    FILE *fileoutput = fopen(nameoutput,"w");
+    if(fileinput==NULL)
+    {
+        fprintf(stderr," [!] Error: couldn't open input file\n");
+        return;
+    }
+    fseek(fileinput,0,SEEK_END);
+    long txtsize = ftell(fileinput);
+    fseek(fileinput,0,SEEK_SET);
+    char data[txtsize];
+    fread(data,1,txtsize,fileinput);
+    aes_encrypt(data,16*(txtsize/16),key,keysize,mode);
+    fwrite(data,1,txtsize,fileoutput);
+    fclose(fileinput);
+    fclose(fileoutput);
+    return;
+}
+
+void file_decrypt(char *nameinput, char *nameoutput, char *key, int keysize, int mode)
+{
+    FILE *fileinput = fopen(nameinput,"r");
+    FILE *fileoutput = fopen(nameoutput,"w");
+    if(fileinput==NULL)
+    {
+        fprintf(stderr," [!] Error: couldn't open input file\n");
+        return;
+    }
+    fseek(fileinput,0,SEEK_END);
+    long txtsize = ftell(fileinput);
+    fseek(fileinput,0,SEEK_SET);
+    char data[txtsize];
+    fread(data,1,txtsize,fileinput);
+    aes_decrypt(data,16*(txtsize/16),key,keysize,mode);
+    fwrite(data,1,txtsize,fileoutput);
+    fclose(fileinput);
+    fclose(fileoutput);
+    return;
+}
+
 // Test Zone
 
 void testsubbytes()
 {
-    printf(" Tests subbytes:\n");
+    printf(" [>] Tests subbytes:\n");
     W4 state1[] = {0xdbaf2670,0xa2f28066,0x53546cf9,0x958769c0};
     printstate(state1);
     subbytes(state1);
@@ -433,7 +491,7 @@ void testsubbytes()
 
 void testshiftrows()
 {
-    printf(" Tests shiftrows:\n");
+    printf(" [>] Tests shiftrows:\n");
     W4 state1[] = {0xdbaf2670,0xa2f28066,0x53546cf9,0x958769c0};
     printstate(state1);
     shiftrows(state1);
@@ -447,7 +505,7 @@ void testshiftrows()
 
 void testmixcolumns()
 {
-    printf(" Tests mixcolumns:\n");
+    printf(" [>] Tests mixcolumns:\n");
     W4 state1[] = {0xdbaf2670,0xa2f28066,0x53546cf9,0x958769c0};
     printstate(state1);
     mixcolumns(state1);
@@ -461,7 +519,7 @@ void testmixcolumns()
 
 void testkeyexpansion()
 {
-    printf(" Tests keyexpansion:\n");
+    printf(" [>] Tests keyexpansion:\n");
     printf(" --- Key1 (AES128):\n");
     W4 key1[] = {0x16157e2b,0xa6d2ae28,0x8815f7ab,0x3c4fcf09};
     int nK1 = sizeof(key1)/sizeof(*key1);
@@ -485,7 +543,7 @@ void testkeyexpansion()
 
 void testcipher()
 {
-    printf(" Tests cipher:\n");
+    printf(" [>] Tests cipher:\n");
     W4 key1[] = {0x16157e2b,0xa6d2ae28,0x8815f7ab,0x3c4fcf09};
     int nK = sizeof(key1)/sizeof(*key1);
     W4 keyDX[4*(nK+7)];
@@ -503,7 +561,7 @@ void testcipher()
 
 void testuncipher()
 {
-    printf(" Tests uncipher:\n");
+    printf(" [>] Tests uncipher:\n");
     W4 key1[] = {0x16157e2b,0xa6d2ae28,0x8815f7ab,0x3c4fcf09};
     int nK = sizeof(key1)/sizeof(*key1);
     W4 keyDX[4*(nK+7)];
@@ -513,36 +571,43 @@ void testuncipher()
     uncipher(state1,keyDX,nK);
     printstate(state1);
     W4 state2[] = {0xa8f64332,0x8d305a88,0xa2983131,0x340737e0};
+    cipher(state2,keyDX,nK);
     printstate(state2);
     uncipher(state2,keyDX,nK);
     printstate(state2);
     return;
 }
 
-void testencrypt()
+void testapi()
 {
-    printf(" Tests encrypt:\n");
-    char data[] = "[!] This is nothing more than a random and boring text. I don't even know why you're reading it...";
+    printf(" [>] Tests api encrypt:\n");
+    char data[] = "[#] This is nothing more than a random and boring text. I don't even know why you're reading it...";
     int txtsize = 96;
     char key[] = "\x2b\x7e\x15\x16\x28\xae\xd2\xa6\xab\xf7\x15\x88\x09\xcf\x4f\x3c";
     int keysize = 16;
-    aes_encrypt(data,txtsize,key,keysize);
+    aes_encrypt(data,txtsize,key,keysize,1);
+    for(int i=0;i<txtsize;i++) putchar(data[i]);
+    putchar('\n');
+    printf(" [>] Tests api decrypt:\n");
+    aes_decrypt(data,txtsize,key,keysize,1);
     for(int i=0;i<txtsize;i++) putchar(data[i]);
     putchar('\n');
     return;
 }
 
-void testdecrypt()
+void testfiles()
 {
-    printf(" Tests decrypt:\n");
-    char data[] = "[!] This is nothing more than a random and boring text. I don't even know why you're reading it...";
-    int txtsize = 96;
+    printf(" [>] Tests files:\n");
     char key[] = "\x2b\x7e\x15\x16\x28\xae\xd2\xa6\xab\xf7\x15\x88\x09\xcf\x4f\x3c";
     int keysize = 16;
-    aes_encrypt(data,txtsize,key,keysize);
-    aes_decrypt(data,txtsize,key,keysize);
-    for(int i=0;i<txtsize;i++) putchar(data[i]);
-    putchar('\n');
+    FILE *fileinput = fopen("opfile0.txt","r");
+    if(fileinput==NULL) printf(" [!] Error: couldn't open \"opfile0.txt\". So no file tests...\n");
+    else
+    {
+        fclose(fileinput);
+        file_encrypt("opfile0.txt","opfile1.txt",key,keysize,0);
+        file_decrypt("opfile1.txt","opfile2.txt",key,keysize,0);
+    }
     return;
 }
 
@@ -554,18 +619,14 @@ void testzone()
     testkeyexpansion();
     testcipher();
     testuncipher();
-    testencrypt();
-    testdecrypt();
+    testapi();
+    testfiles();
     return;
 }
 
 int main()
 {
-    // testzone();
-    char key[] = "\x2b\x7e\x15\x16\x28\xae\xd2\xa6\xab\xf7\x15\x88\x09\xcf\x4f\x3c";
-    int keysize = 16;
-    file_encrypt(key,keysize,"opfile0.txt","opfile1.txt");
-    // file_decrypt(key,keysize,"opfile1.txt","opfile2.txt");
+    testzone();
     return 0;
 }
 
