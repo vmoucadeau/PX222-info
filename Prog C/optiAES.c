@@ -6,10 +6,28 @@
 
 // Define Zone
 
-#define W4 unsigned int
-#define F8 unsigned char
 // typedef unsigned int W4;
 // typedef unsigned char F8;
+#define W4 unsigned int
+#define F8 unsigned char
+#define ModeECB 0
+#define ModeCBC 1
+#define FormatTXT 0
+#define FormatBMP 1
+#define DEFState1 {0xdbaf2670,0xa2f28066,0x53546cf9,0x958769c0}
+#define DEFState2 {0x03020100,0x07060504,0x0b0a0908,0x0f0e0d0c}
+#define DEFState3 {0xa8f64332,0x8d305a88,0xa2983131,0x340737e0}
+#define DEFKey1 {0x16157e2b,0xa6d2ae28,0x8815f7ab,0x3c4fcf09}
+#define DEFKey2 {0xf7b0738e,0x52640eda,0x2bf310c8,0xe5799080,0xd2eaf862,0x7b6b2c52}
+#define DEFKey3 {0x10eb3d60,0xbe71ca15,0xf0ae732b,0x81777d85,0x072c351f,0xd708613b,0xa310982d,0xf4df1409}
+#define CHARkey "\x2b\x7e\x15\x16\x28\xae\xd2\xa6\xab\xf7\x15\x88\x09\xcf\x4f\x3c"
+#define DATAtxt "[#] This is nothing more than a random and boring text. I don't even know why you're reading it..."
+#define FILEtxtoriginal "fileop0.txt"
+#define FILEtxtchiffered "fileop1.txt"
+#define FILEtxtunchiffered "fileop2.txt"
+#define FILEbmporiginal "pictop0.bmp"
+#define FILEbmpchiffered "pictop1.bmp"
+#define FILEbmpunchiffered "pictop2.bmp"
 
 // Const Zone
 
@@ -31,7 +49,7 @@ const F8 sbox[] = {
     0xe1,0xf8,0x98,0x11,0x69,0xd9,0x8e,0x94,0x9b,0x1e,0x87,0xe9,0xce,0x55,0x28,0xdf,
     0x8c,0xa1,0x89,0x0d,0xbf,0xe6,0x42,0x68,0x41,0x99,0x2d,0x0f,0xb0,0x54,0xbb,0x16};
 
-const F8 sboxi[] = {
+const F8 ibox[] = {
     0x52,0x09,0x6a,0xd5,0x30,0x36,0xa5,0x38,0xbf,0x40,0xa3,0x9e,0x81,0xf3,0xd7,0xfb,
     0x7c,0xe3,0x39,0x82,0x9b,0x2f,0xff,0x87,0x34,0x8e,0x43,0x44,0xc4,0xde,0xe9,0xcb,
     0x54,0x7b,0x94,0x32,0xa6,0xc2,0x23,0x3d,0xee,0x4c,0x95,0x0b,0x42,0xfa,0xc3,0x4e,
@@ -161,30 +179,6 @@ const F8 Rcon[] = {0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80,0x1b,0x36,0x6c,0xd8,0
 
 // Support Zone
 
-void printW4(W4 word)
-{
-    printf("%02x%02x%02x%02x",word<<24>>24,word<<16>>24,word<<8>>24,word<<0>>24);
-    return;
-}
-
-void printkeyDX(W4 *keyDX,int nK)
-{
-    for(int i=0;i<4*(nK+7);i++)
-    {
-        printW4(keyDX[i]);
-        putchar(' ');
-    }
-    putchar('\n');
-    return;
-}
-
-void printstate(W4 *state)
-{
-    for(int i=0;i<4;i++) printW4(state[i]);
-    putchar('\n');
-    return;
-}
-
 W4 subword(W4 word)
 {
     W4 a=(sbox[word<<0>>24]<<24)|(sbox[word<<8>>24]<<16)|(sbox[word<<16>>24]<<8)|(sbox[word<<24>>24]<<0);
@@ -212,7 +206,7 @@ void subbytes(W4 *state)
     for(int i=0;i<4;i++)
     {
         W4 a=0;
-        a^=(sbox[state[i]<<24>>24]<<0)|(sbox[state[i]<<16>>24]<<8)|(sbox[state[i]<<8>>24]<<16)|(sbox[state[i]<<0>>24]<<24);
+        a=(sbox[state[i]<<24>>24]<<0)|(sbox[state[i]<<16>>24]<<8)|(sbox[state[i]<<8>>24]<<16)|(sbox[state[i]<<0>>24]<<24);
         state[i]=a;
     }
     return;
@@ -250,10 +244,7 @@ void invsubbytes(W4 *state)
     for(int i=0;i<4;i++)
     {
         W4 a=0;
-        a^=sboxi[state[i]<<0>>24]<<24;
-        a^=sboxi[state[i]<<8>>24]<<16;
-        a^=sboxi[state[i]<<16>>24]<<8;
-        a^=sboxi[state[i]<<24>>24]<<0;
+        a=(ibox[state[i]<<0>>24]<<24)|(ibox[state[i]<<8>>24]<<16)|(ibox[state[i]<<16>>24]<<8)|(ibox[state[i]<<24>>24]<<0);
         state[i]=a;
     }
     return;
@@ -336,7 +327,7 @@ int aes_encrypt(char *data, int txtsize, char *key, int keysize, int mode)
     int nK = keysize/4;
     W4 keyDX[4*(nK+7)];
     keyexpansion((W4*)key,keyDX,nK);
-    if(mode==0) for(int i=0;i<txtsize/16;i++) cipher((W4*)(data+16*i),keyDX,nK);
+    if(mode==ModeECB) for(int i=0;i<txtsize/16;i++) cipher((W4*)(data+16*i),keyDX,nK);
     else
     {
         if(txtsize!=0) cipher((W4*)(data),keyDX,nK);
@@ -356,7 +347,7 @@ int aes_decrypt(char *data, int txtsize, char *key, int keysize, int mode)
     int nK = keysize/4;
     W4 keyDX[4*(nK+7)];
     keyexpansion((W4*)key,keyDX,nK);
-    if(mode==0) for(int i=0;i<txtsize/16;i++) uncipher((W4*)(data+16*i),keyDX,nK);
+    if(mode==ModeECB) for(int i=0;i<txtsize/16;i++) uncipher((W4*)(data+16*i),keyDX,nK);
     else
     {
         if(txtsize!=0) uncipher((W4*)(data+txtsize-16),keyDX,nK);
@@ -371,8 +362,9 @@ int aes_decrypt(char *data, int txtsize, char *key, int keysize, int mode)
 
 // File Zone
 
-void file_encrypt(char *nameinput, char *nameoutput, char *key, int keysize, int mode)
+void file_encrypt(char *nameinput, char *nameoutput, char *key, int keysize, int mode, int filetype)
 {
+    if(filetype!=FormatTXT && filetype!=FormatBMP) printf(" [!] Unreadable filetype. Will be cyrpted as a text file\n");
     FILE *fileinput = fopen(nameinput,"r");
     FILE *fileoutput = fopen(nameoutput,"w");
     if(fileinput==NULL)
@@ -381,24 +373,38 @@ void file_encrypt(char *nameinput, char *nameoutput, char *key, int keysize, int
         return;
     }
     fseek(fileinput,0,SEEK_END);
-    long txtsize = ftell(fileinput);
+    long txtsize = ftell(fileinput)+16;
     fseek(fileinput,0,SEEK_SET);
     char *data = malloc(txtsize);
     if(data==NULL) fprintf(stderr," [!] Error: couldn't allocate enough data\n");
     else
     {
-        unsigned long n=fread(data,1,txtsize,fileinput);
-        printf("Size to encrypt: %lx\n",n);
-        aes_encrypt(data,16*(txtsize/16),key,keysize,mode);
+        if(filetype==FormatBMP)
+        {
+            fread(data,1,10,fileinput);
+            fwrite(data,1,10,fileoutput);
+            fread(data,1,4,fileinput);
+            fwrite(data,1,4,fileoutput);
+            int offset=((int*)data)[0];
+            fread(data,1,offset-14,fileinput);
+            fwrite(data,1,offset-14,fileoutput);
+            txtsize-=offset;
+        }
+        txtsize = txtsize>>4<<4;
+        long n=fread(data,1,txtsize,fileinput);
+        for(int i=n;i<txtsize;i++) data[i]=txtsize-n;
+        aes_encrypt(data,txtsize,key,keysize,mode);
         fwrite(data,1,txtsize,fileoutput);
+        free(data);
     }
     fclose(fileinput);
     fclose(fileoutput);
     return;
 }
 
-void file_decrypt(char *nameinput, char *nameoutput, char *key, int keysize, int mode)
+void file_decrypt(char *nameinput, char *nameoutput, char *key, int keysize, int mode, int filetype)
 {
+    if(filetype!=FormatTXT && filetype!=FormatBMP) printf(" [!] Unreadable filetype. Will be decyrpted as a text file\n");
     FILE *fileinput = fopen(nameinput,"r");
     FILE *fileoutput = fopen(nameoutput,"w");
     if(fileinput==NULL)
@@ -413,10 +419,23 @@ void file_decrypt(char *nameinput, char *nameoutput, char *key, int keysize, int
     if(data==NULL) fprintf(stderr," [!] Error: couldn't allocate enough data\n");
     else
     {
-        unsigned long n=fread(data,1,txtsize,fileinput);
-        printf("Size to decrypt: %lx\n",n);
-        aes_decrypt(data,16*(txtsize/16),key,keysize,mode);
-        fwrite(data,1,txtsize,fileoutput);
+        if(filetype==FormatBMP)
+        {
+            fread(data,1,10,fileinput);
+            fwrite(data,1,10,fileoutput);
+            fread(data,1,4,fileinput);
+            fwrite(data,1,4,fileoutput);
+            int offset=((int*)data)[0];
+            fread(data,1,offset-14,fileinput);
+            fwrite(data,1,offset-14,fileoutput);
+            txtsize-=offset;
+        }
+        if(txtsize%16!=0) fprintf(stderr," [!] Warning: 0x10 doesn't divide file size. Removing the tail of the file...\n");
+        txtsize = txtsize>>4<<4;
+        long n=fread(data,1,txtsize,fileinput);
+        aes_decrypt(data,txtsize,key,keysize,mode);
+        fwrite(data,1,txtsize-data[n-1],fileoutput);
+        free(data);
     }
     fclose(fileinput);
     fclose(fileoutput);
@@ -425,14 +444,38 @@ void file_decrypt(char *nameinput, char *nameoutput, char *key, int keysize, int
 
 // Test Zone
 
+void printW4(W4 word)
+{
+    printf("%02x%02x%02x%02x",word<<24>>24,word<<16>>24,word<<8>>24,word<<0>>24);
+    return;
+}
+
+void printkeyDX(W4 *keyDX,int nK)
+{
+    for(int i=0;i<4*(nK+7);i++)
+    {
+        printW4(keyDX[i]);
+        putchar(' ');
+    }
+    putchar('\n');
+    return;
+}
+
+void printstate(W4 *state)
+{
+    for(int i=0;i<4;i++) printW4(state[i]);
+    putchar('\n');
+    return;
+}
+
 void testsubbytes()
 {
     printf(" [>] Tests subbytes:\n");
-    W4 state1[] = {0xdbaf2670,0xa2f28066,0x53546cf9,0x958769c0};
+    W4 state1[] = DEFState1;
     printstate(state1);
     subbytes(state1);
     printstate(state1);
-    W4 state2[] = {0x03020100,0x07060504,0x0b0a0908,0x0f0e0d0c};
+    W4 state2[] = DEFState2;
     printstate(state2);
     subbytes(state2);
     printstate(state2);
@@ -442,11 +485,11 @@ void testsubbytes()
 void testshiftrows()
 {
     printf(" [>] Tests shiftrows:\n");
-    W4 state1[] = {0xdbaf2670,0xa2f28066,0x53546cf9,0x958769c0};
+    W4 state1[] = DEFState1;
     printstate(state1);
     shiftrows(state1);
     printstate(state1);
-    W4 state2[] = {0x03020100,0x07060504,0x0b0a0908,0x0f0e0d0c};
+    W4 state2[] = DEFState2;
     printstate(state2);
     shiftrows(state2);
     printstate(state2);
@@ -456,11 +499,11 @@ void testshiftrows()
 void testmixcolumns()
 {
     printf(" [>] Tests mixcolumns:\n");
-    W4 state1[] = {0xdbaf2670,0xa2f28066,0x53546cf9,0x958769c0};
+    W4 state1[] = DEFState1;
     printstate(state1);
     mixcolumns(state1);
     printstate(state1);
-    W4 state2[] = {0x03020100,0x07060504,0x0b0a0908,0x0f0e0d0c};
+    W4 state2[] = DEFState2;
     printstate(state2);
     mixcolumns(state2);
     printstate(state2);
@@ -470,20 +513,20 @@ void testmixcolumns()
 void testkeyexpansion()
 {
     printf(" [>] Tests keyexpansion:\n");
-    printf(" --- Key1 (AES128):\n");
-    W4 key1[] = {0x16157e2b,0xa6d2ae28,0x8815f7ab,0x3c4fcf09};
+    printf(" [>] Key1 (AES128):\n");
+    W4 key1[] = DEFKey1;
     int nK1 = sizeof(key1)/sizeof(*key1);
     W4 keyDX1[4*(nK1+7)];
     keyexpansion(key1,keyDX1,nK1);
     printkeyDX(keyDX1,nK1);
-    printf(" --- Key2 (AES192):\n");
-    W4 key2[] = {0xf7b0738e,0x52640eda,0x2bf310c8,0xe5799080,0xd2eaf862,0x7b6b2c52};
+    printf(" [>] Key2 (AES192):\n");
+    W4 key2[] = DEFKey2;
     int nK2 = sizeof(key2)/sizeof(*key2);
     W4 keyDX2[4*(nK2+7)];
     keyexpansion(key2,keyDX2,nK2);
     printkeyDX(keyDX2,nK2);
-    printf(" --- Key3 (AES256):\n");
-    W4 key3[] = {0x10eb3d60,0xbe71ca15,0xf0ae732b,0x81777d85,0x072c351f,0xd708613b,0xa310982d,0xf4df1409};
+    printf(" [>] Key3 (AES256):\n");
+    W4 key3[] = DEFKey3;
     int nK3 = sizeof(key3)/sizeof(*key3);
     W4 keyDX3[4*(nK3+7)];
     keyexpansion(key3,keyDX3,nK3);
@@ -494,15 +537,15 @@ void testkeyexpansion()
 void testcipher()
 {
     printf(" [>] Tests cipher:\n");
-    W4 key1[] = {0x16157e2b,0xa6d2ae28,0x8815f7ab,0x3c4fcf09};
-    int nK = sizeof(key1)/sizeof(*key1);
+    W4 key[] = DEFKey1;
+    int nK = sizeof(key)/sizeof(*key);
     W4 keyDX[4*(nK+7)];
-    keyexpansion(key1,keyDX,nK);
-    W4 state1[] = {0xdbaf2670,0xa2f28066,0x53546cf9,0x958769c0};
+    keyexpansion(key,keyDX,nK);
+    W4 state1[] = DEFState1;
     printstate(state1);
     cipher(state1,keyDX,nK);
     printstate(state1);
-    W4 state2[] = {0xa8f64332,0x8d305a88,0xa2983131,0x340737e0};
+    W4 state2[] = DEFState3;
     printstate(state2);
     cipher(state2,keyDX,nK);
     printstate(state2);
@@ -512,15 +555,15 @@ void testcipher()
 void testuncipher()
 {
     printf(" [>] Tests uncipher:\n");
-    W4 key1[] = {0x16157e2b,0xa6d2ae28,0x8815f7ab,0x3c4fcf09};
-    int nK = sizeof(key1)/sizeof(*key1);
+    W4 key[] = DEFKey1;
+    int nK = sizeof(key)/sizeof(*key);
     W4 keyDX[4*(nK+7)];
-    keyexpansion(key1,keyDX,nK);
-    W4 state1[] = {0xdbaf2670,0xa2f28066,0x53546cf9,0x958769c0};
+    keyexpansion(key,keyDX,nK);
+    W4 state1[] = DEFState1;
     printstate(state1);
     uncipher(state1,keyDX,nK);
     printstate(state1);
-    W4 state2[] = {0xa8f64332,0x8d305a88,0xa2983131,0x340737e0};
+    W4 state2[] = DEFState3;
     cipher(state2,keyDX,nK);
     printstate(state2);
     uncipher(state2,keyDX,nK);
@@ -531,15 +574,15 @@ void testuncipher()
 void testapi()
 {
     printf(" [>] Tests api encrypt:\n");
-    char data[] = "[#] This is nothing more than a random and boring text. I don't even know why you're reading it...";
+    char data[] = DATAtxt;
     int txtsize = 96;
-    char key[] = "\x2b\x7e\x15\x16\x28\xae\xd2\xa6\xab\xf7\x15\x88\x09\xcf\x4f\x3c";
+    char key[] = CHARkey;
     int keysize = 16;
-    aes_encrypt(data,txtsize,key,keysize,1);
-    for(int i=0;i<txtsize;i++) putchar(data[i]);
-    putchar('\n');
-    printf(" [>] Tests api decrypt:\n");
-    aes_decrypt(data,txtsize,key,keysize,1);
+    aes_encrypt(data,txtsize,key,keysize,ModeCBC);
+    // for(int i=0;i<txtsize;i++) putchar(data[i]);
+    // putchar('\n');
+    printf("     (the message is crypted and unreadable)\n [>] Tests api decrypt:\n");
+    aes_decrypt(data,txtsize,key,keysize,ModeCBC);
     for(int i=0;i<txtsize;i++) putchar(data[i]);
     putchar('\n');
     return;
@@ -547,16 +590,36 @@ void testapi()
 
 void testfiles()
 {
-    printf(" [>] Tests files:\n");
-    char key[] = "\x2b\x7e\x15\x16\x28\xae\xd2\xa6\xab\xf7\x15\x88\x09\xcf\x4f\x3c";
+    printf(" [>] Tests files encrypt:\n");
+    char key[] = CHARkey;
     int keysize = 16;
-    FILE *fileinput = fopen("opfile0.txt","r");
-    if(fileinput==NULL) printf(" [!] Error: couldn't open \"opfile0.txt\". So no file tests...\n");
+    FILE *fileinput = fopen(FILEtxtoriginal,"r");
+    if(fileinput==NULL) printf(" [!] Error: couldn't open the original txt file. So no files tests...\n");
     else
     {
         fclose(fileinput);
-        file_encrypt("opfile0.txt","opfile1.txt",key,keysize,1);
-        file_decrypt("opfile1.txt","opfile2.txt",key,keysize,1);
+        file_encrypt(FILEtxtoriginal,FILEtxtchiffered,key,keysize,ModeCBC,FormatTXT);
+        printf("     - Done !\n [>] Tests files decrypt:\n");
+        file_decrypt(FILEtxtchiffered,FILEtxtunchiffered,key,keysize,ModeCBC,FormatTXT);
+        printf("     - Done !\n");
+    }
+    return;
+}
+
+void testbitmap()
+{
+    printf(" [>] Tests bitmap encrypt:\n");
+    char key[] = CHARkey;
+    int keysize = 16;
+    FILE *fileinput = fopen(FILEbmporiginal,"r");
+    if(fileinput==NULL) printf(" [!] Error: couldn't open the original bmp file. So no bitmap tests...\n");
+    else
+    {
+        fclose(fileinput);
+        file_encrypt(FILEbmporiginal,FILEbmpchiffered,key,keysize,ModeCBC,FormatBMP);
+        printf("     - Done !\n [>] Tests bitmap decrypt:\n");
+        file_decrypt(FILEbmpchiffered,FILEbmpunchiffered,key,keysize,ModeCBC,FormatBMP);
+        printf("     - Done !\n");
     }
     return;
 }
@@ -571,6 +634,7 @@ void testzone()
     testuncipher();
     testapi();
     testfiles();
+    testbitmap();
     return;
 }
 
