@@ -23,7 +23,8 @@ const char sbox[] = {
     0x8c,0xa1,0x89,0x0d,0xbf,0xe6,0x42,0x68,0x41,0x99,0x2d,0x0f,0xb0,0x54,0xbb,0x16};
 
 
-int testkey[4] = {0x2b7e1516,0x28aed2a6,0xabf71588,0x09cf4f3c};
+int testkey[] = {0x16157e2b,0xa6d2ae28,0x8815f7ab,0x3c4fcf09};;
+// char key[] = "\x2b\x7e\x15\x16\x28\xae\xd2\xa6\xab\xf7\x15\x88\x09\xcf\x4f\x3c";
 
 int subword(int word)
 {
@@ -81,9 +82,9 @@ int main() {
     int expandedkey[43] = {0};
     keyexpansion(testkey, expandedkey, 4);
     // print key
-    char *p = (char *)expandedkey;
+    unsigned char *p = (unsigned char *)expandedkey;
     for(int i = 0; i < 43; i++) {
-        printf("%x ", p[i]);
+        printf("%02x ", expandedkey[i]);
     }
     // aes_ecb_encrypt(data, 16, testkey, 128);
     // for(int i = 0; i < 16; i++) {

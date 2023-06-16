@@ -2,6 +2,7 @@
 // Include Zone
 
 #include <stdio.h>
+#include <stdlib.h>
 
 // Define Zone
 
@@ -370,67 +371,6 @@ int aes_decrypt(char *data, int txtsize, char *key, int keysize, int mode)
 
 // File Zone
 
-/*
-
-void file_encrypt(char *nameinput, char *nameoutput, char *key, int keysize, int mode)
-{
-    FILE *fileinput = fopen(nameinput,"r");
-    FILE *fileoutput = fopen(nameoutput,"w");
-    if(fileinput==NULL)
-    {
-        fprintf(stderr," [!] Error: couldn't open input file\n");
-        return;
-    }
-    if(keysize!=16 && keysize!=24 && keysize!=32) return;
-    int nK = keysize/4;
-    W4 keyDX[4*(nK+7)];
-    keyexpansion((W4*)key,keyDX,nK);
-    char data[16];
-    unsigned long n=fread(data,1,16,fileinput);
-    while(n==16)
-    {
-        cipher((W4*)data,keyDX,nK);
-        fwrite(data,16,1,fileoutput);
-        n=fread(data,1,16,fileinput);
-    }
-    for(int i=n;i<16;i++) data[i]=n;
-    cipher((W4*)data,keyDX,nK);
-    fwrite(data,16,1,fileoutput);
-    fclose(fileinput);
-    fclose(fileoutput);
-    return;
-}
-
-void file_decrypt(char *nameinput, char *nameoutput, char *key, int keysize, int mode)
-{
-    FILE *fileinput = fopen(nameinput,"r");
-    FILE *fileoutput = fopen(nameoutput,"w");
-    if(fileinput==NULL)
-    {
-        fprintf(stderr," [!] Error: couldn't open input file\n");
-        return;
-    }
-    if(keysize!=16 && keysize!=24 && keysize!=32) return;
-    int nK = keysize/4;
-    W4 keyDX[4*(nK+7)];
-    keyexpansion((W4*)key,keyDX,nK);
-    char data[32],sel=16;
-    unsigned long n=fread(data+16-sel,1,16,fileinput);
-    while(n==16)
-    {
-        n=fread((data+sel),1,16,fileinput);
-        sel = 16-sel;
-        uncipher((W4*)(data+sel),keyDX,nK);
-        if(n==0) fwrite(data+sel,(data[sel+data[sel+15]]),1,fileoutput);
-        else fwrite(data+sel,16,1,fileoutput);
-    }
-    fclose(fileinput);
-    fclose(fileoutput);
-    return;
-}
-
-*/
-
 void file_encrypt(char *nameinput, char *nameoutput, char *key, int keysize, int mode)
 {
     FILE *fileinput = fopen(nameinput,"r");
@@ -443,10 +383,15 @@ void file_encrypt(char *nameinput, char *nameoutput, char *key, int keysize, int
     fseek(fileinput,0,SEEK_END);
     long txtsize = ftell(fileinput);
     fseek(fileinput,0,SEEK_SET);
-    char data[txtsize];
-    fread(data,1,txtsize,fileinput);
-    aes_encrypt(data,16*(txtsize/16),key,keysize,mode);
-    fwrite(data,1,txtsize,fileoutput);
+    char *data = malloc(txtsize);
+    if(data==NULL) fprintf(stderr," [!] Error: couldn't allocate enough data\n");
+    else
+    {
+        unsigned long n=fread(data,1,txtsize,fileinput);
+        printf("Size to encrypt: %lx\n",n);
+        aes_encrypt(data,16*(txtsize/16),key,keysize,mode);
+        fwrite(data,1,txtsize,fileoutput);
+    }
     fclose(fileinput);
     fclose(fileoutput);
     return;
@@ -464,10 +409,15 @@ void file_decrypt(char *nameinput, char *nameoutput, char *key, int keysize, int
     fseek(fileinput,0,SEEK_END);
     long txtsize = ftell(fileinput);
     fseek(fileinput,0,SEEK_SET);
-    char data[txtsize];
-    fread(data,1,txtsize,fileinput);
-    aes_decrypt(data,16*(txtsize/16),key,keysize,mode);
-    fwrite(data,1,txtsize,fileoutput);
+    char *data = malloc(txtsize);
+    if(data==NULL) fprintf(stderr," [!] Error: couldn't allocate enough data\n");
+    else
+    {
+        unsigned long n=fread(data,1,txtsize,fileinput);
+        printf("Size to decrypt: %lx\n",n);
+        aes_decrypt(data,16*(txtsize/16),key,keysize,mode);
+        fwrite(data,1,txtsize,fileoutput);
+    }
     fclose(fileinput);
     fclose(fileoutput);
     return;
@@ -605,8 +555,8 @@ void testfiles()
     else
     {
         fclose(fileinput);
-        file_encrypt("opfile0.txt","opfile1.txt",key,keysize,0);
-        file_decrypt("opfile1.txt","opfile2.txt",key,keysize,0);
+        file_encrypt("opfile0.txt","opfile1.txt",key,keysize,1);
+        file_decrypt("opfile1.txt","opfile2.txt",key,keysize,1);
     }
     return;
 }

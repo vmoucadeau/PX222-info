@@ -3,7 +3,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
-#define head_size 11
+#define head_size 10
 
 extern w4 *key_expended;
 
@@ -20,13 +20,13 @@ void encode_bmp(char *key, char *fileinput, char *fileoutput, int mode) {
     char buffer[4*nB];
     char encoded[4*nB];
     char head[head_size];
-    char offset[4];
+    unsigned char offset[4];
     
     fread(head, 1, head_size, file_toencode);
     fwrite(head, head_size, 1, file_encoded);
     fread(offset, 1, 4, file_toencode);
     fwrite(offset, 4, 1, file_encoded);
-    int offset_int = offset[3] + offset[2] * 256 + offset[1] * 256 * 256 + offset[0] * 256 * 256 * 256;
+    int offset_int = offset[0] + offset[1] * 256 + offset[2] * 256 * 256 + offset[3] * 256 * 256 * 256;
     char *offset_buffer = malloc(offset_int);
     fread(offset_buffer, 1, offset_int, file_toencode);
     fwrite(offset_buffer, offset_int, 1, file_encoded);
@@ -58,14 +58,14 @@ void decode_bmp(char *key, char *fileinput, char *fileoutput, int mode) {
     
     char buffer[4*nB];
     char head[head_size];
-    char offset[4];
+    unsigned char offset[4];
     char decoded[4*nB];
     
     fread(head, 1, head_size, file_todecode);
     fwrite(head, head_size, 1, file_decoded);
     fread(offset, 1, 4, file_todecode);
     fwrite(offset, 4, 1, file_decoded);
-    int offset_int = offset[3] + offset[2] * 256 + offset[1] * 256 * 256 + offset[0] * 256 * 256 * 256;
+    int offset_int = offset[0] + offset[1] * 256 + offset[2] * 256 * 256 + offset[3] * 256 * 256 * 256;
     char *offset_buffer = malloc(offset_int);
     fread(offset_buffer, 1, offset_int, file_todecode);
     fwrite(offset_buffer, offset_int, 1, file_decoded);

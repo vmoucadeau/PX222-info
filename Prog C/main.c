@@ -258,8 +258,8 @@ void bmp_test(char *key) {
 
 void file_test() {
     printf("---- FILE TEST ----\n");
-    encode_file(testkeyexp1, "opfile0.txt", "opfile0_ciphered.txt", 0);
-    // decode_file(key_exvect1, "ciphsample.txt", "sampleunciph.txt", 0);
+    // encode_file(testkeyexp1, "sample.txt", "sample1.txt", 0);
+    decode_file(key_exvect1, "sample1.txt", "sample2.txt", 0);
     printf("---- FILE TEST OK ----\n\n");
 }
 
@@ -272,14 +272,15 @@ void testall() {
     rcon_test();
     keyexp_test();
     cipher_test();
-    encodetext_test();
     appendix_c_test();
     api_test();
 }
 
 int main() {
     // bmp_test(key_exvect3);
-    file_test();
+    // file_test();
+    // testall();
+    encodetext_test();
     // file_entropy("bitmap_original.bmp");
     // file_entropy("bitmap_ciphered_ecb192.bmp");
     // file_entropy("bitmap_ciphered_cbc192.bmp");
